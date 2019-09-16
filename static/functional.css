@@ -1,0 +1,47 @@
+.mt-0_5em {
+    margin-top: 0.5em;
+}
+
+.mt-0_25em {
+    margin-top: 0.25em;
+}
+
+.ml-0_25em {
+    margin-left: 0.25em;
+}
+
+.fw-b {
+    font-weight: bold;
+}
+
+.d-b {
+    display: block;
+}
+
+.d-f {
+    display: flex;
+}
+
+.c-i {
+    color: inherit;
+}
+
+.c-b {
+    color: black;
+}
+
+.ws-nw {
+    white-space: nowrap;
+}
+
+.flex-jc-sb {
+    justify-content: space-between;
+}
+
+.td-n {
+    text-decoration: none;
+}
+
+.w-100p {
+    width: 100%;
+}
