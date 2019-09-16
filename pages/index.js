@@ -115,6 +115,10 @@ export default function Index() {
         }
     }
 
+    function viewTask(task) {
+        console.log(task)
+    }
+
     useEffect(() => {
         handleCurrentHash(document.location.hash)
 
@@ -139,7 +143,6 @@ export default function Index() {
                     <div>
                         Tasks
                         <select className="ml-0_25em">
-                            <option>Show Last 20</option>
                             <option>Show Last 50</option>
                             <option>Show Last 100</option>
                             <option>Show All</option>
@@ -170,43 +173,57 @@ export default function Index() {
                     </div>
                 </div>
                 <div className="main">
-                    <form onSubmit={addTask}>
-                        <table className="table">
-                            <tbody>
-                            {
-                                addTaskBool &&
-                                    <tr>
-                                        <td style={{ width: '5em' }}>
-                                            <input type="date"
-                                                style={{ width: '4.6em' }}
-                                                value={addTaskObj.date}
-                                                onChange={e => addTaskObj.date = e.target.value}
-                                            />
-                                            </td>
-                                        <td style={{ width: '2em' }}>
-                                            <select onChange={e => addTaskObj.type = e.target.value}>
-                                                <option>NR</option>
-                                                <option>CR</option>
-                                                <option>BUG</option>
-                                            </select>
-                                        </td>
-                                        <td><input type="text" className="w-100p" required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value}></input></td>
+                    <table className="table">
+                        <tbody>
+                        {
+                            tasks.map(task => {
+                                return (
+                                    <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                        <td style={{ width: '5em' }}>{ format(parseISO(task.date), 'dd-MMM-yy') }</td>
+                                        <td style={{ width: '2em' }}>{ task.type }</td>
+                                        <td>{ task.description }</td>
                                     </tr>
-                            }
-                            {
-                                tasks.map(task => {
-                                    return (
-                                        <tr key={task.id}>
-                                            <td style={{ width: '5em' }}>{ format(parseISO(task.date), 'dd-MMM-yy') }</td>
-                                            <td style={{ width: '2em' }}>{ task.type }</td>
-                                            <td>{ task.description }</td>
-                                        </tr>
-                                    )
-                                })
-                            }
-                            </tbody>
-                        </table>
-                    </form>
+                                )
+                            })
+                        }
+                        </tbody>
+                    </table>
+                    { addTaskBool && <div className="modal-background" onClick={() => setAddTaskBool(false)}></div> }
+                    { addTaskBool &&
+                        <dialog open className="modal">
+                            <form onSubmit={addTask} style={{ width: '30vw' }}>
+                                <div className="d-f">
+                                    <div>
+                                        <div>Date</div>
+                                        <input type="date"
+                                            value={addTaskObj.date}
+                                            onChange={e => addTaskObj.date = e.target.value}
+                                        />
+                                    </div>
+                                    <div className="ml-0_5em">
+                                        <div>Type</div>
+                                        <select onChange={e => addTaskObj.type = e.target.value}>
+                                            <option>NR</option>
+                                            <option>CR</option>
+                                            <option>BUG</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="mt-0_5em">
+                                    <div>Description</div>
+                                    <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value}className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
+                                </div>
+                                <div className="mt-0_5em">
+                                    <div>Attach Files</div>
+                                    <input type="file" />
+                                </div>
+                                <div className="mt-1em">
+                                    <button>Add Task</button>
+                                    <button class="ml-1em" type="button" onClick={() => setAddTaskBool(false)}>Cancel</button>
+                                </div>
+                            </form>
+                        </dialog>
+                    }
                 </div>
             </main>
         </div>

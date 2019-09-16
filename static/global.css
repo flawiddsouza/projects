@@ -1,8 +1,24 @@
+/* base element styles */
+
 body {
     margin: 0;
     font-family: sans-serif;
     font-size: 14px;
 }
+
+input, textarea {
+    font: inherit;
+}
+
+select {
+    padding: 3px;
+}
+
+button {
+    padding: 0.5em 2em;
+}
+
+/* base element styles */
 
 main {
     display: grid;
@@ -41,6 +57,7 @@ main > .main {
     grid-area: 2 / 2 / 3 / 3;
     overflow-y: auto;
     padding-bottom: 1em;
+    position: relative;
 }
 
 main > .nav-logo, main > .nav-area, main > .sidebar, main > .main {
@@ -62,6 +79,16 @@ main > .sidebar, main > .main {
     padding: 2px 5px;
 }
 
-input {
-    font: inherit;
+.modal {
+    position: absolute;
+    border: 1px solid grey;
+}
+
+.modal-background {
+    position: absolute;
+    background: #0000006e;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }

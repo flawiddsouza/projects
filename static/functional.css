@@ -1,5 +1,17 @@
+.mt-1em {
+    margin-top: 1em;
+}
+
+.ml-1em {
+    margin-left: 1em;
+}
+
 .mt-0_5em {
     margin-top: 0.5em;
+}
+
+.ml-0_5em {
+    margin-left: 0.5em;
 }
 
 .mt-0_25em {
@@ -44,4 +56,8 @@
 
 .w-100p {
     width: 100%;
+}
+
+.cur-p {
+    cursor: pointer;
 }
