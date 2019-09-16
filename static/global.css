@@ -74,7 +74,7 @@ main > .sidebar, main > .main {
     width: 100%;
 }
 
-.table th, td {
+.table th, .table td {
     border: 1px solid grey;
     padding: 2px 5px;
 }

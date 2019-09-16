@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns'
 export default function Index() {
 
     const [ projects, setProjects ] = useState([])
+    const [ projectMembers, setProjectMembers ] = useState([])
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
     const [ addTaskBool, setAddTaskBool ] = useState(false)
@@ -66,6 +67,38 @@ export default function Index() {
                     description: 'Test 3',
                 }
             ])
+            setProjectMembers([
+                {
+                    id: 1,
+                    name: 'Deepa',
+                    role: 'Tester'
+                },
+                {
+                    id: 2,
+                    name: 'Flawid',
+                    role: 'Team Lead'
+                },
+                {
+                    id: 3,
+                    name: 'Kavya',
+                    role: 'Assistant Team Lead'
+                },
+                {
+                    id: 4,
+                    name: 'Keerthan',
+                    role: 'Developer'
+                },
+                {
+                    id: 5,
+                    name: 'Ranjith',
+                    role: 'Developer'
+                },
+                {
+                    id: 6,
+                    name: 'Shreekanth',
+                    role: 'Developer'
+                }
+            ])
         }
 
         if(projectSlug === 'aloysius-pacifyca') {
@@ -87,6 +120,28 @@ export default function Index() {
                     date: '2019-09-14',
                     type: 'CR',
                     description: 'Test 6'
+                }
+            ])
+            setProjectMembers([
+                {
+                    id: 7,
+                    name: 'Aniketh',
+                    role: 'Team Lead'
+                },
+                {
+                    id: 8,
+                    name: 'Chaitra',
+                    role: 'Tester'
+                },
+                {
+                    id: 9,
+                    name: 'Denzil',
+                    role: 'Developer'
+                },
+                {
+                    id: 10,
+                    name: 'Sanath',
+                    role: 'Developer'
                 }
             ])
         }
@@ -167,6 +222,18 @@ export default function Index() {
                             projects.map(project => {
                                 return (
                                     <a className={`mt-0_25em d-b ${project.slug === currentProjectSlug ? 'td-n c-b' : ''}`} key={project.slug} href={ '#project:' + project.slug}>{ project.name }</a>
+                                )
+                            })
+                        }
+                    </div>
+                    <div className="fw-b mt-1em">Project Members</div>
+                    <div className="mt-0_5em">
+                        {
+                            projectMembers.map(projectMember => {
+                                return (
+                                    <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
+                                        { projectMember.name } {projectMember.id === 1 ? '(you)' : ''}
+                                    </div>
                                 )
                             })
                         }
