@@ -8,16 +8,20 @@ export default function TaskView({ task }) {
         <div style={{ width: '40vw' }}>
             <div className="d-f">
                 <div>
-                    <div>Date</div>
+                    <div className="label">Date</div>
                     <div className="mt-0_25em">{ formatDate(task.date) }</div>
                 </div>
-                <div className="ml-1em">
-                    <div>Type</div>
+                <div className="ml-3em">
+                    <div className="label">Type</div>
                     <div className="mt-0_25em">{ task.type }</div>
+                </div>
+                <div className="ml-3em">
+                    <div className="label">Status</div>
+                    <div className="mt-0_25em">{ task.status }</div>
                 </div>
             </div>
             <div className="mt-1em">
-                <div>Description</div>
+                <div className="label">Description</div>
                 <div className="mt-0_25em">{ task.description }</div>
             </div>
             <div className="mt-1em">

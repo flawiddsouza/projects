@@ -59,18 +59,21 @@ export default function Index() {
                     date: '2019-09-12',
                     type: 'NR',
                     description: 'Test 1',
+                    status: 'OPEN'
                 },
                 {
                     id: 2,
                     date: '2019-09-10',
                     type: 'CR',
                     description: 'Test 2',
+                    status: 'OPEN'
                 },
                 {
                     id: 3,
                     date: '2019-09-05',
                     type: 'BUG',
                     description: 'Test 3',
+                    status: 'OPEN'
                 }
             ])
             setProjectMembers([
@@ -114,18 +117,21 @@ export default function Index() {
                     date: '2019-09-16',
                     type: 'BUG',
                     description: 'Test 4',
+                    status: 'OPEN'
                 },
                 {
                     id: 5,
                     date: '2019-09-15',
                     type: 'BUG',
                     description: 'Test 5',
+                    status: 'OPEN'
                 },
                 {
                     id: 6,
                     date: '2019-09-14',
                     type: 'CR',
-                    description: 'Test 6'
+                    description: 'Test 6',
+                    status: 'OPEN'
                 }
             ])
             setProjectMembers([
