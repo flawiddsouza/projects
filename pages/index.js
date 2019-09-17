@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import Modal from '../components/Modal.js'
 
+const displayDateFormat = 'dd-MMM-yy'
+
 export default function Index() {
 
     const [ projects, setProjects ] = useState([])
@@ -248,7 +250,7 @@ export default function Index() {
                             tasks.map(task => {
                                 return (
                                     <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
-                                        <td style={{ width: '5em' }}>{ format(parseISO(task.date), 'dd-MMM-yy') }</td>
+                                        <td style={{ width: '5em' }}>{ format(parseISO(task.date), displayDateFormat) }</td>
                                         <td style={{ width: '2em' }}>{ task.type }</td>
                                         <td>{ task.description }</td>
                                     </tr>
