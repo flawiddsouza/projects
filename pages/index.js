@@ -8,7 +8,8 @@ export default function Index() {
     const [ projectMembers, setProjectMembers ] = useState([])
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
-    const [ addTaskBool, setAddTaskBool ] = useState(false)
+    const [ showAddTaskModal, setshowAddTaskModal ] = useState(false)
+
     let addTaskObj = {
         date: format(new Date, 'yyyy-MM-dd'),
         type: 'NR',
@@ -149,7 +150,7 @@ export default function Index() {
 
     function handleAddTaskKeydown(e) {
         if(e.key === 'Escape') {
-            setAddTaskBool(false)
+            setshowAddTaskModal(false)
         }
     }
 
@@ -162,7 +163,7 @@ export default function Index() {
             description: addTaskObj.description
         }]
         setTasks(pushArray.concat(tasks))
-        setAddTaskBool(false)
+        setshowAddTaskModal(false)
         addTaskObj = {
             date: format(new Date, 'yyyy-MM-dd'),
             type: 'NR',
@@ -194,7 +195,7 @@ export default function Index() {
             <main>
                 <div className="nav-logo">Logo</div>
                 <div className="nav-area d-f flex-jc-sb">
-                    <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setAddTaskBool(true) }}>+ Add task</a>
+                    <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setshowAddTaskModal(true) }}>+ Add task</a>
                     <div>
                         Tasks
                         <select className="ml-0_25em">
@@ -255,8 +256,8 @@ export default function Index() {
                         }
                         </tbody>
                     </table>
-                    { addTaskBool && <div className="modal-background" onClick={() => setAddTaskBool(false)}></div> }
-                    { addTaskBool &&
+                    { showAddTaskModal && <div className="modal-background" onClick={() => setshowAddTaskModal(false)}></div> }
+                    { showAddTaskModal &&
                         <dialog open className="modal">
                             <form onSubmit={addTask} style={{ width: '30vw' }}>
                                 <div className="d-f">
@@ -286,7 +287,7 @@ export default function Index() {
                                 </div>
                                 <div className="mt-1em">
                                     <button>Add Task</button>
-                                    <button class="ml-1em" type="button" onClick={() => setAddTaskBool(false)}>Cancel</button>
+                                    <button className="ml-1em" type="button" onClick={() => setshowAddTaskModal(false)}>Cancel</button>
                                 </div>
                             </form>
                         </dialog>
