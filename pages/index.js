@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import React, { useEffect, useState } from 'react'
 import { format, parseISO } from 'date-fns'
+import Modal from '../components/Modal.js'
 
 export default function Index() {
 
@@ -256,42 +257,39 @@ export default function Index() {
                         }
                         </tbody>
                     </table>
-                    { showAddTaskModal && <div className="modal-background" onClick={() => setshowAddTaskModal(false)}></div> }
-                    { showAddTaskModal &&
-                        <dialog open className="modal">
-                            <form onSubmit={addTask} style={{ width: '30vw' }}>
-                                <div className="d-f">
-                                    <div>
-                                        <div>Date</div>
-                                        <input type="date"
-                                            value={addTaskObj.date}
-                                            onChange={e => addTaskObj.date = e.target.value}
-                                        />
-                                    </div>
-                                    <div className="ml-0_5em">
-                                        <div>Type</div>
-                                        <select onChange={e => addTaskObj.type = e.target.value}>
-                                            <option>NR</option>
-                                            <option>CR</option>
-                                            <option>BUG</option>
-                                        </select>
-                                    </div>
+                    <Modal showModal={showAddTaskModal} hideModal={() => setshowAddTaskModal(false)}>
+                        <form onSubmit={addTask} style={{ width: '30vw' }}>
+                            <div className="d-f">
+                                <div>
+                                    <div>Date</div>
+                                    <input type="date"
+                                        value={addTaskObj.date}
+                                        onChange={e => addTaskObj.date = e.target.value}
+                                    />
                                 </div>
-                                <div className="mt-0_5em">
-                                    <div>Description</div>
-                                    <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value}className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
+                                <div className="ml-0_5em">
+                                    <div>Type</div>
+                                    <select onChange={e => addTaskObj.type = e.target.value}>
+                                        <option>NR</option>
+                                        <option>CR</option>
+                                        <option>BUG</option>
+                                    </select>
                                 </div>
-                                <div className="mt-0_5em">
-                                    <div>Attach Files</div>
-                                    <input type="file" />
-                                </div>
-                                <div className="mt-1em">
-                                    <button>Add Task</button>
-                                    <button className="ml-1em" type="button" onClick={() => setshowAddTaskModal(false)}>Cancel</button>
-                                </div>
-                            </form>
-                        </dialog>
-                    }
+                            </div>
+                            <div className="mt-0_5em">
+                                <div>Description</div>
+                                <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value}className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
+                            </div>
+                            <div className="mt-0_5em">
+                                <div>Attach Files</div>
+                                <input type="file" />
+                            </div>
+                            <div className="mt-1em">
+                                <button>Add Task</button>
+                                <button className="ml-1em" type="button" onClick={() => setshowAddTaskModal(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    </Modal>
                 </div>
             </main>
         </div>
