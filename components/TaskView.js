@@ -7,6 +7,9 @@ export default function TaskView({ task }) {
     const [ comment, setComment ] = useState('')
     const [ comments, setComments ] = useState([])
     const [ files, setFiles ] = useState([])
+    const [ assignedUsers, setAssignedUsers ] = useState([])
+    const [ assignUserUser, setAssignUserUser ] = useState('')
+    const [ assignUserTask, setAssignUserTask ] = useState('')
 
     const commentsContainer = React.createRef()
 
@@ -46,6 +49,23 @@ export default function TaskView({ task }) {
                 created_at: '2019-09-10 13:12:00'
             }
         ])
+        setAssignedUsers([
+            {
+                id: 1,
+                user: 'Kavya',
+                task: 'Development',
+            },
+            {
+                id: 2,
+                user: 'Shreekanth',
+                task: 'Design'
+            },
+            {
+                id: 3,
+                user: 'Deepa',
+                task: 'Testing'
+            }
+        ])
     }
 
     function addComment() {
@@ -60,6 +80,24 @@ export default function TaskView({ task }) {
         setTimeout(() => {
             commentsContainer2.scrollTop = commentsContainer2.scrollHeight
         }, 0)
+    }
+
+    function assignUser() {
+        let pushArray = [{
+            id: new Date().getTime(),
+            user: assignUserUser,
+            task: assignUserTask
+        }]
+        setAssignedUsers(assignedUsers.concat(pushArray))
+        setAssignUserUser('')
+        setAssignUserTask('')
+    }
+
+    function removeAssignedUser(e, assignedUser) {
+        e.preventDefault()
+        if(confirm('Are you sure you want to unassign this user?')) {
+            setAssignedUsers(assignedUsers.filter(item => item.id !== assignedUser.id))
+        }
     }
 
     return (
@@ -86,7 +124,7 @@ export default function TaskView({ task }) {
                 <div className="tabs">
                     <div className={ activeTab === 'comments' ? 'active': null} onClick={() => setActiveTab('comments') }>Comments ({comments.length})</div>
                     <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files ({files.length})</div>
-                    <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned (0)</div>
+                    <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedUsers.length})</div>
                     <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent (0 / 0:00)</div>
                 </div>
                 <div className="tabs-content">
@@ -134,7 +172,46 @@ export default function TaskView({ task }) {
                     {
                         activeTab === 'assigned' &&
                             <div>
-                                Assigned
+                                <form onSubmit={assignUser} className="d-f flex-ai-fe">
+                                    <div>
+                                        <div className="label">Member</div>
+                                        <select required onChange={e => setAssignUserUser(e.target.value)} value={assignUserUser}>
+                                            <option></option>
+                                            <option>Deepa</option>
+                                            <option>Kavya</option>
+                                            <option>Shreekanth</option>
+                                        </select>
+                                    </div>
+                                    <div className="ml-0_5em">
+                                        <div className="label">Task</div>
+                                        <select required onChange={e => setAssignUserTask(e.target.value)} value={assignUserTask}>
+                                            <option></option>
+                                            <option>Development</option>
+                                            <option>Design</option>
+                                            <option>Testing</option>
+                                        </select>
+                                    </div>
+                                    <div className="ml-1em">
+                                        <button>Assign to Task</button>
+                                    </div>
+                                </form>
+                                <div className="oy-a mt-1em" style={{ maxHeight: '17em' }}>
+                                    <table className="table table-width-auto">
+                                        <tbody>
+                                        {
+                                            assignedUsers.map(assignedUser =>
+                                                <tr key={assignedUser.id}>
+                                                    <td>{assignedUser.user}</td>
+                                                    <td>{assignedUser.task}</td>
+                                                    <td>
+                                                        <a href="#" onClick={e => removeAssignedUser(e, assignedUser)}>Remove</a>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                     }
                     {

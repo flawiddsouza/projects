@@ -200,12 +200,12 @@ export default function Index() {
     return (
         <div>
             <Head>
-                <title>Project Management Tool</title>
+                <title>Projects - A Project Management Tool</title>
                 <link rel="stylesheet" href="static/global.css" />
                 <link rel="stylesheet" href="static/functional.css" />
             </Head>
             <main>
-                <div className="nav-logo">Logo</div>
+                <div className="nav-logo">Projects</div>
                 <div className="nav-area d-f flex-jc-sb">
                     <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddTaskModal(true) }}>+ Add task</a>
                     <div>

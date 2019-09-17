@@ -15,7 +15,8 @@ select {
 }
 
 button {
-    padding: 0.2em 2em;
+    padding: 0.2em 1em;
+    cursor: pointer;
 }
 
 /* base element styles */
@@ -92,6 +93,10 @@ main > .sidebar, main > .main {
     background-color: rgba(219, 219, 219, 0.541);
 }
 
+.table.table-width-auto {
+    width: auto;
+}
+
 .modal {
     position: absolute;
     border: 1px solid var(--border-color);
@@ -109,6 +114,7 @@ main > .sidebar, main > .main {
 
 .tabs {
     display: flex;
+    user-select: none;
 }
 
 .tabs > div {
@@ -131,6 +137,7 @@ main > .sidebar, main > .main {
     border: 1px solid var(--border-color);
     border-top: 0;
     padding: 10px;
+    min-height: 15em;
 }
 
 .label {
