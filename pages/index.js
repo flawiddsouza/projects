@@ -289,11 +289,11 @@ export default function Index() {
                             </div>
                             <div className="mt-0_5em">
                                 <div>Description</div>
-                                <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value}className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
+                                <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
                             </div>
                             <div className="mt-0_5em">
                                 <div>Attach Files</div>
-                                <input type="file" />
+                                <input type="file" mutliple />
                             </div>
                             <div className="mt-1em">
                                 <button>Add Task</button>

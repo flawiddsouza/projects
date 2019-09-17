@@ -65,3 +65,7 @@
 .cur-p {
     cursor: pointer;
 }
+
+.oy-a {
+    overflow-y: auto;
+}
