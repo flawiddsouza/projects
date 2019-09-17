@@ -1,9 +1,9 @@
 import Head from 'next/head'
-import React, { useEffect, useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import { useEffect, useState } from 'react'
+import { format } from 'date-fns'
 import Modal from '../components/Modal.js'
-
-const displayDateFormat = 'dd-MMM-yy'
+import TaskView from '../components/TaskView.js'
+import formatDate from '../libs/formatDate.js'
 
 export default function Index() {
 
@@ -14,7 +14,6 @@ export default function Index() {
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
-    const [ activeTab, setActiveTab ] = useState('comments')
 
     let addTaskObj = {
         date: format(new Date, 'yyyy-MM-dd'),
@@ -254,7 +253,7 @@ export default function Index() {
                             tasks.map(task => {
                                 return (
                                     <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
-                                        <td style={{ width: '5em' }}>{ format(parseISO(task.date), displayDateFormat) }</td>
+                                        <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
                                         <td style={{ width: '2em' }}>{ task.type }</td>
                                         <td>{ task.description }</td>
                                     </tr>
@@ -298,56 +297,7 @@ export default function Index() {
                     </Modal>
                     { task &&
                         <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
-                            <div style={{ width: '40vw' }}>
-                                <div className="d-f">
-                                    <div>
-                                        <div>Date</div>
-                                        <div className="mt-0_25em">{ format(parseISO(task.date), displayDateFormat) }</div>
-                                    </div>
-                                    <div className="ml-1em">
-                                        <div>Type</div>
-                                        <div className="mt-0_25em">{ task.type }</div>
-                                    </div>
-                                </div>
-                                <div className="mt-1em">
-                                    <div>Description</div>
-                                    <div className="mt-0_25em">{ task.description }</div>
-                                </div>
-                                <div className="mt-1em">
-                                    <div className="tabs">
-                                        <div className={ activeTab === 'comments' ? 'active': null} onClick={() => setActiveTab('comments') }>Comments (0)</div>
-                                        <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files (0)</div>
-                                        <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned (0)</div>
-                                        <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent (0 / 0:00)</div>
-                                    </div>
-                                    <div className="tabs-content">
-                                        {
-                                            activeTab === 'comments' &&
-                                                <div>
-                                                    Comments
-                                                </div>
-                                        }
-                                        {
-                                            activeTab === 'files' &&
-                                                <div>
-                                                    Files
-                                                </div>
-                                        }
-                                        {
-                                            activeTab === 'assigned' &&
-                                                <div>
-                                                    Assigned
-                                                </div>
-                                        }
-                                        {
-                                            activeTab === 'time-spent' &&
-                                                <div>
-                                                    Time Spent
-                                                </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
+                            <TaskView task={task}></TaskView>
                         </Modal>
                     }
                 </div>
