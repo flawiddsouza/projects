@@ -253,7 +253,7 @@ export default function Index() {
                     </div>
                 </div>
                 <div className="main">
-                    <table className="table">
+                    <table className="table table-hover">
                         <tbody>
                         {
                             tasks.map(task => {
@@ -293,7 +293,7 @@ export default function Index() {
                             </div>
                             <div className="mt-0_5em">
                                 <div>Attach Files</div>
-                                <input type="file" mutliple />
+                                <input type="file" mutliple="true" />
                             </div>
                             <div className="mt-1em">
                                 <button>Add Task</button>

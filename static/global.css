@@ -84,7 +84,11 @@ main > .sidebar, main > .main {
     padding: 2px 5px;
 }
 
-.table tr:hover {
+.table.table-comfortable th, .table.table-comfortable td {
+    padding: 5px;
+}
+
+.table.table-hover tr:hover {
     background-color: rgba(219, 219, 219, 0.541);
 }
 
