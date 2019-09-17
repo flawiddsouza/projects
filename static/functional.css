@@ -10,6 +10,10 @@
     margin-left: 1em;
 }
 
+.mt-0_75em {
+    margin-top: 0.75em;
+}
+
 .mt-0_5em {
     margin-top: 0.5em;
 }
@@ -72,4 +76,8 @@
 
 .oy-a {
     overflow-y: auto;
+}
+
+.r-n {
+    resize: none;
 }

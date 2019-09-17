@@ -68,18 +68,33 @@ export default function TaskView({ task }) {
         ])
     }
 
+    function handleAddCommentKeydown(e) {
+        if(e.altKey && e.key === 'Enter') {
+            e.target.value = e.target.value + '\n'
+            e.target.scrollTop = e.target.scrollHeight
+            return
+        }
+
+        if(e.key === 'Enter') {
+            e.preventDefault()
+            addComment()
+        }
+    }
+
     function addComment() {
-        let pushArray = [{
-            id: new Date().getTime(),
-            user: 'Deepa',
-            comment
-        }]
-        setComment('')
-        setComments(comments.concat(pushArray))
-        let commentsContainer2 = commentsContainer.current
-        setTimeout(() => {
-            commentsContainer2.scrollTop = commentsContainer2.scrollHeight
-        }, 0)
+        if(comment) {
+            let pushArray = [{
+                id: new Date().getTime(),
+                user: 'Deepa',
+                comment
+            }]
+            setComment('')
+            setComments(comments.concat(pushArray))
+            let commentsContainer2 = commentsContainer.current
+            setTimeout(() => {
+                commentsContainer2.scrollTop = commentsContainer2.scrollHeight
+            }, 0)
+        }
     }
 
     function assignUser() {
@@ -134,15 +149,15 @@ export default function TaskView({ task }) {
                                 <div className="oy-a" style={{ maxHeight: '14em' }} ref={commentsContainer}>
                                 {
                                     comments.map((commentItem, index) =>
-                                        <div key={commentItem.id} className={ index > 0 ? 'mt-0_5em' : null}>
+                                        <div key={commentItem.id} className={ index > 0 ? 'mt-0_75em' : null}>
                                             <div className="label">{commentItem.user}</div>
-                                            <div>{commentItem.comment}</div>
+                                            <div className="mt-0_25em">{commentItem.comment}</div>
                                         </div>
                                     )
                                 }
                                 </div>
                                 <form onSubmit={addComment} className={ comments.length > 0 ? 'mt-1em' : null }>
-                                    <textarea className="w-100p" required value={comment} onChange={e => setComment( e.target.value)}></textarea>
+                                    <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }}></textarea>
                                     <div className="mt-0_5em">
                                         <div>Attach Files</div>
                                         <input type="file" mutliple="true" />
