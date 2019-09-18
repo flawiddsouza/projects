@@ -1,8 +1,8 @@
-import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import Modal from '../components/Modal.js'
 import TaskView from '../components/TaskView.js'
+import Page from '../components/Page.js'
 import formatDate from '../libs/formatDate.js'
 
 export default function Index() {
@@ -198,116 +198,108 @@ export default function Index() {
     }, [])
 
     return (
-        <div>
-            <Head>
-                <title>Projects - A Project Management Tool</title>
-                <link rel="stylesheet" href="static/global.css" />
-                <link rel="stylesheet" href="static/functional.css" />
-            </Head>
-            <main>
-                <div className="nav-logo">Projects</div>
-                <div className="nav-area d-f flex-jc-sb">
-                    <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddTaskModal(true) }}>+ Add task</a>
-                    <div>
-                        Tasks
-                        <select className="ml-0_25em">
-                            <option>Show Last 50</option>
-                            <option>Show Last 100</option>
-                            <option>Show All</option>
-                        </select>
-                        <select className="ml-0_25em" defaultValue="Open">
-                            <option>All</option>
-                            <option>Open</option>
-                            <option>Closed</option>
-                        </select>
-                        <select className="ml-0_25em">
-                            <option>All</option>
-                            <option>NR</option>
-                            <option>CR</option>
-                            <option>BUG</option>
-                        </select>
-                    </div>
+        <Page>
+            <Page.Nav>
+                <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddTaskModal(true) }}>+ Add task</a>
+                <div>
+                    Tasks
+                    <select className="ml-0_25em">
+                        <option>Show Last 50</option>
+                        <option>Show Last 100</option>
+                        <option>Show All</option>
+                    </select>
+                    <select className="ml-0_25em" defaultValue="Open">
+                        <option>All</option>
+                        <option>Open</option>
+                        <option>Closed</option>
+                    </select>
+                    <select className="ml-0_25em">
+                        <option>All</option>
+                        <option>NR</option>
+                        <option>CR</option>
+                        <option>BUG</option>
+                    </select>
                 </div>
-                <div className="sidebar">
-                    <div className="fw-b">Projects</div>
-                    <div className="mt-0_5em">
-                        {
-                            projects.map(project => {
-                                return (
-                                    <a className={`mt-0_25em d-b ${project.slug === currentProjectSlug ? 'td-n c-b' : ''}`} key={project.slug} href={ '#project:' + project.slug}>{ project.name }</a>
-                                )
-                            })
-                        }
-                    </div>
-                    <div className="fw-b mt-1em">Project Members</div>
-                    <div className="mt-0_5em">
-                        {
-                            projectMembers.map(projectMember => {
-                                return (
-                                    <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
-                                        { projectMember.name } {projectMember.id === 1 ? '(you)' : ''}
-                                    </div>
-                                )
-                            })
-                        }
-                    </div>
-                </div>
-                <div className="main">
-                    <table className="table table-hover">
-                        <tbody>
-                        {
-                            tasks.map(task => {
-                                return (
-                                    <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
-                                        <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
-                                        <td style={{ width: '2em' }}>{ task.type }</td>
-                                        <td>{ task.description }</td>
-                                    </tr>
-                                )
-                            })
-                        }
-                        </tbody>
-                    </table>
-                    <Modal showModal={showAddTaskModal} hideModal={() => setShowAddTaskModal(false)}>
-                        <form onSubmit={addTask} style={{ width: '30vw' }}>
-                            <div className="d-f">
-                                <div>
-                                    <div>Date</div>
-                                    <input type="date"
-                                        value={addTaskObj.date}
-                                        onChange={e => addTaskObj.date = e.target.value}
-                                    />
-                                </div>
-                                <div className="ml-0_5em">
-                                    <div>Type</div>
-                                    <select onChange={e => addTaskObj.type = e.target.value}>
-                                        <option>NR</option>
-                                        <option>CR</option>
-                                        <option>BUG</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="mt-0_5em">
-                                <div>Description</div>
-                                <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
-                            </div>
-                            <div className="mt-0_5em">
-                                <div>Attach Files</div>
-                                <input type="file" mutliple="true" />
-                            </div>
-                            <div className="mt-1em">
-                                <button>Add Task</button>
-                                <button className="ml-1em" type="button" onClick={() => setShowAddTaskModal(false)}>Cancel</button>
-                            </div>
-                        </form>
-                    </Modal>
-                    { task &&
-                        <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
-                            <TaskView task={task}></TaskView>
-                        </Modal>
+            </Page.Nav>
+            <Page.Sidebar>
+            <div className="fw-b">Projects</div>
+                <div className="mt-0_5em">
+                    {
+                        projects.map(project => {
+                            return (
+                                <a className={`mt-0_25em d-b ${project.slug === currentProjectSlug ? 'td-n c-b' : ''}`} key={project.slug} href={ '#project:' + project.slug}>{ project.name }</a>
+                            )
+                        })
                     }
                 </div>
-            </main>
-        </div>
+                <div className="fw-b mt-1em">Project Members</div>
+                <div className="mt-0_5em">
+                    {
+                        projectMembers.map(projectMember => {
+                            return (
+                                <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
+                                    { projectMember.name } {projectMember.id === 1 ? '(you)' : ''}
+                                </div>
+                            )
+                        })
+                    }
+                </div>
+            </Page.Sidebar>
+            <Page.Content>
+                <table className="table table-hover">
+                    <tbody>
+                    {
+                        tasks.map(task => {
+                            return (
+                                <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                    <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
+                                    <td style={{ width: '2em' }}>{ task.type }</td>
+                                    <td>{ task.description }</td>
+                                </tr>
+                            )
+                        })
+                    }
+                    </tbody>
+                </table>
+                <Modal showModal={showAddTaskModal} hideModal={() => setShowAddTaskModal(false)}>
+                    <form onSubmit={addTask} style={{ width: '30vw' }}>
+                        <div className="d-f">
+                            <div>
+                                <div>Date</div>
+                                <input type="date"
+                                    value={addTaskObj.date}
+                                    onChange={e => addTaskObj.date = e.target.value}
+                                />
+                            </div>
+                            <div className="ml-0_5em">
+                                <div>Type</div>
+                                <select onChange={e => addTaskObj.type = e.target.value}>
+                                    <option>NR</option>
+                                    <option>CR</option>
+                                    <option>BUG</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="mt-0_5em">
+                            <div>Description</div>
+                            <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
+                        </div>
+                        <div className="mt-0_5em">
+                            <div>Attach Files</div>
+                            <input type="file" mutliple="true" />
+                        </div>
+                        <div className="mt-1em">
+                            <button>Add Task</button>
+                            <button className="ml-1em" type="button" onClick={() => setShowAddTaskModal(false)}>Cancel</button>
+                        </div>
+                    </form>
+                </Modal>
+                { task &&
+                    <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
+                        <TaskView task={task}></TaskView>
+                    </Modal>
+                }
+            </Page.Content>
+        </Page>
     )
 }
