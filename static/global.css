@@ -36,6 +36,7 @@ main {
 }
 
 main > .nav-logo {
+    cursor: pointer;
     grid-area: 1 / 1 / 2 / 2;
 }
 

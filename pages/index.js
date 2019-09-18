@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import { format } from 'date-fns'
 import Modal from '../components/Modal.js'
 import TaskView from '../components/TaskView.js'
 import Page from '../components/Page.js'
 import formatDate from '../libs/formatDate.js'
+import Link from 'next/link'
+import Router from 'next/router'
 
 export default function Index() {
 
@@ -29,6 +31,15 @@ export default function Index() {
     }
 
     function handleCurrentHash(hash) {
+        if(!hash) {
+            setCurrentProjectSlug(null)
+            setProjectMembers([])
+            setTasks([])
+            setShowAddTaskModal(false)
+            setShowViewTaskModal(false)
+            return
+        }
+
         hash = hash.replace('#', '')
         let hashSplit = hash.split(',')
 
@@ -192,6 +203,12 @@ export default function Index() {
         setShowViewTaskModal(true)
     }
 
+    function handleReset(url) {
+        if(url === '/') {
+            handleCurrentHash(null)
+        }
+    }
+
     useEffect(() => {
         handleCurrentHash(document.location.hash)
 
@@ -199,33 +216,49 @@ export default function Index() {
             handleCurrentHash(document.location.hash)
         }
 
+        Router.events.on('hashChangeComplete', handleReset)
+        Router.events.on('routeChangeComplete', handleReset)
+
         fetchProjects()
+
+        return () => {
+            Router.events.off('hashChangeComplete', handleReset)
+            Router.events.off('routeChangeComplete', handleReset)
+        }
     }, [])
 
     return (
         <Page>
             <Page.Nav>
-                <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddTaskModal(true) }}>+ Add task</a>
-                <div>
-                    Tasks
-                    <select className="ml-0_25em">
-                        <option>Show Last 50</option>
-                        <option>Show Last 100</option>
-                        <option>Show All</option>
-                    </select>
-                    <select className="ml-0_25em" defaultValue="Open">
-                        <option>All</option>
-                        <option>Open</option>
-                        <option>Closed</option>
-                    </select>
-                    <select className="ml-0_25em">
-                        <option>All</option>
-                        <option>NR</option>
-                        <option>CR</option>
-                        <option>BUG</option>
-                    </select>
-                </div>
-            </Page.Nav>
+                {
+                    currentProjectSlug ?
+                    <Fragment>
+                        <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddTaskModal(true) }}>+ Add task</a>
+
+                        <div>
+                            Tasks
+                            <select className="ml-0_25em">
+                                <option>Show Last 50</option>
+                                <option>Show Last 100</option>
+                                <option>Show All</option>
+                            </select>
+                            <select className="ml-0_25em" defaultValue="Open">
+                                <option>All</option>
+                                <option>Open</option>
+                                <option>Closed</option>
+                            </select>
+                            <select className="ml-0_25em">
+                                <option>All</option>
+                                <option>NR</option>
+                                <option>CR</option>
+                                <option>BUG</option>
+                            </select>
+                        </div>
+                    </Fragment>
+                    :
+                    <select className="v-h"></select>
+                }
+                </Page.Nav>
             <Page.Sidebar>
             <div className="fw-b">Projects</div>
                 <div className="mt-0_5em">
@@ -237,17 +270,28 @@ export default function Index() {
                         })
                     }
                 </div>
-                <div className="fw-b mt-1em">Project Members</div>
+                {
+                    projectMembers.length > 0 &&
+                    <Fragment>
+                        <div className="fw-b mt-1em">Project Members</div>
+                        <div className="mt-0_5em">
+                            {
+                                projectMembers.map(projectMember => {
+                                    return (
+                                        <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
+                                            { projectMember.name } {projectMember.id === 1 ? '(you)' : ''}
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </Fragment>
+                }
+                <div className="fw-b mt-1em">Other Links</div>
                 <div className="mt-0_5em">
-                    {
-                        projectMembers.map(projectMember => {
-                            return (
-                                <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
-                                    { projectMember.name } {projectMember.id === 1 ? '(you)' : ''}
-                                </div>
-                            )
-                        })
-                    }
+                    <Link href="/admin">
+                        <a>Admin Panel</a>
+                    </Link>
                 </div>
             </Page.Sidebar>
             <Page.Content>
@@ -303,7 +347,8 @@ export default function Index() {
                         </div>
                     </form>
                 </Modal>
-                { task &&
+                {
+                    task &&
                     <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
                         <TaskView task={task}></TaskView>
                     </Modal>

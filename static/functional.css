@@ -81,3 +81,7 @@
 .r-n {
     resize: none;
 }
+
+.v-h {
+    visibility: hidden;
+}

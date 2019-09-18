@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 
 function Page({ children }) {
     return (
@@ -9,7 +10,7 @@ function Page({ children }) {
                 <link rel="stylesheet" href="static/functional.css" />
             </Head>
             <main>
-                <div className="nav-logo">Projects</div>
+                <Link href="/"><div className="nav-logo">Projects</div></Link>
                 {children}
             </main>
         </div>
