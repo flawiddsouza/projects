@@ -1,5 +1,5 @@
-import Page from '../../components/Page'
-import Link from '../../components/ActiveLink'
+import Page from 'Components/Page'
+import Link from 'Components/ActiveLink'
 
 export default function Container({ children }) {
     return (
@@ -8,28 +8,10 @@ export default function Container({ children }) {
                 <select className="v-h"></select>
             </Page.Nav>
             <Page.Sidebar>
-                <div className="fw-b">Projects</div>
+                <div className="fw-b">Organizations</div>
                 <div className="mt-0_5em">
-                    <Link href="/admin/projects/manager" activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Manager</a>
-                    </Link>
-                </div>
-                <div className="fw-b mt-1em">Tasks</div>
-                <div className="mt-0_5em">
-                    <Link href="/admin/tasks/statuses" activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Statuses</a>
-                    </Link>
-                    <Link href="/admin/tasks/types" activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Types</a>
-                    </Link>
-                </div>
-                <div className="fw-b mt-1em">Users</div>
-                <div className="mt-0_5em">
-                    <Link href="/admin/users/roles" activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Roles</a>
-                    </Link>
-                    <Link href="/admin/users/manager" activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Manager</a>
+                    <Link href="/admin/organizations/manage" activeClassName="td-n c-b">
+                        <a className="d-b mt-0_25em">Manage</a>
                     </Link>
                 </div>
             </Page.Sidebar>

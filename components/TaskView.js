@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import formatDate from '../libs/formatDate.js'
-import formatDateTime from '../libs/formatDateTime.js'
+import formatDate from 'Libs/formatDate.js'
+import formatDateTime from 'Libs/formatDateTime.js'
 
 export default function TaskView({ task }) {
     const [ activeTab, setActiveTab ] = useState('comments')
