@@ -233,7 +233,7 @@ export default function Index() {
                 {
                     currentProjectSlug ?
                     <Fragment>
-                        <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddTaskModal(true) }}>+ Add task</a>
+                        <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowViewTaskModal(false); setShowAddTaskModal(true) }}>+ Add task</a>
 
                         <div>
                             Tasks
