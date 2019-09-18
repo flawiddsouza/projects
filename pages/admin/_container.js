@@ -8,7 +8,13 @@ export default function Container({ children }) {
                 <select className="v-h"></select>
             </Page.Nav>
             <Page.Sidebar>
-                <div className="fw-b">Tasks</div>
+                <div className="fw-b">Projects</div>
+                <div className="mt-0_5em">
+                    <Link href="/admin/projects/manager" activeClassName="td-n c-b">
+                        <a className="d-b mt-0_25em">Manager</a>
+                    </Link>
+                </div>
+                <div className="fw-b mt-1em">Tasks</div>
                 <div className="mt-0_5em">
                     <Link href="/admin/tasks/statuses" activeClassName="td-n c-b">
                         <a className="d-b mt-0_25em">Statuses</a>
