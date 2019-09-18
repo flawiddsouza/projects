@@ -6,8 +6,8 @@ function Page({ children }) {
         <div>
             <Head>
                 <title>Projects - A Project Management Tool</title>
-                <link rel="stylesheet" href="static/global.css" />
-                <link rel="stylesheet" href="static/functional.css" />
+                <link rel="stylesheet" href="/static/global.css" />
+                <link rel="stylesheet" href="/static/functional.css" />
             </Head>
             <main>
                 <Link href="/"><div className="nav-logo">Projects</div></Link>
