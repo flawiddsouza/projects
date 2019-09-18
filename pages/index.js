@@ -15,12 +15,6 @@ export default function Index() {
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
 
-    let addTaskObj = {
-        date: format(new Date, 'yyyy-MM-dd'),
-        type: 'NR',
-        description: ''
-    }
-
     function fetchProjects() {
         setProjects([
             {
@@ -58,21 +52,21 @@ export default function Index() {
                     id: 1,
                     date: '2019-09-12',
                     type: 'NR',
-                    description: 'Test 1',
+                    title: 'Test 1',
                     status: 'OPEN'
                 },
                 {
                     id: 2,
                     date: '2019-09-10',
                     type: 'CR',
-                    description: 'Test 2',
+                    title: 'Test 2',
                     status: 'OPEN'
                 },
                 {
                     id: 3,
                     date: '2019-09-05',
                     type: 'BUG',
-                    description: 'Test 3',
+                    title: 'Test 3',
                     status: 'OPEN'
                 }
             ])
@@ -116,21 +110,21 @@ export default function Index() {
                     id: 4,
                     date: '2019-09-16',
                     type: 'BUG',
-                    description: 'Test 4',
+                    title: 'Test 4',
                     status: 'OPEN'
                 },
                 {
                     id: 5,
                     date: '2019-09-15',
                     type: 'BUG',
-                    description: 'Test 5',
+                    title: 'Test 5',
                     status: 'OPEN'
                 },
                 {
                     id: 6,
                     date: '2019-09-14',
                     type: 'CR',
-                    description: 'Test 6',
+                    title: 'Test 6',
                     status: 'OPEN'
                 }
             ])
@@ -165,12 +159,21 @@ export default function Index() {
         }
     }
 
+    let addTaskObj = {
+        date: format(new Date, 'yyyy-MM-dd'),
+        type: 'NR',
+        status: 'OPEN',
+        title: '',
+        description: ''
+    }
+
     function addTask(e) {
         e.preventDefault()
         let pushArray = [{
             id: new Date().getTime(),
             date: addTaskObj.date,
             type: addTaskObj.type,
+            title: addTaskObj.title,
             description: addTaskObj.description
         }]
         setTasks(pushArray.concat(tasks))
@@ -178,6 +181,8 @@ export default function Index() {
         addTaskObj = {
             date: format(new Date, 'yyyy-MM-dd'),
             type: 'NR',
+            status: 'OPEN',
+            title: '',
             description: ''
         }
     }
@@ -254,7 +259,7 @@ export default function Index() {
                                 <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
                                     <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
                                     <td style={{ width: '2em' }}>{ task.type }</td>
-                                    <td>{ task.description }</td>
+                                    <td>{ task.title }</td>
                                 </tr>
                             )
                         })
@@ -281,8 +286,12 @@ export default function Index() {
                             </div>
                         </div>
                         <div className="mt-0_5em">
+                            <div>Title</div>
+                            <input type="text" required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.title = e.target.value} className="w-100p" autoFocus></input>
+                        </div>
+                        <div className="mt-0_5em">
                             <div>Description</div>
-                            <textarea required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }} autoFocus></textarea>
+                            <textarea onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }}></textarea>
                         </div>
                         <div className="mt-0_5em">
                             <div>Attach Files</div>

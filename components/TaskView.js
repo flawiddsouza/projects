@@ -132,8 +132,8 @@ export default function TaskView({ task }) {
                 </div>
             </div>
             <div className="mt-1em">
-                <div className="label">Description</div>
-                <div className="mt-0_25em">{ task.description }</div>
+                <div className="label">Title</div>
+                <div className="mt-0_25em">{ task.title }</div>
             </div>
             <div className="mt-1em">
                 <div className="tabs">
