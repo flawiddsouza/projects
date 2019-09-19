@@ -1,4 +1,4 @@
-import Container from './_container';
+import Container from './_container'
 
 export default function Index() {
 

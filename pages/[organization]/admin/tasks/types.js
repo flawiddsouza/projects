@@ -1,18 +1,23 @@
-import Container from '../_container';
-import { useState } from 'react'
+import Master from 'Components/Master'
+import { useState, useEffect } from 'react'
+import Container from '../_container'
 
 export default function Types() {
-    const [ showAddModal, setShowAddModal ] = useState(false)
 
-    function Nav() {
-        return (
-            <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowAddModal(true) }}>+ Add Type</a>
-        )
-    }
+    const [ headers, setHeaders ] = useState([])
+
+    useEffect(() => {
+        setHeaders([
+            {
+                name: 'Type',
+                column: 'type',
+                inputType: 'text',
+                required: true
+            }
+        ])
+    }, [])
 
     return (
-        <Container Nav={<Nav/>}>
-            Types
-        </Container>
+        <Master Container={Container} headers={headers} itemName="Type"></Master>
     )
 }
