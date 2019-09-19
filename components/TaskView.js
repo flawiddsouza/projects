@@ -157,7 +157,7 @@ export default function TaskView({ task }) {
                 user: 'Deepa',
                 description: timeSpendStartDescription,
                 start_date_time: format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm'),
-                end_date_time: format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm'),
+                end_date_time: timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null,
             }]
 
             setTimeSpends(timeSpends.concat(pushArray))
@@ -168,7 +168,7 @@ export default function TaskView({ task }) {
             let timeSpend = timeSpendsCopy.find(item => item.id === timeSpendUpdate)
             timeSpend.description = timeSpendStartDescription
             timeSpend.start_date_time = format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm')
-            timeSpend.end_date_time = format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm')
+            timeSpend.end_date_time = timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null
 
             setTimeSpends(timeSpendsCopy)
 
@@ -196,7 +196,7 @@ export default function TaskView({ task }) {
 
         setTimeSpendDescription(timeSpend.description)
         setTimeSpendStartDateTime(parseISO(timeSpend.start_date_time))
-        setTimeSpendEndDateTime(parseISO(timeSpend.end_date_time))
+        setTimeSpendEndDateTime(timeSpend.end_date_time ? parseISO(timeSpend.end_date_time) : null)
 
         setTimeSpendUpdate(timeSpend.id)
     }
@@ -234,7 +234,7 @@ export default function TaskView({ task }) {
                     <div className={ activeTab === 'comments' ? 'active': null} onClick={() => setActiveTab('comments') }>Comments ({comments.length})</div>
                     <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files ({files.length})</div>
                     <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedUsers.length})</div>
-                    <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent (0 / 0:00)</div>
+                    <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpends.length} / 0:00)</div>
                 </div>
                 <div className="tabs-content" style={{ height: '25em' }}>
                     {
@@ -338,7 +338,7 @@ export default function TaskView({ task }) {
                                         </div>
                                         <div className="ml-1em">
                                             <div className="label">End Date Time</div>
-                                            <DatePicker selected={timeSpendEndDateTime} onChange={date => setTimeSpendEndDateTime(date)} showTimeSelect dateFormat="dd-MMM-yy hh:mm a" required></DatePicker>
+                                            <DatePicker selected={timeSpendEndDateTime} onChange={date => setTimeSpendEndDateTime(date)} showTimeSelect dateFormat="dd-MMM-yy hh:mm a"></DatePicker>
                                         </div>
                                         <div className="ml-1em">
                                             {
@@ -371,7 +371,7 @@ export default function TaskView({ task }) {
                                                     <td className="ws-nw">{timeSpent.user}</td>
                                                     <td>{timeSpent.description}</td>
                                                     <td>{formatDateTime(timeSpent.start_date_time)}</td>
-                                                    <td>{formatDateTime(timeSpent.end_date_time)}</td>
+                                                    <td>{timeSpent.end_date_time ? formatDateTime(timeSpent.end_date_time) : null}</td>
                                                     <td style={{ width: '2em' }}>
                                                         <a href="#" onClick={e => editTimeSpend(e, timeSpent)}>Edit</a>
                                                     </td>
