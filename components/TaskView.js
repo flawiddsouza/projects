@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import format from 'date-fns/format'
 import parseISO from 'date-fns/parseISO'
+import Modal from 'Components/Modal'
 
 export default function TaskView({ task }) {
     const [ activeTab, setActiveTab ] = useState('comments')
@@ -19,6 +20,8 @@ export default function TaskView({ task }) {
     const [ timeSpendStartDateTime, setTimeSpendStartDateTime ] = useState('')
     const [ timeSpendEndDateTime, setTimeSpendEndDateTime ] = useState('')
     const [ timeSpendUpdate, setTimeSpendUpdate ] = useState(null)
+    const [ updateTaskColumn, setUpdateTaskColumn ] = useState(null)
+    const [ updateTaskColumnData, setUpdateTaskColumnData ] = useState(null)
 
     const commentsContainer = React.createRef()
 
@@ -209,25 +212,104 @@ export default function TaskView({ task }) {
         setTimeSpendUpdate(null)
     }
 
+    function startTaskColumnUpdate(column, columnData) {
+        setUpdateTaskColumnData(columnData)
+        setUpdateTaskColumn(column)
+    }
+
+    function UpdateTaskModal() {
+        function updateColumn(e) {
+            e.preventDefault()
+            cancelTaskColumnUpdate()
+        }
+
+        function cancelTaskColumnUpdate() {
+            setUpdateTaskColumn(null)
+            setUpdateTaskColumnData(null)
+        }
+
+        return (
+            <Modal showModal={updateTaskColumn !== null} hideModal={() => cancelTaskColumnUpdate()}>
+                <form onSubmit={updateColumn} style={{ width: updateTaskColumn !== 'title' ? '15em' : '25em' }}>
+                {
+                    updateTaskColumn === 'date' &&
+                    <Fragment>
+                        <div>Change Date</div>
+                        <div className="mt-0_5em">
+                            <input type="date" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p"></input>
+                        </div>
+                        <div className="mt-1em ta-r">
+                            <button>Update</button>
+                        </div>
+                    </Fragment>
+                }
+                {
+                    updateTaskColumn === 'type' &&
+                    <Fragment>
+                        <div>Change Type</div>
+                        <div className="mt-0_5em">
+                            <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
+                                <option>NR</option>
+                                <option>CR</option>
+                                <option>BUG</option>
+                            </select>
+                        </div>
+                        <div className="mt-1em ta-r">
+                            <button>Update</button>
+                        </div>
+                    </Fragment>
+                }
+                {
+                    updateTaskColumn === 'status' &&
+                    <Fragment>
+                        <div>Change Status</div>
+                        <div className="mt-0_5em">
+                            <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
+                                <option>OPEN</option>
+                                <option>CLOSED</option>
+                            </select>
+                        </div>
+                        <div className="mt-1em ta-r">
+                            <button>Update</button>
+                        </div>
+                    </Fragment>
+                }
+                {
+                    updateTaskColumn === 'title' &&
+                    <Fragment>
+                        <div>Change Title</div>
+                        <div className="mt-0_5em">
+                            <input type="text" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p"></input>
+                        </div>
+                        <div className="mt-1em ta-r">
+                            <button>Update</button>
+                        </div>
+                    </Fragment>
+                }
+                </form>
+            </Modal>
+        )
+    }
+
     return (
         <div style={{ width: '63vw' }}>
             <div className="d-f">
                 <div>
                     <div className="label">Date</div>
-                    <div className="mt-0_25em">{ formatDate(task.date) }</div>
+                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('date', task.date)}>{ formatDate(task.date) }</div>
                 </div>
                 <div className="ml-3em">
                     <div className="label">Type</div>
-                    <div className="mt-0_25em">{ task.type }</div>
+                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('type', task.type)}>{ task.type }</div>
                 </div>
                 <div className="ml-3em">
                     <div className="label">Status</div>
-                    <div className="mt-0_25em">{ task.status }</div>
+                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('status', task.status)}>{ task.status }</div>
                 </div>
             </div>
             <div className="mt-1em">
                 <div className="label">Title</div>
-                <div className="mt-0_25em">{ task.title }</div>
+                <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('title', task.title)}>{ task.title }</div>
             </div>
             <div className="mt-1em">
                 <div className="tabs">
@@ -388,6 +470,7 @@ export default function TaskView({ task }) {
                     }
                 </div>
             </div>
+            <UpdateTaskModal/>
         </div>
     )
 }
