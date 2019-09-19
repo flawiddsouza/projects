@@ -138,7 +138,6 @@ main > .sidebar, main > .main {
     border: 1px solid var(--border-color);
     border-top: 0;
     padding: 10px;
-    min-height: 15em;
 }
 
 .label {
