@@ -2,13 +2,16 @@ import Page from 'Components/Page'
 import Link from 'Components/ActiveLink'
 import { useRouter } from 'next/router'
 
-export default function Container({ children }) {
+export default function Container({ children, Nav=null }) {
     const router = useRouter()
     const { organization } = router.query
 
     return (
         <Page>
             <Page.Nav>
+                <div>
+                    {Nav}
+                </div>
                 <select className="v-h"></select>
             </Page.Nav>
             <Page.Sidebar>
