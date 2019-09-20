@@ -321,18 +321,18 @@ export default function TaskView({ task }) {
                 <div className="tabs-content" style={{ height: '25em' }}>
                     {
                         activeTab === 'comments' &&
-                            <div>
+                            <div className="d-f flex-d-c flex-jc-sb h-100p">
                                 <div className="oy-a" style={{ maxHeight: '14em' }} ref={commentsContainer}>
                                 {
                                     comments.map((commentItem, index) =>
-                                        <div key={commentItem.id} className={ index > 0 ? 'mt-0_75em' : null}>
+                                        <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color`}>
                                             <div className="label">{commentItem.user}</div>
                                             <div className="mt-0_25em">{commentItem.comment}</div>
                                         </div>
                                     )
                                 }
                                 </div>
-                                <form onSubmit={addComment} className={ comments.length > 0 ? 'mt-1em' : null }>
+                                <form onSubmit={addComment} className="mt-1em">
                                     <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }}></textarea>
                                     <div className="mt-0_5em">
                                         <div>Attach Files</div>

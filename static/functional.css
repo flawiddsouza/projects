@@ -54,6 +54,10 @@
     white-space: nowrap;
 }
 
+.flex-d-c {
+    flex-direction: column;
+}
+
 .flex-jc-sb {
     justify-content: space-between;
 }
@@ -68,6 +72,10 @@
 
 .w-100p {
     width: 100%;
+}
+
+.h-100p {
+    height: 100%;
 }
 
 .cur-p {
