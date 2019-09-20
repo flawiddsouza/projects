@@ -325,8 +325,18 @@ export default function TaskView({ task }) {
                                 <div className="oy-a" style={{ maxHeight: '14em' }} ref={commentsContainer}>
                                 {
                                     comments.map((commentItem, index) =>
-                                        <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color`}>
-                                            <div className="label">{commentItem.user}</div>
+                                        <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color hover-show-child-parent`}>
+                                            <div className="label d-f flex-jc-sb">
+                                                <div>{commentItem.user}</div>
+                                                <div className="mr-0_5em hover-show-child">
+                                                    <a href="#">
+                                                        <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px'  }}></img>
+                                                    </a>
+                                                    <a href="#" className="ml-0_5em">
+                                                        <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px'  }}></img>
+                                                    </a>
+                                                </div>
+                                            </div>
                                             <div className="mt-0_25em">{commentItem.comment}</div>
                                         </div>
                                     )

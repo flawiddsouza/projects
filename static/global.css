@@ -147,3 +147,11 @@ main > .sidebar, main > .main {
 .hover-background-color:hover {
     background-color: #f7f7f7;
 }
+
+.hover-show-child {
+    visibility: hidden;
+}
+
+.hover-show-child-parent:hover .hover-show-child {
+    visibility: visible;
+}
