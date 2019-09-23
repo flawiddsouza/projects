@@ -2,15 +2,19 @@
     "private": true,
     "dependencies": {
         "@zeit/next-css": "^1.0.1",
+        "cross-env": "^6.0.0",
         "date-fns": "^2.2.1",
+        "dotenv": "^8.1.0",
+        "express": "^4.17.1",
         "next": "^9.0.5",
         "react": "^16.9.0",
         "react-datepicker": "^2.9.6",
-        "react-dom": "^16.9.0"
+        "react-dom": "^16.9.0",
+        "serverless-mysql": "^1.5.1"
     },
     "scripts": {
-        "dev": "next -H 0.0.0.0",
+        "dev": "node server.js",
         "build": "next build",
-        "start": "next start"
+        "start": "cross-env NODE_ENV=production node server.js"
     }
 }
