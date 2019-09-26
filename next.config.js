@@ -3,6 +3,10 @@ const path = require('path')
 const { parsed: localEnv } = require('dotenv').config()
 const webpack = require('webpack')
 
+if(localEnv === undefined) {
+    throw Error('.env file not found')
+}
+
 module.exports = withCSS({
     webpack(config) {
         config.resolve.alias['Components'] = path.join(__dirname, 'components')
