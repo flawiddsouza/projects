@@ -1,31 +1,38 @@
-import mysql from 'serverless-mysql'
+const mysql = require('mysql2/promise')
+
+const path = require('path')
+const envPath = path.join(__dirname, '../.env')
+const { parsed: localEnv } = require('dotenv').config({ path: envPath })
+if(localEnv === undefined) {
+    throw Error('.env file not found')
+}
 
 let query = null
 
-if(process.env.DB_CONNECTION === 'mysql') {
+if(localEnv.DB_CONNECTION === 'mysql') {
 
-    const db = mysql({
-        config: {
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT,
-            database: process.env.DB_DATABASE,
-            user: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD
-        }
-    })
+    query = async(queryToExecute, params=null) => {
 
-    query = async() => {
         try {
-            const results = await db.query(query)
+            const db = await mysql.createConnection({
+                host: localEnv.DB_HOST,
+                port: localEnv.DB_PORT,
+                database: localEnv.DB_DATABASE,
+                user: localEnv.DB_USERNAME,
+                password: localEnv.DB_PASSWORD
+            })
+
+            const [rows, fields] = await db.execute(queryToExecute, params)
             await db.end()
-            return results
-        } catch(error) {
-            return { error }
+            return rows
+        } catch(e) {
+            return { error: 'DB Error: ' + e.message }
         }
+
     }
 
 } else {
     throw new Exception('DB Connection Not Implemented')
 }
 
-export { query }
+module.exports = query

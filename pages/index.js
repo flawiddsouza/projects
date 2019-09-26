@@ -57,9 +57,9 @@ export default function Index() {
                 <div>
                     <h1>Login</h1>
                     <form onSubmit={login}>
-                        <div className="mt-0_5em">Username</div>
+                        <div className="mt-0_5em">Email</div>
                         <div className="mt-0_5em">
-                            <input type="text" required></input>
+                            <input type="email" required></input>
                         </div>
                         <div className="mt-0_5em">Password</div>
                         <div className="mt-0_5em">

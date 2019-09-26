@@ -21,27 +21,7 @@ if(pendingMigrations.length === 0) {
     process.exit()
 }
 
-const mysql = require('serverless-mysql')
-
-require('dotenv').config({ path: '../.env' })
-
-let db = null
-
-if(process.env.DB_CONNECTION === 'mysql') {
-
-    db = mysql({
-        config: {
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT,
-            database: process.env.DB_DATABASE,
-            user: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD
-        }
-    })
-
-} else {
-    throw new Exception('DB Connection Not Implemented')
-}
+const dbQuery = require('./../libs/db')
 
 async function pushToCompletedMigrations(migrationFileName) {
     completedMigrations.push(migrationFileName)
@@ -55,11 +35,9 @@ const path = require('path');
         console.log(`Migrating: ${migration}`)
         let migrationFilePath = path.join(migrationsDirectory, migration)
         let migrationFileString = fs.readFileSync(migrationFilePath, 'utf-8')
-        try {
-            await db.query(migrationFileString)
-            await db.end()
-        } catch(e) {
-            console.error(e)
+        let results = await dbQuery(migrationFileString)
+        if(results.hasOwnProperty('error')) {
+            console.error(results.error)
             break
         }
 

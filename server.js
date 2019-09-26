@@ -9,6 +9,7 @@ const handle = app.getRequestHandler()
 app.prepare().then(() => {
     const server = express()
 
+    server.use(express.json())
     server.use('/api', require('./routes/api'))
 
     server.get('*', (req, res) => {
