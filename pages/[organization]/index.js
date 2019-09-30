@@ -6,8 +6,9 @@ import Page from 'Components/Page.js'
 import formatDate from 'Libs/formatDate.js'
 import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
+import api from 'Libs/esm/api'
 
-export default function Index() {
+function Index() {
 
     const [ projects, setProjects ] = useState([])
     const [ projectMembers, setProjectMembers ] = useState([])
@@ -18,17 +19,14 @@ export default function Index() {
     const [ task, setTask ] = useState(null)
     const router = useRouter()
 
-    function fetchProjects() {
-        setProjects([
-            {
-                name: 'Agnes Pacifyca',
-                slug: 'agnes-pacifyca'
-            },
-            {
-                name: 'Aloysius Pacifyca',
-                slug: 'aloysius-pacifyca'
+    async function fetchProjects() {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const projects = await api.get(`${organizationSlug}/projects`, {
+            headers: {
+                Token: localStorage.getItem('token')
             }
-        ])
+        }).json()
+        setProjects(projects)
     }
 
     function handleCurrentHash(hash) {
@@ -55,114 +53,18 @@ export default function Index() {
         }
     }
 
-    function loadProject(projectSlug) {
+    async function loadProject(projectSlug) {
         setCurrentProjectSlug(projectSlug)
 
-        if(projectSlug === 'agnes-pacifyca') {
-            setTasks([
-                {
-                    id: 1,
-                    date: '2019-09-12',
-                    type: 'NR',
-                    title: 'Test 1',
-                    status: 'OPEN'
-                },
-                {
-                    id: 2,
-                    date: '2019-09-10',
-                    type: 'CR',
-                    title: 'Test 2',
-                    status: 'OPEN'
-                },
-                {
-                    id: 3,
-                    date: '2019-09-05',
-                    type: 'BUG',
-                    title: 'Test 3',
-                    status: 'OPEN'
-                }
-            ])
-            setProjectMembers([
-                {
-                    id: 1,
-                    name: 'Deepa',
-                    role: 'Tester'
-                },
-                {
-                    id: 2,
-                    name: 'Flawid',
-                    role: 'Team Lead'
-                },
-                {
-                    id: 3,
-                    name: 'Kavya',
-                    role: 'Assistant Team Lead'
-                },
-                {
-                    id: 4,
-                    name: 'Keerthan',
-                    role: 'Developer'
-                },
-                {
-                    id: 5,
-                    name: 'Ranjith',
-                    role: 'Developer'
-                },
-                {
-                    id: 6,
-                    name: 'Shreekanth',
-                    role: 'Developer'
-                }
-            ])
-        }
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const { tasks, projectMembers } = await api.get(`${organizationSlug}/${projectSlug}/fetch`, {
+            headers: {
+                Token: localStorage.getItem('token')
+            }
+        }).json()
 
-        if(projectSlug === 'aloysius-pacifyca') {
-            setTasks([
-                {
-                    id: 4,
-                    date: '2019-09-16',
-                    type: 'BUG',
-                    title: 'Test 4',
-                    status: 'OPEN'
-                },
-                {
-                    id: 5,
-                    date: '2019-09-15',
-                    type: 'BUG',
-                    title: 'Test 5',
-                    status: 'OPEN'
-                },
-                {
-                    id: 6,
-                    date: '2019-09-14',
-                    type: 'CR',
-                    title: 'Test 6',
-                    status: 'OPEN'
-                }
-            ])
-            setProjectMembers([
-                {
-                    id: 7,
-                    name: 'Aniketh',
-                    role: 'Team Lead'
-                },
-                {
-                    id: 8,
-                    name: 'Chaitra',
-                    role: 'Tester'
-                },
-                {
-                    id: 9,
-                    name: 'Denzil',
-                    role: 'Developer'
-                },
-                {
-                    id: 10,
-                    name: 'Sanath',
-                    role: 'Developer'
-                }
-            ])
-        }
+        setTasks(tasks)
+        setProjectMembers(projectMembers)
     }
 
     function handleAddTaskKeydown(e) {
@@ -358,3 +260,5 @@ export default function Index() {
         </Page>
     )
 }
+
+export default Index

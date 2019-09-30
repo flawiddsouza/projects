@@ -13,11 +13,17 @@ export default function Manage() {
                 column: 'name',
                 inputType: 'text',
                 required: true
+            },
+            {
+                name: 'Slug',
+                column: 'slug',
+                inputType: 'text',
+                required: true
             }
         ])
     }, [])
 
     return (
-        <Master Container={Container} headers={headers} itemName="Organization"></Master>
+        <Master Container={Container} headers={headers} itemName="Organization" apiPath="admin/organizations"></Master>
     )
 }

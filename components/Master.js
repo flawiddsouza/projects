@@ -1,12 +1,26 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal from 'Components/Modal'
+import api from 'Libs/esm/api'
 
-export default function Master({ Container, headers, itemName }) {
+export default function Master({ Container, headers, itemName, apiPath }) {
     const [ showAddModal, setShowAddModal ] = useState(false)
     const [ showEditModal, setShowEditModal ] = useState(false)
     const [ items, setItems ] = useState([])
     let addObj = {}
     const [ editObj, setEditObj ] = useState({})
+
+    useEffect(() => {
+        fetchItems()
+    }, [])
+
+    async function fetchItems() {
+        let items = await api.get(apiPath, {
+            headers: {
+                Token: localStorage.getItem('token')
+            }
+        }).json()
+        setItems(items)
+    }
 
     function Nav() {
         return (
@@ -14,10 +28,22 @@ export default function Master({ Container, headers, itemName }) {
         )
     }
 
-    function addItem(e) {
+    async function addItem(e) {
         e.preventDefault()
-        addObj.id = new Date().getTime()
-        setItems(items.concat([JSON.parse(JSON.stringify(addObj))]))
+
+        let response = await api.post(apiPath, {
+            headers: {
+                Token: localStorage.getItem('token')
+            },
+            json: addObj
+        }).json()
+
+        if(response.status === 'error') {
+            alert(response.message)
+        } else {
+            fetchItems()
+        }
+
         setShowAddModal(false)
         addObj = {}
     }
@@ -34,21 +60,39 @@ export default function Master({ Container, headers, itemName }) {
         setFunction(editObjCopy)
     }
 
-    function updateItem(e) {
+    async function updateItem(e) {
         e.preventDefault()
-        let itemsCopy = JSON.parse(JSON.stringify(items))
-        let item = itemsCopy.find(item => item.id === editObj.id)
-        headers.forEach(header => {
-            item[header.column] = editObj[header.column]
-        })
-        setItems(itemsCopy)
+
+        let response = await api.put(apiPath + '/' + editObj.id, {
+            headers: {
+                Token: localStorage.getItem('token')
+            },
+            json: editObj
+        }).json()
+
+        if(response.status === 'error') {
+            alert(response.message)
+        } else {
+            fetchItems()
+        }
+
         setShowEditModal(false)
         setEditObj({})
     }
 
-    function deleteItem(id) {
+    async function deleteItem(id) {
         if(confirm('Are you sure you want to delete this item?')) {
-            setItems(items.filter(item => item.id !== id))
+            let response = await api.delete(apiPath + '/' + id, {
+                headers: {
+                    Token: localStorage.getItem('token')
+                }
+            }).json()
+
+            if(response.status === 'error') {
+                alert(response.message)
+            } else {
+                fetchItems()
+            }
         }
     }
 

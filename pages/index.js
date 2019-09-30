@@ -1,15 +1,27 @@
 import Page from 'Components/Page'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import api from 'Libs/esm/api'
 
-export default function Index() {
+function Index() {
 
     const [ loggedIn, setLoggedIn ] = useState(false)
     const [ organizations, setOrganizations ] = useState(false)
 
-    function login(e) {
+    async function login(e) {
         e.preventDefault()
-        setLoggedIn(true)
+        let response = await api.post('auth/login', {
+            json: {
+                email: e.target.querySelectorAll('input')[0].value,
+                password: e.target.querySelectorAll('input')[1].value
+            }
+        }).json()
+        if(response.status === 'success') {
+            localStorage.setItem('token', response.data.token)
+            setLoggedIn(true)
+        } else {
+            alert(response.message)
+        }
     }
 
     useEffect(() => {
@@ -77,3 +89,5 @@ export default function Index() {
         </Page>
     )
 }
+
+export default Index
