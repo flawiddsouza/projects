@@ -141,14 +141,7 @@ export default function Master({ Container, headers, itemName, apiPath }) {
                             <div key={'add' + header.column} className={index > 0 ? 'mt-0_5em' : null}>
                                 <div className="label">{header.name}</div>
                                 <div>
-                                    {
-                                        header.inputType === 'text' &&
-                                        <input type="text" required={header.required} autoFocus={index === 0}  onInput={e => addObj[header.column] = e.target.value}></input>
-                                    }
-                                    {
-                                        header.inputType === 'password' &&
-                                        <input type="password" required={header.required} onInput={e => addObj[header.column] = e.target.value}></input>
-                                    }
+                                    <input type={header.inputType} required={header.required} autoFocus={index === 0}  onInput={e => addObj[header.column] = e.target.value}></input>
                                 </div>
                             </div>
                         )
@@ -163,14 +156,7 @@ export default function Master({ Container, headers, itemName, apiPath }) {
                             <div key={'edit' + header.column} className={index > 0 ? 'mt-0_5em' : null}>
                                 <div className="label">{header.name}</div>
                                 <div>
-                                    {
-                                        header.inputType === 'text' &&
-                                        <input type="text" required={header.required} autoFocus={index === 0}  onChange={e => setObjectProperty(header.column, e.target.value, setEditObj)} value={editObj[header.column]}></input>
-                                    }
-                                    {
-                                        header.inputType === 'password' &&
-                                        <input type="password" required={header.required} onChange={e => setObjectProperty(header.column, e.target.value, setEditObj)} value={editObj[header.column]}></input>
-                                    }
+                                    <input type={header.inputType} required={header.required} autoFocus={index === 0}  onChange={e => setObjectProperty(header.column, e.target.value, setEditObj)} value={editObj[header.column]}></input>
                                 </div>
                             </div>
                         )

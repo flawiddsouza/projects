@@ -1,10 +1,13 @@
 import Master from 'Components/Master'
 import { useState, useEffect } from 'react'
 import Container from '../_container'
+import { useRouter } from 'next/router'
 
-export default function Roles() {
+function Roles() {
 
     const [ headers, setHeaders ] = useState([])
+    const router = useRouter()
+    const { organization } = router.query
 
     useEffect(() => {
         setHeaders([
@@ -24,6 +27,10 @@ export default function Roles() {
     }, [])
 
     return (
-        <Master Container={Container} headers={headers} itemName="Role"></Master>
+        <Master Container={Container} headers={headers} itemName="Role" apiPath={`${organization}/admin/roles`}></Master>
     )
 }
+
+Roles.getInitialProps = () => ({})
+
+export default Roles

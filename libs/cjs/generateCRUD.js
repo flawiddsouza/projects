@@ -1,14 +1,24 @@
 const dbQuery =  require('../db')
 
-function generateCRUD(router, table, columns) {
+function generateCRUD(router, route, table, columns, where=null) {
 
-    router.get(`/${table}`, async(req, res) => {
-        let items = await dbQuery(`SELECT * FROM ${table}`)
+    router.get(`/${route}`, async(req, res) => {
+        let items = null
+        if(!where) {
+            items = await dbQuery(`SELECT * FROM ${table} ORDER BY ${columns.includes('sort_order') ? 'sort_order' : 'id'}`)
+        } else {
+            items = await dbQuery(`SELECT * FROM ${table} WHERE ${where.where} = ${req[where.equals]} ORDER BY ${columns.includes('sort_order') ? 'sort_order' : 'id'}`)
+        }
         res.send(items)
     })
 
-    router.post(`/${table}`, async(req, res) => {
-        let result = await dbQuery(`INSERT INTO ${table}(${columns.join(',')}) VALUES(${columns.map(column => '?').join(',')})`, [...columns.map(column => req.body[column])])
+    router.post(`/${route}`, async(req, res) => {
+        let result = null
+        if(!where) {
+            result = await dbQuery(`INSERT INTO ${table}(${columns.join(',')}) VALUES(${columns.map(() => '?').join(',')})`, [...columns.map(column => req.body[column])])
+        } else {
+            result = await dbQuery(`INSERT INTO ${table}(${columns.join(',')}, ${where.where}) VALUES(${columns.map(() => '?').join(',')},?)`, [...columns.map(column => req.body[column]), req[where.equals]])
+        }
         if(result.hasOwnProperty('error')) {
             res.send({ status: 'error', message: 'Duplicate Entry' })
         } else {
@@ -16,7 +26,7 @@ function generateCRUD(router, table, columns) {
         }
     })
 
-    router.put(`/${table}/:id`, async(req, res) => {
+    router.put(`/${route}/:id`, async(req, res) => {
         let result = await dbQuery(`UPDATE ${table} SET ${columns.map(column => column + '=?').join(',')}, updated_at=CURRENT_TIMESTAMP WHERE id = ?`, [...columns.map(column => req.body[column]), req.params.id])
         if(result.hasOwnProperty('error')) {
             res.send({ status: 'error', message: 'Duplicate Entry' })
@@ -25,7 +35,7 @@ function generateCRUD(router, table, columns) {
         }
     })
 
-    router.delete(`/${table}/:id`, async(req, res) => {
+    router.delete(`/${route}/:id`, async(req, res) => {
         let result = await dbQuery(`DELETE FROM ${table} WHERE id = ?`, [req.params.id])
         if(result.hasOwnProperty('error')) {
             res.send({ status: 'error', message: 'Entry in use' })

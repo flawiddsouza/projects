@@ -11,6 +11,8 @@ import api from 'Libs/esm/api'
 function Index() {
 
     const [ projects, setProjects ] = useState([])
+    const [ taskTypes, setTaskTypes ] = useState([])
+    const [ taskStatuses, setTaskStatuses ] = useState([])
     const [ projectMembers, setProjectMembers ] = useState([])
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
@@ -27,6 +29,26 @@ function Index() {
             }
         }).json()
         setProjects(projects)
+    }
+
+    async function fetchTaskTypes() {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const taskTypes = await api.get(`${organizationSlug}/task-types`, {
+            headers: {
+                Token: localStorage.getItem('token')
+            }
+        }).json()
+        setTaskTypes(taskTypes)
+    }
+
+    async function fetchTaskStatuses() {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const taskStatuses = await api.get(`${organizationSlug}/task-statuses`, {
+            headers: {
+                Token: localStorage.getItem('token')
+            }
+        }).json()
+        setTaskStatuses(taskStatuses)
     }
 
     function handleCurrentHash(hash) {
@@ -53,18 +75,33 @@ function Index() {
         }
     }
 
-    async function loadProject(projectSlug) {
-        setCurrentProjectSlug(projectSlug)
-
+    async function fetchProjectMembers(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const { tasks, projectMembers } = await api.get(`${organizationSlug}/${projectSlug}/fetch`, {
+        const projectMembers = await api.get(`${organizationSlug}/${projectSlug}/members`, {
+            headers: {
+                Token: localStorage.getItem('token')
+            }
+        }).json()
+
+        setProjectMembers(projectMembers)
+    }
+
+    async function fetchProjectTasks(projectSlug) {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks`, {
             headers: {
                 Token: localStorage.getItem('token')
             }
         }).json()
 
         setTasks(tasks)
-        setProjectMembers(projectMembers)
+    }
+
+    async function loadProject(projectSlug) {
+        setCurrentProjectSlug(projectSlug)
+
+        fetchProjectMembers(projectSlug)
+        fetchProjectTasks(projectSlug)
     }
 
     function handleAddTaskKeydown(e) {
@@ -123,6 +160,8 @@ function Index() {
         Router.events.on('routeChangeComplete', handleReset)
 
         fetchProjects()
+        fetchTaskTypes()
+        fetchTaskStatuses()
 
         return () => {
             Router.events.off('hashChangeComplete', handleReset)
@@ -147,14 +186,19 @@ function Index() {
                             </select>
                             <select className="ml-0_25em" defaultValue="Open">
                                 <option>All</option>
-                                <option>Open</option>
-                                <option>Closed</option>
+                                {
+                                    taskStatuses.map(taskStatus => (
+                                        <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
+                                    ))
+                                }
                             </select>
                             <select className="ml-0_25em">
                                 <option>All</option>
-                                <option>NR</option>
-                                <option>CR</option>
-                                <option>BUG</option>
+                                {
+                                    taskTypes.map(taskType => (
+                                        <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                     </Fragment>
@@ -226,9 +270,11 @@ function Index() {
                             <div className="ml-0_5em">
                                 <div>Type</div>
                                 <select onChange={e => addTaskObj.type = e.target.value}>
-                                    <option>NR</option>
-                                    <option>CR</option>
-                                    <option>BUG</option>
+                                    {
+                                        taskTypes.map(taskType => (
+                                            <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                                        ))
+                                    }
                                 </select>
                             </div>
                         </div>

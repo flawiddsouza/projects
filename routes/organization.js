@@ -1,143 +1,56 @@
 const express = require('express')
 const router = express.Router()
+const dbQuery =  require('../libs/db')
 
-router.get('/projects', (req, res) => {
-    if(req.organization === 'atconline') {
-        res.json([
-            {
-                name: 'Agnes Pacifyca',
-                slug: 'agnes-pacifyca'
-            },
-            {
-                name: 'Aloysius Pacifyca',
-                slug: 'aloysius-pacifyca'
-            }
-        ])
-    } else {
-        res.json([])
-    }
+router.get('/projects', async(req, res) => {
+    let projects = await dbQuery('SELECT name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
+    res.json(projects)
 })
 
-router.get('/:project/fetch', (req, res) => {
-    if(req.organization === 'atconline') {
-        if(req.params.project === 'agnes-pacifyca') {
-            let tasks = [
-                {
-                    id: 1,
-                    date: '2019-09-12',
-                    type: 'NR',
-                    title: 'Test 1',
-                    status: 'OPEN'
-                },
-                {
-                    id: 2,
-                    date: '2019-09-10',
-                    type: 'CR',
-                    title: 'Test 2',
-                    status: 'OPEN'
-                },
-                {
-                    id: 3,
-                    date: '2019-09-05',
-                    type: 'BUG',
-                    title: 'Test 3',
-                    status: 'OPEN'
-                }
-            ]
-            let projectMembers = [
-                {
-                    id: 1,
-                    name: 'Deepa',
-                    role: 'Tester'
-                },
-                {
-                    id: 2,
-                    name: 'Flawid',
-                    role: 'Team Lead'
-                },
-                {
-                    id: 3,
-                    name: 'Kavya',
-                    role: 'Assistant Team Lead'
-                },
-                {
-                    id: 4,
-                    name: 'Keerthan',
-                    role: 'Developer'
-                },
-                {
-                    id: 5,
-                    name: 'Ranjith',
-                    role: 'Developer'
-                },
-                {
-                    id: 6,
-                    name: 'Shreekanth',
-                    role: 'Developer'
-                }
-            ]
-            res.json({
-                tasks,
-                projectMembers
-            })
-        }
-        if(req.params.project === 'aloysius-pacifyca') {
-            let tasks = [
-                {
-                    id: 4,
-                    date: '2019-09-16',
-                    type: 'BUG',
-                    title: 'Test 4',
-                    status: 'OPEN'
-                },
-                {
-                    id: 5,
-                    date: '2019-09-15',
-                    type: 'BUG',
-                    title: 'Test 5',
-                    status: 'OPEN'
-                },
-                {
-                    id: 6,
-                    date: '2019-09-14',
-                    type: 'CR',
-                    title: 'Test 6',
-                    status: 'OPEN'
-                }
-            ]
-            let projectMembers = [
-                {
-                    id: 7,
-                    name: 'Aniketh',
-                    role: 'Team Lead'
-                },
-                {
-                    id: 8,
-                    name: 'Chaitra',
-                    role: 'Tester'
-                },
-                {
-                    id: 9,
-                    name: 'Denzil',
-                    role: 'Developer'
-                },
-                {
-                    id: 10,
-                    name: 'Sanath',
-                    role: 'Developer'
-                }
-            ]
-            res.json({
-                tasks,
-                projectMembers
-            })
-        }
+router.get('/task-types', async(req, res) => {
+    let taskTypes = await dbQuery('SELECT id, type FROM task_types WHERE organization_id = ? ORDER BY sort_order', [req.organizationId])
+    res.json(taskTypes)
+})
+
+router.get('/task-statuses', async(req, res) => {
+    let taskStatuses = await dbQuery('SELECT id, status FROM task_statuses WHERE organization_id = ? ORDER BY sort_order', [req.organizationId])
+    res.json(taskStatuses)
+})
+
+async function validateProject(req, res, next) {
+    let results = await dbQuery('SELECT id FROM projects WHERE slug = ? AND organization_id = ?', [req.params.project, req.organizationId])
+    if(results.length > 0) {
+        req.projectId = results[0].id
+        next()
     } else {
         res.json({
-            tasks: [],
-            projectMembers: []
+            status: 'error',
+            message: 'Project does not exist'
         })
     }
+}
+
+router.get('/:project/members', validateProject, async(req, res) => {
+    let projectMembers = await dbQuery(`
+        SELECT project_members.id, users.name, organization_roles.role
+        FROM project_members
+        JOIN organization_members ON organization_members.id = project_members.organization_member_id
+        JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
+        JOIN users ON users.id = organization_members.user_id
+        WHERE project_members.project_id = ?
+    `, [req.projectId])
+    res.json(projectMembers)
+})
+
+router.get('/:project/tasks', validateProject, async(req, res) => {
+    let tasks = await dbQuery(`
+        SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status
+        FROM tasks
+        JOIN task_types ON task_types.id = tasks.task_type_id
+        JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+        WHERE project_id = ?
+    `, [req.projectId])
+    res.json(tasks)
 })
 
 module.exports = router

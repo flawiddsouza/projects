@@ -1,10 +1,13 @@
 import Master from 'Components/Master'
 import { useState, useEffect } from 'react'
 import Container from '../_container'
+import { useRouter } from 'next/router'
 
-export default function Manager() {
+function Manager() {
 
     const [ headers, setHeaders ] = useState([])
+    const router = useRouter()
+    const { organization } = router.query
 
     useEffect(() => {
         setHeaders([
@@ -13,11 +16,21 @@ export default function Manager() {
                 column: 'name',
                 inputType: 'text',
                 required: true
+            },
+            {
+                name: 'Slug',
+                column: 'slug',
+                inputType: 'text',
+                required: true
             }
         ])
     }, [])
 
     return (
-        <Master Container={Container} headers={headers} itemName="Project"></Master>
+        <Master Container={Container} headers={headers} itemName="Project" apiPath={`${organization}/admin/projects`}></Master>
     )
 }
+
+Manager.getInitialProps = () => ({})
+
+export default Manager

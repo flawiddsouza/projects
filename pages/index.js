@@ -6,7 +6,7 @@ import api from 'Libs/esm/api'
 function Index() {
 
     const [ loggedIn, setLoggedIn ] = useState(false)
-    const [ organizations, setOrganizations ] = useState(false)
+    const [ organizations, setOrganizations ] = useState([])
 
     async function login(e) {
         e.preventDefault()
@@ -24,18 +24,23 @@ function Index() {
         }
     }
 
-    useEffect(() => {
-        setOrganizations([
-            {
-                name: 'ATC Online LLP',
-                slug: 'atconline'
-            },
-            {
-                name: 'Example Org',
-                slug: 'example-org'
+    async function fetchOrganizations() {
+        const organizations = await api.get('organizations', {
+            headers: {
+                Token: localStorage.getItem('token')
             }
-        ])
-    }, [])
+        }).json()
+        setOrganizations(organizations)
+    }
+
+    useEffect(() => {
+        if(localStorage.getItem('token')) {
+            setLoggedIn(true)
+        }
+        if(loggedIn) {
+            fetchOrganizations()
+        }
+    }, [loggedIn])
 
     return (
         <Page>
