@@ -2,6 +2,7 @@ const express = require('express')
 const bcrypt =  require('bcrypt')
 const dbQuery =  require('../libs/db')
 const sendMail =  require('../libs/mail')
+const jwt =  require('../libs/jwt')
 
 const router = express.Router()
 
@@ -58,11 +59,38 @@ router.get('/verify-email', async(req, res) => {
 })
 
 router.post('/login', async(req, res) => {
-    let results = await dbQuery('select * from users')
-    res.send(results)
-    // bcrypt.compare(req.body.password, hash, function(err, res) {
-    //     // res == true
-    // });
+    if(req.body.email !== undefined && req.body.password !== undefined) {
+        let results = await dbQuery('SELECT * FROM users WHERE email = ?', [req.body.email])
+        if(results.length > 0) {
+            let user = results[0]
+            if(user.email_verification_code) {
+                res.send({
+                    status: 'error',
+                    message: 'Email not verified. Please verify your email address before continuing.'
+                })
+            } else {
+                let passwordMatches = await bcrypt.compare(req.body.password, user.password)
+                if(passwordMatches) {
+                    res.send({
+                        status: 'success',
+                        message: 'Logged in',
+                        data: {
+                            token: jwt.generateToken({ userId: user.id})
+                        }
+                    })
+                } else {
+                    res.send({
+                        status: 'error',
+                        message: 'Incorrect username & password'
+                    })
+                }
+            }
+        } else {
+            res.send({ status: 'error', message: 'User not found' })
+        }
+    } else {
+        res.send({ status: 'error', message: 'email and password are required fields' })
+    }
 })
 
 module.exports = router
