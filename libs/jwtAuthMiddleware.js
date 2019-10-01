@@ -14,12 +14,12 @@ module.exports = function authCheck(req, res, next) {
             req.authUserId = decodedToken.userId // decoded has the object structure { userId: userId }
         } catch(err) {
             if(err.name == 'JsonWebTokenError') {
-                return res.json({
+                return res.status(401).json({
                     status: 'error',
                     message: 'Authentication failed. Invalid token provided.'
                 })
             } else if(err.name == 'TokenExpiredError') {
-                return res.json({
+                return res.status(401).json({
                     status: 'error',
                     message: 'Authentication failed. Token provided has expired.'
                 })

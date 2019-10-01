@@ -53,4 +53,11 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     res.json(tasks)
 })
 
+router.post('/:project/task', validateProject, async(req, res) => {
+    let insertedRecord = await dbQuery(`
+        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id) VALUES(?, ?, ?, ?, ?)
+    `, [req.projectId, req.body.date, req.body.title, req.body.task_type_id, req.body.task_status_id])
+    res.json({ status: 'success', data: { insertedId: insertedRecord } })
+})
+
 module.exports = router

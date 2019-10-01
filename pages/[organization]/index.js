@@ -21,33 +21,27 @@ function Index() {
     const [ task, setTask ] = useState(null)
     const router = useRouter()
 
+    var addTaskObj = {
+        date: format(new Date, 'yyyy-MM-dd'),
+        title: '',
+        description: ''
+    }
+
     async function fetchProjects() {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const projects = await api.get(`${organizationSlug}/projects`, {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        const projects = await api.get(`${organizationSlug}/projects`).json()
         setProjects(projects)
     }
 
     async function fetchTaskTypes() {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const taskTypes = await api.get(`${organizationSlug}/task-types`, {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        const taskTypes = await api.get(`${organizationSlug}/task-types`).json()
         setTaskTypes(taskTypes)
     }
 
     async function fetchTaskStatuses() {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const taskStatuses = await api.get(`${organizationSlug}/task-statuses`, {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        const taskStatuses = await api.get(`${organizationSlug}/task-statuses`).json()
         setTaskStatuses(taskStatuses)
     }
 
@@ -77,22 +71,14 @@ function Index() {
 
     async function fetchProjectMembers(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const projectMembers = await api.get(`${organizationSlug}/${projectSlug}/members`, {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        const projectMembers = await api.get(`${organizationSlug}/${projectSlug}/members`).json()
 
         setProjectMembers(projectMembers)
     }
 
     async function fetchProjectTasks(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks`, {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks`).json()
 
         setTasks(tasks)
     }
@@ -110,29 +96,26 @@ function Index() {
         }
     }
 
-    let addTaskObj = {
-        date: format(new Date, 'yyyy-MM-dd'),
-        type: 'NR',
-        status: 'OPEN',
-        title: '',
-        description: ''
-    }
-
-    function addTask(e) {
+    async function addTask(e) {
         e.preventDefault()
-        let pushArray = [{
-            id: new Date().getTime(),
-            date: addTaskObj.date,
-            type: addTaskObj.type,
-            title: addTaskObj.title,
-            description: addTaskObj.description
-        }]
-        setTasks(pushArray.concat(tasks))
+
+        const organizationSlug = document.location.pathname.replace('/', '')
+        let response = await api.post(`${organizationSlug}/${currentProjectSlug}/task`, {
+            headers: {
+                Token: localStorage.getItem('token')
+            },
+            json: Object.assign(addTaskObj, {
+                task_status_id: taskStatuses[0].id,
+                task_type_id: addTaskObj.task_type_id ? addTaskObj.task_type_id : taskTypes[0].id
+            })
+        }).json()
+
+        fetchProjectTasks(currentProjectSlug)
+
         setShowAddTaskModal(false)
+
         addTaskObj = {
             date: format(new Date, 'yyyy-MM-dd'),
-            type: 'NR',
-            status: 'OPEN',
             title: '',
             description: ''
         }
@@ -269,7 +252,7 @@ function Index() {
                             </div>
                             <div className="ml-0_5em">
                                 <div>Type</div>
-                                <select onChange={e => addTaskObj.type = e.target.value}>
+                                <select onChange={e => addTaskObj.task_type_id = e.target.value}>
                                     {
                                         taskTypes.map(taskType => (
                                             <option key={taskType.id} value={taskType.id}>{taskType.type}</option>

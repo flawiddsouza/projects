@@ -25,11 +25,7 @@ function Index() {
     }
 
     async function fetchOrganizations() {
-        const organizations = await api.get('organizations', {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        const organizations = await api.get('organizations').json()
         setOrganizations(organizations)
     }
 

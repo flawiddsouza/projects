@@ -14,11 +14,7 @@ export default function Master({ Container, headers, itemName, apiPath }) {
     }, [])
 
     async function fetchItems() {
-        let items = await api.get(apiPath, {
-            headers: {
-                Token: localStorage.getItem('token')
-            }
-        }).json()
+        let items = await api.get(apiPath).json()
         setItems(items)
     }
 
