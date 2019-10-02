@@ -38,4 +38,15 @@ router.delete('/comment/:id', async(req, res) => {
     res.json({ status: 'success' })
 })
 
+router.get('/files', async(req, res) => {
+    let comments = await dbQuery(`
+        SELECT task_comment_files.id, task_comment_files.created_at, task_comment_files.original_file_name, task_comment_files.saved_file_name, task_comment_files.file_size
+        FROM task_comment_files
+        JOIN task_comments ON task_comments.id = task_comment_files.task_comment_id
+        WHERE task_comments.task_id = ?
+        ORDER BY task_comment_files.created_at
+    `, [req.taskId])
+    res.json(comments)
+})
+
 module.exports = router

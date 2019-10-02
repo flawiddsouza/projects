@@ -132,7 +132,7 @@ export default function TaskView({ task }) {
                     }
                     {
                         activeTab === 'files' &&
-                        <TaskViewFiles setFilesCount={setFilesCount}></TaskViewFiles>
+                        <TaskViewFiles taskId={task.id} setFilesCount={setFilesCount}></TaskViewFiles>
                     }
                     {
                         activeTab === 'assigned' &&

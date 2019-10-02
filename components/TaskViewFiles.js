@@ -1,24 +1,17 @@
 import { useState, useEffect } from 'react'
 import formatDateTime from 'Libs/formatDateTime.js'
+import api from 'Libs/esm/api'
 
-export default function TaskViewFiles({ setFilesCount }) {
+export default function TaskViewFiles({ taskId, setFilesCount }) {
     const [ files, setFiles ] = useState([])
 
+    async function fetchFiles() {
+        const files = await api.get(`task/${taskId}/files`).json()
+        setFiles(files)
+    }
+
     useEffect(() => {
-        setFiles([
-            {
-                id: 1,
-                filename: 'agnes_pacifyca_data.sql',
-                size: '129.2 MB',
-                created_at: '2019-09-01 16:31:00'
-            },
-            {
-                id: 2,
-                filename: 'agnes_pacifyca_structure.sql',
-                size: '274.5 KB',
-                created_at: '2019-09-10 13:12:00'
-            }
-        ])
+        fetchFiles()
     }, [])
 
     useEffect(() => {
@@ -33,8 +26,8 @@ export default function TaskViewFiles({ setFilesCount }) {
                     files.map(file =>
                         <tr key={file.id}>
                             <td style={{ width: '9.3em' }}>{formatDateTime(file.created_at)}</td>
-                            <td><a href={`static/attachments/${file.filename}`} target="_blank">{file.filename}</a></td>
-                            <td style={{ width: '5em' }}>{file.size}</td>
+                            <td><a href={`static/attachments/${file.saved_file_name}`} target="_blank">{file.original_file_name}</a></td>
+                            <td style={{ width: '5em' }}>{file.file_size}</td>
                         </tr>
                     )
                 }
