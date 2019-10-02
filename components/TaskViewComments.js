@@ -8,10 +8,12 @@ export default function TaskViewComments({ taskId, setCommentsCount }) {
     const [ comments, setComments ] = useState([])
     const [ updateCommentId, setUpdateCommentId ] = useState(null)
     const [ updateCommentData, setUpdateCommentData ] = useState(null)
+    const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
     const commentsContainer = createRef()
 
     async function fetchComments() {
         const comments = await api.get(`task/${taskId}/comments`).json()
+        setIntialLoadComplete(true)
         setComments(comments)
     }
 
@@ -20,7 +22,9 @@ export default function TaskViewComments({ taskId, setCommentsCount }) {
     }, [])
 
     useEffect(() => {
-        setCommentsCount(comments.length)
+        if(initialLoadComplete) {
+            setCommentsCount(comments.length)
+        }
 
         let commentsContainer2 = commentsContainer.current
         setTimeout(() => {

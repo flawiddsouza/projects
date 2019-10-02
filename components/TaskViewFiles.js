@@ -4,9 +4,11 @@ import api from 'Libs/esm/api'
 
 export default function TaskViewFiles({ taskId, setFilesCount }) {
     const [ files, setFiles ] = useState([])
+    const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
 
     async function fetchFiles() {
         const files = await api.get(`task/${taskId}/files`).json()
+        setIntialLoadComplete(true)
         setFiles(files)
     }
 
@@ -15,7 +17,9 @@ export default function TaskViewFiles({ taskId, setFilesCount }) {
     }, [])
 
     useEffect(() => {
-        setFilesCount(files.length)
+        if(initialLoadComplete) {
+            setFilesCount(files.length)
+        }
     }, [files])
 
     return (
