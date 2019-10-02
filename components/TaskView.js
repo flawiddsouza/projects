@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import formatDate from 'Libs/formatDate.js'
 import formatDateTime from 'Libs/formatDateTime.js'
 import DatePicker from 'react-datepicker'
@@ -6,11 +6,11 @@ import 'react-datepicker/dist/react-datepicker.css'
 import format from 'date-fns/format'
 import parseISO from 'date-fns/parseISO'
 import Modal from 'Components/Modal'
+import TaskViewComments from 'Components/TaskViewComments'
 
 export default function TaskView({ task }) {
     const [ activeTab, setActiveTab ] = useState('comments')
-    const [ comment, setComment ] = useState('')
-    const [ comments, setComments ] = useState([])
+    const [ commentsCount, setCommentsCount ] = useState(0)
     const [ files, setFiles ] = useState([])
     const [ assignedUsers, setAssignedUsers ] = useState([])
     const [ assignUserUser, setAssignUserUser ] = useState('')
@@ -22,33 +22,12 @@ export default function TaskView({ task }) {
     const [ timeSpendUpdate, setTimeSpendUpdate ] = useState(null)
     const [ updateTaskColumn, setUpdateTaskColumn ] = useState(null)
     const [ updateTaskColumnData, setUpdateTaskColumnData ] = useState(null)
-    const [ updateCommentId, setUpdateCommentId ] = useState(null)
-    const [ updateCommentData, setUpdateCommentData ] = useState(null)
-
-    const commentsContainer = React.createRef()
 
     useEffect(() => {
         fetchTaskDetails()
     }, [])
 
     function fetchTaskDetails() {
-        setComments([
-            {
-                id: 1,
-                user: 'Flawid',
-                comment: 'Hello'
-            },
-            {
-                id: 2,
-                user: 'Keerthan',
-                comment: 'Hi'
-            },
-            {
-                id: 3,
-                user: 'Deepa',
-                comment: 'Test'
-            }
-        ])
         setFiles([
             {
                 id: 1,
@@ -103,35 +82,6 @@ export default function TaskView({ task }) {
                 end_date_time: '2019-09-19 15:00'
             }
         ])
-    }
-
-    function handleAddCommentKeydown(e) {
-        if(e.altKey && e.key === 'Enter') {
-            e.target.value = e.target.value + '\n'
-            e.target.scrollTop = e.target.scrollHeight
-            return
-        }
-
-        if(e.key === 'Enter') {
-            e.preventDefault()
-            addComment()
-        }
-    }
-
-    function addComment() {
-        if(comment) {
-            let pushArray = [{
-                id: new Date().getTime(),
-                user: 'Deepa',
-                comment
-            }]
-            setComment('')
-            setComments(comments.concat(pushArray))
-            let commentsContainer2 = commentsContainer.current
-            setTimeout(() => {
-                commentsContainer2.scrollTop = commentsContainer2.scrollHeight
-            }, 0)
-        }
     }
 
     function assignUser() {
@@ -293,37 +243,6 @@ export default function TaskView({ task }) {
         )
     }
 
-    function startCommentUpdate(e, comment) {
-        e.preventDefault()
-        setUpdateCommentData(comment.comment)
-        setUpdateCommentId(comment.id)
-    }
-
-    function updateComment(e) {
-        e.preventDefault()
-        // updateCommentId
-        // updateCommentData
-        cancelUpdateComment()
-    }
-
-    function cancelUpdateComment() {
-        setUpdateCommentData(null)
-        setUpdateCommentId(null)
-    }
-
-    function removeComment(e, comment) {
-        e.preventDefault()
-        if(confirm('Are you sure you want to delete this comment?')) {
-            setComments(comments.filter(item => item.id !== comment.id))
-        }
-    }
-
-    function setFocusToEndOfInput(e) {
-        let val = e.target.value
-        e.target.value = ''
-        e.target.value = val
-    }
-
     return (
         <div style={{ width: '63vw' }}>
             <div className="d-f">
@@ -346,7 +265,7 @@ export default function TaskView({ task }) {
             </div>
             <div className="mt-1em">
                 <div className="tabs">
-                    <div className={ activeTab === 'comments' ? 'active': null} onClick={() => setActiveTab('comments') }>Comments ({comments.length})</div>
+                    <div className={ activeTab === 'comments' ? 'active': null} onClick={() => setActiveTab('comments') }>Comments ({commentsCount})</div>
                     <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files ({files.length})</div>
                     <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedUsers.length})</div>
                     <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpends.length} / 0:00)</div>
@@ -354,36 +273,7 @@ export default function TaskView({ task }) {
                 <div className="tabs-content" style={{ height: '25em' }}>
                     {
                         activeTab === 'comments' &&
-                            <div className="d-f flex-d-c flex-jc-sb h-100p">
-                                <div className="oy-a" style={{ maxHeight: '14em' }} ref={commentsContainer}>
-                                {
-                                    comments.map((commentItem, index) =>
-                                        <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color hover-show-child-parent`}>
-                                            <div className="label d-f flex-jc-sb">
-                                                <div>{commentItem.user}</div>
-                                                <div className="mr-0_5em hover-show-child">
-                                                    <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
-                                                        <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px'  }}></img>
-                                                    </a>
-                                                    <a href="#" className="ml-0_5em" onClick={e => removeComment(e, commentItem)}>
-                                                        <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px'  }}></img>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div className="mt-0_25em">{commentItem.comment}</div>
-                                        </div>
-                                    )
-                                }
-                                </div>
-                                <form onSubmit={addComment} className="mt-1em">
-                                    <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }}></textarea>
-                                    <div className="mt-0_5em">
-                                        <div>Attach Files</div>
-                                        <input type="file" mutliple="true" />
-                                    </div>
-                                    <button className="mt-1em">Add Comment</button>
-                                </form>
-                            </div>
+                        <TaskViewComments setCommentsCount={setCommentsCount}></TaskViewComments>
                     }
                     {
                         activeTab === 'files' &&
@@ -514,17 +404,6 @@ export default function TaskView({ task }) {
                 </div>
             </div>
             <UpdateTaskModal/>
-            <Modal showModal={updateCommentId !== null} hideModal={() => cancelUpdateComment()}>
-                <form onSubmit={updateComment} style={{ width: '50em' }}>
-                    <div>Edit Comment</div>
-                    <div className="mt-0_5em">
-                        <textarea value={updateCommentData} onChange={e => setUpdateCommentData(e.target.value)} autoFocus className="w-100p" style={{ height: '3.5em' }} onFocus={setFocusToEndOfInput} required></textarea>
-                    </div>
-                    <div className="mt-1em ta-r">
-                        <button>Update</button>
-                    </div>
-                </form>
-            </Modal>
         </div>
     )
 }
