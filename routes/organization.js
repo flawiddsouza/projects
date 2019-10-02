@@ -43,14 +43,23 @@ router.get('/:project/members', validateProject, async(req, res) => {
 })
 
 router.get('/:project/tasks', validateProject, async(req, res) => {
+    let additionalParams = []
+    if(req.query.status !== 'All') {
+        additionalParams.push(req.query.status)
+    }
+    if(req.query.type !== 'All') {
+        additionalParams.push(req.query.type)
+    }
     let tasks = await dbQuery(`
         SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
         WHERE project_id = ?
+        ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
+        ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
         ORDER BY tasks.created_at DESC
-    `, [req.projectId])
+    `, [req.projectId, ...additionalParams])
     res.json(tasks)
 })
 

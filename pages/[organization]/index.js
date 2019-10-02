@@ -19,6 +19,8 @@ function Index() {
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
+    const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
+    const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const router = useRouter()
 
     var addTaskObj = {
@@ -78,7 +80,7 @@ function Index() {
 
     async function fetchProjectTasks(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}`).json()
 
         setTasks(tasks)
     }
@@ -152,6 +154,12 @@ function Index() {
         }
     }, [])
 
+    useEffect(() => {
+        if(currentProjectSlug) {
+            fetchProjectTasks(currentProjectSlug)
+        }
+    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId])
+
     return (
         <Page>
             <Page.Nav>
@@ -167,7 +175,7 @@ function Index() {
                                 <option>Show Last 100</option>
                                 <option>Show All</option>
                             </select>
-                            <select className="ml-0_25em" defaultValue="Open">
+                            <select className="ml-0_25em" value={tasksFilterSelectedStatusId} onChange={e => setTasksFilterSelectedStatusId(e.target.value)}>
                                 <option>All</option>
                                 {
                                     taskStatuses.map(taskStatus => (
@@ -175,7 +183,7 @@ function Index() {
                                     ))
                                 }
                             </select>
-                            <select className="ml-0_25em">
+                            <select className="ml-0_25em" value={tasksFilterSelectedTypeId} onChange={e => setTasksFilterSelectedTypeId(e.target.value)}>
                                 <option>All</option>
                                 {
                                     taskTypes.map(taskType => (
