@@ -19,7 +19,8 @@ if(localEnv.DB_CONNECTION === 'mysql') {
                 port: localEnv.DB_PORT,
                 database: localEnv.DB_DATABASE,
                 user: localEnv.DB_USERNAME,
-                password: localEnv.DB_PASSWORD
+                password: localEnv.DB_PASSWORD,
+                dateStrings: true
             })
 
             const [rows, fields] = await db.execute(queryToExecute, params)
