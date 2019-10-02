@@ -148,7 +148,7 @@ export default function TaskView({ task }) {
                     }
                     {
                         activeTab === 'assigned' &&
-                        <TaskViewAssigned setAssignedCount={setAssignedCount}></TaskViewAssigned>
+                        <TaskViewAssigned taskId={task.id} setAssignedCount={setAssignedCount}></TaskViewAssigned>
                     }
                     {
                         activeTab === 'time-spent' &&

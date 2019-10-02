@@ -90,6 +90,45 @@ router.get('/time-spends', async(req, res) => {
     res.json(timeSpends)
 })
 
+router.get('/assigned-users', async(req, res) => {
+    let assignedUsers = await dbQuery(`
+        SELECT task_assigned_users.id, users.name as user
+        FROM task_assigned_users
+        JOIN users ON users.id = task_assigned_users.user_id
+        WHERE task_assigned_users.task_id = ?
+    `, [req.taskId])
+    let assignableUsers = await dbQuery(`
+        SELECT users.id, users.name as user
+        FROM project_members
+        JOIN organization_members ON organization_members.id = project_members.organization_member_id
+        JOIN users ON users.id = organization_members.user_id
+        JOIN tasks ON tasks.project_id = project_members.project_id
+        LEFT JOIN task_assigned_users ON task_assigned_users.user_id = users.id
+        AND task_assigned_users.task_id = tasks.id
+        WHERE tasks.id = ?
+        AND task_assigned_users.id IS NULL
+    `, [req.taskId])
+    res.json({
+        assignableUsers,
+        assignedUsers
+    })
+})
+
+router.post('/assigned-user', async(req, res) => {
+    let insertedRecord = await dbQuery(`
+        INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
+    `, [req.taskId, req.body.user_id])
+    res.json({ status: 'success', data: { insertedId: insertedRecord } })
+})
+
+router.delete('/assigned-user/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM task_assigned_users
+        WHERE id = ?
+    `, [req.params.id])
+    res.json({ status: 'success' })
+})
+
 router.post('/time-spend', async(req, res) => {
     let insertedRecord = await dbQuery(`
         INSERT INTO task_time_spends(task_id, user_id, description, start_date_time, end_date_time) VALUES(?, ?, ?, ?, ?)

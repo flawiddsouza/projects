@@ -1,43 +1,45 @@
 import { useState, useEffect } from 'react'
+import api from 'Libs/esm/api'
 
-export default function TaskViewAssigned({ setAssignedCount }) {
+export default function TaskViewAssigned({ taskId, setAssignedCount }) {
+    const [ assignableUsers, setAssignableUsers ] = useState([])
     const [ assignedUsers, setAssignedUsers ] = useState([])
     const [ assignUserUser, setAssignUserUser ] = useState('')
+    const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
+
+    async function fetchAssignedUsers() {
+        const { assignedUsers, assignableUsers } = await api.get(`task/${taskId}/assigned-users`).json()
+        setIntialLoadComplete(true)
+        setAssignableUsers(assignableUsers)
+        setAssignedUsers(assignedUsers)
+    }
 
     useEffect(() => {
-        setAssignedUsers([
-            {
-                id: 1,
-                user: 'Kavya'
-            },
-            {
-                id: 2,
-                user: 'Shreekanth'
-            },
-            {
-                id: 3,
-                user: 'Deepa'
-            }
-        ])
+        fetchAssignedUsers()
     }, [])
 
     useEffect(() => {
-        setAssignedCount(assignedUsers.length)
+        if(initialLoadComplete) {
+            setAssignedCount(assignedUsers.length)
+        }
     }, [assignedUsers])
 
     function assignUser() {
-        let pushArray = [{
-            id: new Date().getTime(),
-            user: assignUserUser
-        }]
-        setAssignedUsers(assignedUsers.concat(pushArray))
+        api.post(`task/${taskId}/assigned-user`, {
+            json: {
+                user_id: assignUserUser
+            }
+        }).then(() => {
+            fetchAssignedUsers()
+        })
         setAssignUserUser('')
     }
 
-    function removeAssignedUser(e, assignedUser) {
+    async function removeAssignedUser(e, assignedUser) {
         e.preventDefault()
         if(confirm('Are you sure you want to unassign this user?')) {
-            setAssignedUsers(assignedUsers.filter(item => item.id !== assignedUser.id))
+            await api.delete(`task/${taskId}/assigned-user/${assignedUser.id}`)
+            fetchAssignedUsers()
         }
     }
 
@@ -48,9 +50,11 @@ export default function TaskViewAssigned({ setAssignedCount }) {
                     <div className="label">Member</div>
                     <select required onChange={e => setAssignUserUser(e.target.value)} value={assignUserUser}>
                         <option></option>
-                        <option>Deepa</option>
-                        <option>Kavya</option>
-                        <option>Shreekanth</option>
+                        {
+                            assignableUsers.map(assignableUser => (
+                                <option key={assignableUser.id} value={assignableUser.id}>{assignableUser.user}</option>
+                            ))
+                        }
                     </select>
                 </div>
                 <div className="ml-1em">
