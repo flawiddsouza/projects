@@ -1,5 +1,6 @@
 import { createRef, useState, useEffect } from 'react'
 import Modal from 'Components/Modal'
+import urlifyText from 'Libs/esm/urlifyText'
 
 export default function TaskViewComments({ setCommentsCount }) {
     const [ comment, setComment ] = useState('')
@@ -109,7 +110,7 @@ export default function TaskViewComments({ setCommentsCount }) {
                                 </a>
                             </div>
                         </div>
-                        <div className="mt-0_25em">{commentItem.comment}</div>
+                        <div className="mt-0_25em ws-pw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
                     </div>
                 )
             }

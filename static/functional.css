@@ -58,6 +58,10 @@
     white-space: nowrap;
 }
 
+.ws-pw {
+    white-space: pre-wrap;
+}
+
 .flex-d-c {
     flex-direction: column;
 }
