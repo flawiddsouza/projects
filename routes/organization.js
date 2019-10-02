@@ -32,13 +32,19 @@ async function validateProject(req, res, next) {
 
 router.get('/:project/members', validateProject, async(req, res) => {
     let projectMembers = await dbQuery(`
-        SELECT project_members.id, users.name, organization_roles.role
+        SELECT
+            project_members.id,
+            CONCAT(
+                users.name,
+                (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
+            ) as user,
+            organization_roles.role
         FROM project_members
         JOIN organization_members ON organization_members.id = project_members.organization_member_id
         JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
         JOIN users ON users.id = organization_members.user_id
         WHERE project_members.project_id = ?
-    `, [req.projectId])
+    `, [req.authUserId, req.projectId])
     res.json(projectMembers)
 })
 

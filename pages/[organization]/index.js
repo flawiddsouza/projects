@@ -217,7 +217,7 @@ function Index() {
                                 projectMembers.map(projectMember => {
                                     return (
                                         <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
-                                            { projectMember.name } {projectMember.id === 1 ? '(you)' : ''}
+                                            { projectMember.user }
                                         </div>
                                     )
                                 })

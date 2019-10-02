@@ -27,13 +27,21 @@ router.get('/counts', async(req, res) => {
 
 router.get('/comments', async(req, res) => {
     let comments = await dbQuery(`
-        SELECT task_comments.id, users.name as user, task_comments.comment, task_comments.created_at, task_comments.updated_at,
-        (CASE WHEN users.id = ? THEN true ELSE false END) as you
+        SELECT
+            task_comments.id,
+            CONCAT(
+                users.name,
+                (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
+            ) as user,
+            task_comments.comment,
+            task_comments.created_at,
+            task_comments.updated_at,
+            (CASE WHEN users.id = ? THEN true ELSE false END) as you
         FROM task_comments
         JOIN users ON users.id = task_comments.user_id
         WHERE task_comments.task_id = ?
         ORDER BY task_comments.created_at
-    `, [req.authUserId, req.taskId])
+    `, [req.authUserId, req.authUserId, req.taskId])
     res.json(comments)
 })
 
@@ -74,31 +82,49 @@ router.get('/files', async(req, res) => {
 
 router.get('/time-spends', async(req, res) => {
     let timeSpends = await dbQuery(`
-        SELECT task_time_spends.id, task_time_spends.description, task_time_spends.start_date_time, task_time_spends.end_date_time, users.name as user,
-        (CASE
-            WHEN task_time_spends.end_date_time IS NOT NULL THEN
-                TIMESTAMPDIFF(SECOND, task_time_spends.start_date_time, task_time_spends.end_date_time)
-            ELSE
-                ''
-            END
-        ) as duration
+        SELECT
+            task_time_spends.id,
+            task_time_spends.description,
+            task_time_spends.start_date_time,
+            task_time_spends.end_date_time,
+            CONCAT(
+                users.name,
+                (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
+            ) as user,
+            (CASE
+                WHEN task_time_spends.end_date_time IS NOT NULL THEN
+                    TIMESTAMPDIFF(SECOND, task_time_spends.start_date_time, task_time_spends.end_date_time)
+                ELSE
+                    ''
+                END
+            ) as duration
         FROM task_time_spends
         JOIN users ON users.id = task_time_spends.user_id
         WHERE task_time_spends.task_id = ?
         ORDER BY task_time_spends.start_date_time
-    `, [req.taskId])
+    `, [req.authUserId, req.taskId])
     res.json(timeSpends)
 })
 
 router.get('/assigned-users', async(req, res) => {
     let assignedUsers = await dbQuery(`
-        SELECT task_assigned_users.id, users.name as user
+        SELECT
+            task_assigned_users.id,
+            CONCAT(
+                users.name,
+                (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
+            ) as user
         FROM task_assigned_users
         JOIN users ON users.id = task_assigned_users.user_id
         WHERE task_assigned_users.task_id = ?
-    `, [req.taskId])
+    `, [req.authUserId, req.taskId])
     let assignableUsers = await dbQuery(`
-        SELECT users.id, users.name as user
+        SELECT
+            users.id,
+            CONCAT(
+                users.name,
+                (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
+            ) as user
         FROM project_members
         JOIN organization_members ON organization_members.id = project_members.organization_member_id
         JOIN users ON users.id = organization_members.user_id
@@ -107,7 +133,7 @@ router.get('/assigned-users', async(req, res) => {
         AND task_assigned_users.task_id = tasks.id
         WHERE tasks.id = ?
         AND task_assigned_users.id IS NULL
-    `, [req.taskId])
+    `, [req.authUserId, req.taskId])
     res.json({
         assignableUsers,
         assignedUsers
