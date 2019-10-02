@@ -6,6 +6,7 @@ import TaskViewFiles from 'Components/TaskViewFiles'
 import TaskViewAssigned from 'Components/TaskViewAssigned'
 import TaskViewTimeSpent from 'Components/TaskViewTimeSpent'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
+import api from 'Libs/esm/api'
 
 export default function TaskView({ task }) {
     const [ activeTab, setActiveTab ] = useState('comments')
@@ -17,8 +18,17 @@ export default function TaskView({ task }) {
     const [ updateTaskColumn, setUpdateTaskColumn ] = useState(null)
     const [ updateTaskColumnData, setUpdateTaskColumnData ] = useState(null)
 
+    async function fetchCount() {
+        const counts = await api.get(`task/${task.id}/counts`).json()
+        setCommentsCount(counts.comments)
+        setFilesCount(counts.files)
+        setAssignedCount(counts.assigned)
+        setTimeSpentCount(counts.timeSpends.count)
+        setTimeSpentDuration(counts.timeSpends.duration)
+    }
+
     useEffect(() => {
-        // fetch counts for init
+        fetchCount()
     }, [])
 
     function startTaskColumnUpdate(column, columnData) {

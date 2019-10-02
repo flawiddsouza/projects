@@ -2,6 +2,29 @@ const express = require('express')
 const router = express.Router()
 const dbQuery =  require('../libs/db')
 
+router.get('/counts', async(req, res) => {
+    let duration = (await dbQuery(`
+        SELECT
+            SUM(TIMESTAMPDIFF(SECOND, task_time_spends.start_date_time, task_time_spends.end_date_time)) as duration
+        FROM task_time_spends
+        WHERE task_id = ?
+    `, [req.taskId]))[0].duration
+
+    res.json({
+        comments: (await dbQuery('SELECT COUNT(*) as count FROM task_comments WHERE task_id = ?', [req.taskId]))[0].count,
+        files: (await dbQuery(`
+            SELECT COUNT(*) as count FROM task_comment_files
+            JOIN task_comments ON task_comments.id = task_comment_files.task_comment_id
+            WHERE task_comments.task_id = ?
+        `, [req.taskId]))[0].count,
+        assigned: (await dbQuery('SELECT COUNT(*) as count FROM task_assigned_users WHERE task_id = ?', [req.taskId]))[0].count,
+        timeSpends: {
+            count: (await dbQuery('SELECT COUNT(*) as count FROM task_time_spends WHERE task_id = ?', [req.taskId]))[0].count,
+            duration: duration ? duration : 0
+        }
+    })
+})
+
 router.get('/comments', async(req, res) => {
     let comments = await dbQuery(`
         SELECT task_comments.id, users.name as user, task_comments.comment, task_comments.created_at, task_comments.updated_at,
