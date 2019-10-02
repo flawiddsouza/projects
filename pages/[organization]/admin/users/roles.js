@@ -16,12 +16,6 @@ function Roles() {
                 column: 'role',
                 inputType: 'text',
                 required: true
-            },
-            {
-                name: 'Task',
-                column: 'task',
-                inputType: 'text',
-                required: true
             }
         ])
     }, [])
