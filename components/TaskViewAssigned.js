@@ -3,24 +3,20 @@ import { useState, useEffect } from 'react'
 export default function TaskViewAssigned({ setAssignedCount }) {
     const [ assignedUsers, setAssignedUsers ] = useState([])
     const [ assignUserUser, setAssignUserUser ] = useState('')
-    const [ assignUserTask, setAssignUserTask ] = useState('')
 
     useEffect(() => {
         setAssignedUsers([
             {
                 id: 1,
-                user: 'Kavya',
-                task: 'Development',
+                user: 'Kavya'
             },
             {
                 id: 2,
-                user: 'Shreekanth',
-                task: 'Design'
+                user: 'Shreekanth'
             },
             {
                 id: 3,
-                user: 'Deepa',
-                task: 'Testing'
+                user: 'Deepa'
             }
         ])
     }, [])
@@ -32,12 +28,10 @@ export default function TaskViewAssigned({ setAssignedCount }) {
     function assignUser() {
         let pushArray = [{
             id: new Date().getTime(),
-            user: assignUserUser,
-            task: assignUserTask
+            user: assignUserUser
         }]
         setAssignedUsers(assignedUsers.concat(pushArray))
         setAssignUserUser('')
-        setAssignUserTask('')
     }
 
     function removeAssignedUser(e, assignedUser) {
@@ -59,15 +53,6 @@ export default function TaskViewAssigned({ setAssignedCount }) {
                         <option>Shreekanth</option>
                     </select>
                 </div>
-                <div className="ml-0_5em">
-                    <div className="label">Task</div>
-                    <select required onChange={e => setAssignUserTask(e.target.value)} value={assignUserTask}>
-                        <option></option>
-                        <option>Development</option>
-                        <option>Design</option>
-                        <option>Testing</option>
-                    </select>
-                </div>
                 <div className="ml-1em">
                     <button>Assign to Task</button>
                 </div>
@@ -79,7 +64,6 @@ export default function TaskViewAssigned({ setAssignedCount }) {
                         assignedUsers.map(assignedUser =>
                             <tr key={assignedUser.id}>
                                 <td>{assignedUser.user}</td>
-                                <td>{assignedUser.task}</td>
                                 <td>
                                     <a href="#" onClick={e => removeAssignedUser(e, assignedUser)}>Remove</a>
                                 </td>
