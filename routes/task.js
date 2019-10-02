@@ -24,7 +24,7 @@ router.post('/comment', async(req, res) => {
 router.put('/comment/:id', async(req, res) => {
     await dbQuery(`
         UPDATE task_comments
-        SET comment = ?
+        SET comment = ?, updated_at=CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
     `, [req.body.comment, req.params.id, req.authUserId])
     res.json({ status: 'success' })
