@@ -1,36 +1,31 @@
 import { createRef, useState, useEffect } from 'react'
 import Modal from 'Components/Modal'
 import urlifyText from 'Libs/esm/urlifyText'
+import api from 'Libs/esm/api'
 
-export default function TaskViewComments({ setCommentsCount }) {
+export default function TaskViewComments({ taskId, setCommentsCount }) {
     const [ comment, setComment ] = useState('')
     const [ comments, setComments ] = useState([])
     const [ updateCommentId, setUpdateCommentId ] = useState(null)
     const [ updateCommentData, setUpdateCommentData ] = useState(null)
     const commentsContainer = createRef()
 
+    async function fetchComments() {
+        const comments = await api.get(`task/${taskId}/comments`).json()
+        setComments(comments)
+    }
+
     useEffect(() => {
-        setComments([
-            {
-                id: 1,
-                user: 'Flawid',
-                comment: 'Hello'
-            },
-            {
-                id: 2,
-                user: 'Keerthan',
-                comment: 'Hi'
-            },
-            {
-                id: 3,
-                user: 'Deepa',
-                comment: 'Test'
-            }
-        ])
+        fetchComments()
     }, [])
 
     useEffect(() => {
         setCommentsCount(comments.length)
+
+        let commentsContainer2 = commentsContainer.current
+        setTimeout(() => {
+            commentsContainer2.scrollTop = commentsContainer2.scrollHeight
+        }, 0)
     }, [comments])
 
     function handleAddCommentKeydown(e) {
@@ -46,19 +41,16 @@ export default function TaskViewComments({ setCommentsCount }) {
         }
     }
 
-    function addComment() {
+    async function addComment() {
         if(comment) {
-            let pushArray = [{
-                id: new Date().getTime(),
-                user: 'Deepa',
-                comment
-            }]
+            api.post(`task/${taskId}/comment`, {
+                json: {
+                    comment
+                }
+            }).then(() => {
+                fetchComments()
+            })
             setComment('')
-            setComments(comments.concat(pushArray))
-            let commentsContainer2 = commentsContainer.current
-            setTimeout(() => {
-                commentsContainer2.scrollTop = commentsContainer2.scrollHeight
-            }, 0)
         }
     }
 
@@ -68,22 +60,28 @@ export default function TaskViewComments({ setCommentsCount }) {
         setUpdateCommentId(comment.id)
     }
 
-    function updateComment(e) {
+    async function updateComment(e) {
         e.preventDefault()
-        // updateCommentId
-        // updateCommentData
+        api.put(`task/${taskId}/comment/${updateCommentId}`, {
+            json: {
+                comment: updateCommentData
+            }
+        }).then(() => {
+            fetchComments()
+        })
         cancelUpdateComment()
     }
 
     function cancelUpdateComment() {
-        setUpdateCommentData(null)
+        setUpdateCommentData('')
         setUpdateCommentId(null)
     }
 
-    function removeComment(e, comment) {
+    async function removeComment(e, comment) {
         e.preventDefault()
         if(confirm('Are you sure you want to delete this comment?')) {
-            setComments(comments.filter(item => item.id !== comment.id))
+            await api.delete(`task/${taskId}/comment/${comment.id}`)
+            fetchComments()
         }
     }
 

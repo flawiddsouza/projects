@@ -12,6 +12,13 @@ router.get('/organizations', jwtAuthMiddleware, async(req, res) => {
     res.send(organizations)
 })
 
+async function validateAccessToTask(req, res, next) { // TODO
+    req.taskId = req.params.id
+    next()
+}
+
+router.use('/task/:id', [jwtAuthMiddleware, validateAccessToTask], require('./task'))
+
 async function validateOrganization(req, res, next) {
     let results = await dbQuery('SELECT id FROM organizations WHERE slug = ?', [req.params.organization])
     if(results.length > 0) {

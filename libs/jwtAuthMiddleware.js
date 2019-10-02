@@ -11,7 +11,7 @@ module.exports = function authCheck(req, res, next) {
                 token = req.body.token
             }
             let decodedToken = jwt.verifyToken(token)
-            req.authUserId = decodedToken.userId // decoded has the object structure { userId: userId }
+            req.authUserId = decodedToken.data.userId // decoded has the object structure { userId: userId }
         } catch(err) {
             if(err.name == 'JsonWebTokenError') {
                 return res.status(401).json({

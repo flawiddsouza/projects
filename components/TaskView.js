@@ -128,7 +128,7 @@ export default function TaskView({ task }) {
                 <div className="tabs-content" style={{ height: '25em' }}>
                     {
                         activeTab === 'comments' &&
-                        <TaskViewComments setCommentsCount={setCommentsCount}></TaskViewComments>
+                        <TaskViewComments taskId={task.id} setCommentsCount={setCommentsCount}></TaskViewComments>
                     }
                     {
                         activeTab === 'files' &&
