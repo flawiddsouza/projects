@@ -49,6 +49,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
         WHERE project_id = ?
+        ORDER BY tasks.created_at DESC
     `, [req.projectId])
     res.json(tasks)
 })
