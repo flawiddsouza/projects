@@ -4,42 +4,32 @@ import formatDateTime from 'Libs/formatDateTime.js'
 import parseISO from 'date-fns/parseISO'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import api from 'Libs/esm/api'
+import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 
-export default function TaskViewTimeSpent({ setTimeSpentCount }) {
+export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSpentDuration }) {
     const [ timeSpends, setTimeSpends ] = useState([])
     const [ timeSpendStartDescription, setTimeSpendDescription ] = useState('')
     const [ timeSpendStartDateTime, setTimeSpendStartDateTime ] = useState('')
     const [ timeSpendEndDateTime, setTimeSpendEndDateTime ] = useState('')
     const [ timeSpendUpdate, setTimeSpendUpdate ] = useState(null)
+    const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
+
+    async function fetchTimeSpends() {
+        const timeSpends = await api.get(`task/${taskId}/time-spends`).json()
+        setIntialLoadComplete(true)
+        setTimeSpends(timeSpends)
+    }
 
     useEffect(() => {
-        setTimeSpends([
-            {
-                id: 1,
-                user: 'Kavya',
-                description: 'Development',
-                start_date_time: '2019-09-19 10:00',
-                end_date_time: '2019-09-19 15:00'
-            },
-            {
-                id: 2,
-                user: 'Shreekanth',
-                description: 'Design',
-                start_date_time: '2019-09-19 10:00',
-                end_date_time: '2019-09-19 15:00'
-            },
-            {
-                id: 3,
-                user: 'Deepa',
-                description: 'Testing',
-                start_date_time: '2019-09-19 10:00',
-                end_date_time: '2019-09-19 15:00'
-            }
-        ])
+        fetchTimeSpends()
     }, [])
 
     useEffect(() => {
-        setTimeSpentCount(timeSpends.length)
+        if(initialLoadComplete) {
+            setTimeSpentCount(timeSpends.length)
+            setTimeSpentDuration(timeSpends.reduce((acc, timeSpend) => acc + Number(timeSpend.duration), 0))
+        }
     }, [timeSpends])
 
     function addTimeSpend(e) {
@@ -47,25 +37,27 @@ export default function TaskViewTimeSpent({ setTimeSpentCount }) {
 
         if(!timeSpendUpdate) { // add
 
-            let pushArray = [{
-                id: new Date().getTime(),
-                user: 'Deepa',
-                description: timeSpendStartDescription,
-                start_date_time: format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm'),
-                end_date_time: timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null,
-            }]
-
-            setTimeSpends(timeSpends.concat(pushArray))
+            api.post(`task/${taskId}/time-spend`, {
+                json: {
+                    description: timeSpendStartDescription,
+                    start_date_time: format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm'),
+                    end_date_time: timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null
+                }
+            }).then(() => {
+                fetchTimeSpends()
+            })
 
         } else { // update
 
-            let timeSpendsCopy = JSON.parse(JSON.stringify(timeSpends))
-            let timeSpend = timeSpendsCopy.find(item => item.id === timeSpendUpdate)
-            timeSpend.description = timeSpendStartDescription
-            timeSpend.start_date_time = format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm')
-            timeSpend.end_date_time = timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null
-
-            setTimeSpends(timeSpendsCopy)
+            api.put(`task/${taskId}/time-spend/${timeSpendUpdate}`, {
+                json: {
+                    description: timeSpendStartDescription,
+                    start_date_time: format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm'),
+                    end_date_time: timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null
+                }
+            }).then(() => {
+                fetchTimeSpends()
+            })
 
             setTimeSpendUpdate(null)
 
@@ -76,13 +68,15 @@ export default function TaskViewTimeSpent({ setTimeSpentCount }) {
         setTimeSpendEndDateTime('')
     }
 
-    function removeTimeSpend(e, timeSpend) {
+    async function removeTimeSpend(e, timeSpend) {
         e.preventDefault()
-        if(confirm('Are you sure you want to unassign this user?')) {
+        if(confirm('Are you sure you want to remove this time spend?')) {
             if(timeSpendUpdate && timeSpendUpdate === timeSpend.id) {
                 cancelEditTimeSpend()
             }
-            setTimeSpends(timeSpends.filter(item => item.id !== timeSpend.id))
+
+            await api.delete(`task/${taskId}/time-spend/${timeSpend.id}`)
+            fetchTimeSpends()
         }
     }
 
@@ -141,6 +135,7 @@ export default function TaskViewTimeSpent({ setTimeSpentCount }) {
                             <th className="ta-l">Description</th>
                             <th style={{ width: '9.5em' }}>Start Date Time</th>
                             <th style={{ width: '9.5em' }}>End Date Time</th>
+                            <th style={{ width: '4em' }}>Duration</th>
                             <th colSpan="2">Actions</th>
                         </tr>
                     </thead>
@@ -150,8 +145,9 @@ export default function TaskViewTimeSpent({ setTimeSpentCount }) {
                             <tr key={timeSpent.id}>
                                 <td className="ws-nw">{timeSpent.user}</td>
                                 <td>{timeSpent.description}</td>
-                                <td>{formatDateTime(timeSpent.start_date_time)}</td>
-                                <td>{timeSpent.end_date_time ? formatDateTime(timeSpent.end_date_time) : null}</td>
+                                <td className="ta-c">{formatDateTime(timeSpent.start_date_time)}</td>
+                                <td className="ta-c">{timeSpent.end_date_time ? formatDateTime(timeSpent.end_date_time) : null}</td>
+                                <td className="ta-c">{timeSpent.duration ? secondsInHHMMSS(timeSpent.duration) : null}</td>
                                 <td style={{ width: '2em' }}>
                                     <a href="#" onClick={e => editTimeSpend(e, timeSpent)}>Edit</a>
                                 </td>

@@ -49,4 +49,46 @@ router.get('/files', async(req, res) => {
     res.json(comments)
 })
 
+router.get('/time-spends', async(req, res) => {
+    let timeSpends = await dbQuery(`
+        SELECT task_time_spends.id, task_time_spends.description, task_time_spends.start_date_time, task_time_spends.end_date_time, users.name as user,
+        (CASE
+            WHEN task_time_spends.end_date_time IS NOT NULL THEN
+                TIMESTAMPDIFF(SECOND, task_time_spends.start_date_time, task_time_spends.end_date_time)
+            ELSE
+                ''
+            END
+        ) as duration
+        FROM task_time_spends
+        JOIN users ON users.id = task_time_spends.user_id
+        WHERE task_time_spends.task_id = ?
+        ORDER BY task_time_spends.start_date_time
+    `, [req.taskId])
+    res.json(timeSpends)
+})
+
+router.post('/time-spend', async(req, res) => {
+    let insertedRecord = await dbQuery(`
+        INSERT INTO task_time_spends(task_id, user_id, description, start_date_time, end_date_time) VALUES(?, ?, ?, ?, ?)
+    `, [req.taskId, req.authUserId, req.body.description, req.body.start_date_time, req.body.end_date_time])
+    res.json({ status: 'success', data: { insertedId: insertedRecord } })
+})
+
+router.put('/time-spend/:id', async(req, res) => {
+    await dbQuery(`
+        UPDATE task_time_spends
+        SET description = ?, start_date_time = ?, end_date_time = ?, updated_at=CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+    `, [req.body.description, req.body.start_date_time, req.body.end_date_time, req.params.id, req.authUserId])
+    res.json({ status: 'success' })
+})
+
+router.delete('/time-spend/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM task_time_spends
+        WHERE id = ? AND user_id = ?
+    `, [req.params.id, req.authUserId])
+    res.json({ status: 'success' })
+})
+
 module.exports = router

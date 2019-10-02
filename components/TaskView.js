@@ -5,6 +5,7 @@ import TaskViewComments from 'Components/TaskViewComments'
 import TaskViewFiles from 'Components/TaskViewFiles'
 import TaskViewAssigned from 'Components/TaskViewAssigned'
 import TaskViewTimeSpent from 'Components/TaskViewTimeSpent'
+import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 
 export default function TaskView({ task }) {
     const [ activeTab, setActiveTab ] = useState('comments')
@@ -12,6 +13,7 @@ export default function TaskView({ task }) {
     const [ filesCount, setFilesCount ] = useState(0)
     const [ assignedCount, setAssignedCount ] = useState(0)
     const [ timeSpentCount, setTimeSpentCount ] = useState(0)
+    const [ timeSpentDuration, setTimeSpentDuration ] = useState(0)
     const [ updateTaskColumn, setUpdateTaskColumn ] = useState(null)
     const [ updateTaskColumnData, setUpdateTaskColumnData ] = useState(null)
 
@@ -123,7 +125,7 @@ export default function TaskView({ task }) {
                     <div className={ activeTab === 'comments' ? 'active': null} onClick={() => setActiveTab('comments') }>Comments ({commentsCount})</div>
                     <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files ({filesCount})</div>
                     <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedCount})</div>
-                    <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpentCount} / 0:00)</div>
+                    <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpentCount} / {secondsInHHMMSS(timeSpentDuration)})</div>
                 </div>
                 <div className="tabs-content" style={{ height: '25em' }}>
                     {
@@ -140,7 +142,7 @@ export default function TaskView({ task }) {
                     }
                     {
                         activeTab === 'time-spent' &&
-                        <TaskViewTimeSpent setTimeSpentCount={setTimeSpentCount}></TaskViewTimeSpent>
+                        <TaskViewTimeSpent taskId={task.id} setTimeSpentCount={setTimeSpentCount} setTimeSpentDuration={setTimeSpentDuration}></TaskViewTimeSpent>
                     }
                 </div>
             </div>
