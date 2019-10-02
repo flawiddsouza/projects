@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Container from '../_container'
 import { useRouter } from 'next/router'
 
-function Manager() {
+function Manage() {
 
     const [ organizationUsers, setOrganizationUsers ] = useState([])
     const router = useRouter()
@@ -13,11 +13,11 @@ function Manager() {
 
     return (
         <Container>
-            Organizations User Manager
+            Manage Organizations Users
         </Container>
     )
 }
 
-Manager.getInitialProps = () => ({})
+Manage.getInitialProps = () => ({})
 
-export default Manager
+export default Manage

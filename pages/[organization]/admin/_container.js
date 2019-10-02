@@ -17,8 +17,8 @@ export default function Container({ children, Nav=null }) {
             <Page.Sidebar>
                 <div className="fw-b">Projects</div>
                 <div className="mt-0_5em">
-                    <Link href="/[organization]/admin/projects/manager" as={`/${organization}/admin/projects/manager`} activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Manager</a>
+                    <Link href="/[organization]/admin/projects/manage" as={`/${organization}/admin/projects/manage`} activeClassName="td-n c-b">
+                        <a className="d-b mt-0_25em">Manage</a>
                     </Link>
                 </div>
                 <div className="fw-b mt-1em">Tasks</div>
@@ -35,8 +35,8 @@ export default function Container({ children, Nav=null }) {
                     <Link href="/[organization]/admin/users/roles" as={`/${organization}/admin/users/roles`} activeClassName="td-n c-b">
                         <a className="d-b mt-0_25em">Roles</a>
                     </Link>
-                    <Link href="/[organization]/admin/users/manager" as={`/${organization}/admin/users/manager`} activeClassName="td-n c-b">
-                        <a className="d-b mt-0_25em">Manager</a>
+                    <Link href="/[organization]/admin/users/manage" as={`/${organization}/admin/users/manage`} activeClassName="td-n c-b">
+                        <a className="d-b mt-0_25em">Manage</a>
                     </Link>
                 </div>
             </Page.Sidebar>

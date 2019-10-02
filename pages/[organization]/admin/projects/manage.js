@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Container from '../_container'
 import { useRouter } from 'next/router'
 
-function Manager() {
+function Manage() {
 
     const [ headers, setHeaders ] = useState([])
     const router = useRouter()
@@ -31,6 +31,6 @@ function Manager() {
     )
 }
 
-Manager.getInitialProps = () => ({})
+Manage.getInitialProps = () => ({})
 
-export default Manager
+export default Manage
