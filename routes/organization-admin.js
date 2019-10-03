@@ -58,4 +58,58 @@ router.delete('/member/:id', async(req, res) => {
     res.json({ status: 'success' })
 })
 
+router.get('/projects/assign-members/organization-members/:project_id', async(req, res) => { // organization members excluding members who are already in the project
+    let organizationMembers = await dbQuery(`
+        SELECT
+            organization_members.id,
+            CONCAT(users.name, ' (', organization_roles.role, ')') as user
+        FROM organization_members
+        JOIN users ON users.id = organization_members.user_id
+        JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
+        LEFT JOIN project_members ON project_members.organization_member_id = organization_members.id
+        AND project_members.project_id = ?
+        WHERE organization_members.organization_id = ?
+        AND project_members.id IS NULL
+    `, [req.params.project_id, req.organizationId])
+    res.json(organizationMembers)
+})
+
+router.get('/projects/assign-members/projects', async(req, res) => {
+    let projects = await dbQuery(`
+        SELECT id, name FROM projects
+        WHERE organization_id = ?
+    `, [req.organizationId])
+    res.json(projects)
+})
+
+router.get('/projects/assign-members/project-members/:project_id', async(req, res) => {
+    let projectMembers = await dbQuery(`
+        SELECT
+            project_members.id,
+            CONCAT(users.name, ' (', organization_roles.role, ')') as user
+        FROM project_members
+        JOIN organization_members ON organization_members.id = project_members.organization_member_id
+        JOIN users ON users.id = organization_members.user_id
+        JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
+        WHERE project_members.project_id = ?
+    `, [req.params.project_id])
+    res.json(projectMembers)
+})
+
+router.post('/projects/assign-members/project-members/:project_id', async(req, res) => {
+    await dbQuery(`
+        INSERT INTO project_members(project_id, organization_member_id)
+        VALUES(?, ?)
+    `, [req.params.project_id, req.body.organization_member_id])
+    res.json({ status: 'success' })
+})
+
+router.delete('/projects/assign-members/project-member/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM project_members
+        WHERE id = ?
+    `, [req.params.id])
+    res.json({ status: 'success' })
+})
+
 module.exports = router
