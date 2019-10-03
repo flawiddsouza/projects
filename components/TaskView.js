@@ -7,8 +7,9 @@ import TaskViewAssigned from 'Components/TaskViewAssigned'
 import TaskViewTimeSpent from 'Components/TaskViewTimeSpent'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 import api from 'Libs/esm/api'
+import Link from 'next/link'
 
-export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks }) {
+export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, tabsContentHeight=null, width=null }) {
     const [ activeTab, setActiveTab ] = useState('comments')
     const [ commentsCount, setCommentsCount ] = useState(0)
     const [ filesCount, setFilesCount ] = useState(0)
@@ -123,19 +124,24 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks }
     }
 
     return (
-        <div style={{ width: '63vw' }}>
-            <div className="d-f">
+        <div style={{ width: width ? width : '63vw' }}>
+            <div className="d-f flex-jc-sb">
+                <div className="d-f">
+                    <div>
+                        <div className="label">Date</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('date', task.date)}>{ formatDate(task.date) }</div>
+                    </div>
+                    <div className="ml-3em">
+                        <div className="label">Type</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_type_id', task.task_type_id)}>{ task.type }</div>
+                    </div>
+                    <div className="ml-3em">
+                        <div className="label">Status</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_status_id', task.task_status_id)}>{ task.status }</div>
+                    </div>
+                </div>
                 <div>
-                    <div className="label">Date</div>
-                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('date', task.date)}>{ formatDate(task.date) }</div>
-                </div>
-                <div className="ml-3em">
-                    <div className="label">Type</div>
-                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_type_id', task.task_type_id)}>{ task.type }</div>
-                </div>
-                <div className="ml-3em">
-                    <div className="label">Status</div>
-                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_status_id', task.task_status_id)}>{ task.status }</div>
+                    <Link href="/task/[taskId]" as={`/task/${task.id}`}>{task.id.toString().padStart(6, '0')}</Link>
                 </div>
             </div>
             <div className="mt-1em">
@@ -149,10 +155,10 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks }
                     <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedCount})</div>
                     <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpentCount} / {secondsInHHMMSS(timeSpentDuration)})</div>
                 </div>
-                <div className="tabs-content" style={{ height: '25em' }}>
+                <div className="tabs-content" style={{ height: tabsContentHeight ? tabsContentHeight : '25em' }}>
                     {
                         activeTab === 'comments' &&
-                        <TaskViewComments taskId={task.id} setCommentsCount={setCommentsCount}></TaskViewComments>
+                        <TaskViewComments taskId={task.id} setCommentsCount={setCommentsCount} tabsContentHeight={tabsContentHeight}></TaskViewComments>
                     }
                     {
                         activeTab === 'files' &&
@@ -164,7 +170,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks }
                     }
                     {
                         activeTab === 'time-spent' &&
-                        <TaskViewTimeSpent taskId={task.id} setTimeSpentCount={setTimeSpentCount} setTimeSpentDuration={setTimeSpentDuration}></TaskViewTimeSpent>
+                        <TaskViewTimeSpent taskId={task.id} setTimeSpentCount={setTimeSpentCount} setTimeSpentDuration={setTimeSpentDuration} tabsContentHeight={tabsContentHeight}></TaskViewTimeSpent>
                     }
                 </div>
             </div>

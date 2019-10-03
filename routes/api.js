@@ -12,9 +12,18 @@ router.get('/organizations', jwtAuthMiddleware, async(req, res) => {
     res.send(organizations)
 })
 
-async function validateAccessToTask(req, res, next) { // TODO
-    req.taskId = req.params.id
-    next()
+async function validateAccessToTask(req, res, next) { // TODO check if the autheticated user has access to the task
+    let results = await dbQuery('SELECT id, project_id FROM tasks WHERE id = ?', [req.params.id])
+    if(results.length > 0) {
+        req.taskId = results[0].id
+        req.projectId = results[0].project_id
+        next()
+    } else {
+        res.send({
+            status: 'error',
+            message: 'Task does not exist'
+        })
+    }
 }
 
 router.use('/task/:id', [jwtAuthMiddleware, validateAccessToTask], require('./task'))

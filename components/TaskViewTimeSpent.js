@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import api from 'Libs/esm/api'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 
-export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSpentDuration }) {
+export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSpentDuration, tabsContentHeight=null }) {
     const [ timeSpends, setTimeSpends ] = useState([])
     const [ timeSpendStartDescription, setTimeSpendDescription ] = useState('')
     const [ timeSpendStartDateTime, setTimeSpendStartDateTime ] = useState('')
@@ -127,7 +127,7 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
                     </div>
                 </div>
             </form>
-            <div className="oy-a mt-1em" style={{ maxHeight: '23.2em' }}>
+            <div className="oy-a mt-1em" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 4em)' : '21em' }}>
                 <table className="table">
                     <thead>
                         <tr>

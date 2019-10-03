@@ -3,7 +3,7 @@ import Modal from 'Components/Modal'
 import urlifyText from 'Libs/esm/urlifyText'
 import api from 'Libs/esm/api'
 
-export default function TaskViewComments({ taskId, setCommentsCount }) {
+export default function TaskViewComments({ taskId, setCommentsCount, tabsContentHeight=null }) {
     const [ comment, setComment ] = useState('')
     const [ comments, setComments ] = useState([])
     const [ updateCommentId, setUpdateCommentId ] = useState(null)
@@ -97,7 +97,7 @@ export default function TaskViewComments({ taskId, setCommentsCount }) {
 
     return (
         <div className="d-f flex-d-c flex-jc-sb h-100p">
-            <div className="oy-a" style={{ maxHeight: '14em' }} ref={commentsContainer}>
+            <div className="oy-a" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 5em)' : '14em' }} ref={commentsContainer}>
             {
                 comments.map((commentItem, index) =>
                     <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color hover-show-child-parent`}>

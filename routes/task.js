@@ -2,6 +2,45 @@ const express = require('express')
 const router = express.Router()
 const dbQuery =  require('../libs/db')
 
+router.get('/', async(req, res) => {
+    const task = await dbQuery(`
+        SELECT
+            tasks.id,
+            tasks.date,
+            tasks.title,
+            task_types.type,
+            task_statuses.status,
+            tasks.task_type_id,
+            tasks.task_status_id,
+            organizations.name as organization_name,
+            organizations.slug as organization_slug,
+            projects.name as project_name,
+            projects.slug as project_slug
+        FROM tasks
+        JOIN task_types ON task_types.id = tasks.task_type_id
+        JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+        JOIN projects ON projects.id = tasks.project_id
+        JOIN organizations ON organizations.id = projects.organization_id
+        WHERE tasks.id = ?
+    `, [req.taskId])
+
+    const taskTypes = await dbQuery(`
+        SELECT task_types.id, task_types.type FROM task_types
+        JOIN organizations ON organizations.id = task_types.organization_id
+        JOIN projects ON projects.organization_id = organizations.id
+        WHERE projects.id = ?
+    `, [req.projectId])
+
+    const taskStatuses = await dbQuery(`
+        SELECT task_statuses.id, task_statuses.status FROM task_statuses
+        JOIN organizations ON organizations.id = task_statuses.organization_id
+        JOIN projects ON projects.organization_id = organizations.id
+        WHERE projects.id = ?
+    `, [req.projectId])
+
+    res.json({ task: task[0], taskTypes, taskStatuses })
+})
+
 router.get('/counts', async(req, res) => {
     let duration = (await dbQuery(`
         SELECT

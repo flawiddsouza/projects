@@ -24,7 +24,8 @@ export default function TaskViewAssigned({ taskId, setAssignedCount }) {
         }
     }, [assignedUsers])
 
-    function assignUser() {
+    function assignUser(e) {
+        e.preventDefault()
         api.post(`task/${taskId}/assigned-user`, {
             json: {
                 user_id: assignUserUser
