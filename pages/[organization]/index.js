@@ -245,6 +245,10 @@ function Index() {
                                 <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
                                     <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
                                     <td style={{ width: '2em' }}>{ task.type }</td>
+                                    {
+                                        tasksFilterSelectedStatusId === 'All' &&
+                                        <td style={{ width: '2em' }}>{ task.status }</td>
+                                    }
                                     <td>{ task.title }</td>
                                 </tr>
                             )
