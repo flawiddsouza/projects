@@ -8,7 +8,7 @@ import TaskViewTimeSpent from 'Components/TaskViewTimeSpent'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 import api from 'Libs/esm/api'
 
-export default function TaskView({ task }) {
+export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks }) {
     const [ activeTab, setActiveTab ] = useState('comments')
     const [ commentsCount, setCommentsCount ] = useState(0)
     const [ filesCount, setFilesCount ] = useState(0)
@@ -39,6 +39,13 @@ export default function TaskView({ task }) {
     function UpdateTaskModal() {
         function updateColumn(e) {
             e.preventDefault()
+            api.put(`task/${task.id}/update/${updateTaskColumn}`, {
+                json: {
+                    [updateTaskColumn]: updateTaskColumnData
+                }
+            }).then(() => {
+                refreshTasks()
+            })
             cancelTaskColumnUpdate()
         }
 
@@ -63,14 +70,16 @@ export default function TaskView({ task }) {
                     </Fragment>
                 }
                 {
-                    updateTaskColumn === 'type' &&
+                    updateTaskColumn === 'task_type_id' &&
                     <Fragment>
                         <div>Change Type</div>
                         <div className="mt-0_5em">
                             <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
-                                <option>NR</option>
-                                <option>CR</option>
-                                <option>BUG</option>
+                                {
+                                    taskTypes.map(taskType => (
+                                        <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                         <div className="mt-1em ta-r">
@@ -79,13 +88,16 @@ export default function TaskView({ task }) {
                     </Fragment>
                 }
                 {
-                    updateTaskColumn === 'status' &&
+                    updateTaskColumn === 'task_status_id' &&
                     <Fragment>
                         <div>Change Status</div>
                         <div className="mt-0_5em">
                             <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
-                                <option>OPEN</option>
-                                <option>CLOSED</option>
+                                {
+                                    taskStatuses.map(taskStatus => (
+                                        <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                         <div className="mt-1em ta-r">
@@ -119,11 +131,11 @@ export default function TaskView({ task }) {
                 </div>
                 <div className="ml-3em">
                     <div className="label">Type</div>
-                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('type', task.type)}>{ task.type }</div>
+                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_type_id', task.task_type_id)}>{ task.type }</div>
                 </div>
                 <div className="ml-3em">
                     <div className="label">Status</div>
-                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('status', task.status)}>{ task.status }</div>
+                    <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_status_id', task.task_status_id)}>{ task.status }</div>
                 </div>
             </div>
             <div className="mt-1em">

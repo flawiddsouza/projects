@@ -179,4 +179,17 @@ router.delete('/time-spend/:id', async(req, res) => {
     res.json({ status: 'success' })
 })
 
+router.put('/update/:field', async(req, res) => {
+    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id') {
+        await dbQuery(`
+            UPDATE tasks
+            SET ${req.params.field} = ?
+            WHERE id = ?
+        `, [req.body[req.params.field], req.taskId])
+        res.json({ status: 'success' })
+    } else {
+        res.json({ status: 'error' })
+    }
+})
+
 module.exports = router

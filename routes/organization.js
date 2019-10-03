@@ -57,7 +57,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         additionalParams.push(req.query.type)
     }
     let tasks = await dbQuery(`
-        SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status
+        SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, tasks.task_type_id, tasks.task_status_id
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id

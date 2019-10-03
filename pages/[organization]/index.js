@@ -83,6 +83,10 @@ function Index() {
         const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}`).json()
 
         setTasks(tasks)
+
+        if(task) {
+            setTask(tasks.find(taskItem => taskItem.id === task.id))
+        }
     }
 
     async function loadProject(projectSlug) {
@@ -290,7 +294,7 @@ function Index() {
                 {
                     task &&
                     <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
-                        <TaskView task={task}></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} refreshTasks={() => fetchProjectTasks(currentProjectSlug)}></TaskView>
                     </Modal>
                 }
             </Page.Content>
