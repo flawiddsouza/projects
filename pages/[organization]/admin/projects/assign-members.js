@@ -62,11 +62,16 @@ function AssignMembers() {
         }
     }, [selectedProjectId])
 
+    useEffect(() => {
+        if(projects.length > 0) {
+            setSelectedProjectId(projects[0].id)
+        }
+    }, [projects])
+
     return (
         <Container>
             <form className="d-f mb-1em" onSubmit={addMemberToProject}>
                 <select required onChange={e => setSelectedProjectId(e.target.value)} value={selectedProjectId}>
-                    <option></option>
                     {
                         projects.map(project => (
                             <option key={project.id} value={project.id}>{project.name}</option>
