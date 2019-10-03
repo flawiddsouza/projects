@@ -112,4 +112,31 @@ router.delete('/projects/assign-members/project-member/:id', async(req, res) => 
     res.json({ status: 'success' })
 })
 
+router.get('/tasks/checklists/:task_type_id', async(req, res) => {
+    let checklists = await dbQuery(`
+        SELECT task_checklists.id, task_checklists.name
+        FROM task_checklists
+        JOIN task_types ON task_types.id = task_checklists.task_type_id
+        WHERE task_checklists.task_type_id = ?
+        AND task_types.organization_id = ?
+    `, [req.params.task_type_id, req.organizationId])
+    res.json(checklists)
+})
+
+router.post('/tasks/checklists/:task_type_id', async(req, res) => {
+    await dbQuery(`
+        INSERT INTO task_checklists(task_type_id, name)
+        VALUES(?, ?)
+    `, [req.params.task_type_id, req.body.name])
+    res.json({ status: 'success' })
+})
+
+router.delete('/tasks/checklists/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM task_checklists
+        WHERE id = ?
+    `, [req.params.id])
+    res.json({ status: 'success' })
+})
+
 module.exports = router

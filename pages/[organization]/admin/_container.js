@@ -41,6 +41,9 @@ export default function Container({ children, Nav=null }) {
                     <Link href="/[organization]/admin/tasks/types" as={`/${organization}/admin/tasks/types`} activeClassName="td-n c-b">
                         <a className="d-b mt-0_25em">Types</a>
                     </Link>
+                    <Link href="/[organization]/admin/tasks/checklists" as={`/${organization}/admin/tasks/checklists`} activeClassName="td-n c-b">
+                        <a className="d-b mt-0_25em">Checklists</a>
+                    </Link>
                 </div>
             </Page.Sidebar>
             <Page.Content>
