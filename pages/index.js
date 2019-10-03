@@ -24,6 +24,31 @@ function Index() {
         }
     }
 
+    async function register(e) {
+        e.preventDefault()
+        let inputs = e.target.querySelectorAll('input')
+        if(inputs[2].value !== inputs[3].value) {
+            alert('Password and Confirm Password need to match')
+            return
+        }
+        let response = await api.post('auth/register', {
+            json: {
+                name: inputs[0].value,
+                email: inputs[1].value,
+                password: inputs[2].value
+            }
+        }).json()
+        if(response.status === 'success') {
+            alert(response.message)
+        } else {
+            alert(response.message)
+        }
+        inputs[0].value = ''
+        inputs[1].value = ''
+        inputs[2].value = ''
+        inputs[3].value = ''
+    }
+
     async function fetchOrganizations() {
         const organizations = await api.get('organizations').json()
         setOrganizations(organizations)
@@ -68,20 +93,46 @@ function Index() {
             {
                 !loggedIn ?
                 <div>
-                    <h1>Login</h1>
-                    <form onSubmit={login}>
-                        <div className="mt-0_5em">Email</div>
-                        <div className="mt-0_5em">
-                            <input type="email" required></input>
-                        </div>
-                        <div className="mt-0_5em">Password</div>
-                        <div className="mt-0_5em">
-                            <input type="password" required></input>
-                        </div>
-                        <div className="mt-1em">
-                            <button>Login</button>
-                        </div>
-                    </form>
+                    <div>
+                        <h1>Login</h1>
+                        <form onSubmit={login}>
+                            <div className="mt-0_5em">Email</div>
+                            <div className="mt-0_5em">
+                                <input type="email" required></input>
+                            </div>
+                            <div className="mt-0_5em">Password</div>
+                            <div className="mt-0_5em">
+                                <input type="password" required></input>
+                            </div>
+                            <div className="mt-1em">
+                                <button>Login</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div>
+                        <h1>Register</h1>
+                        <form onSubmit={register}>
+                            <div className="mt-0_5em">Name</div>
+                            <div className="mt-0_5em">
+                                <input type="text" required></input>
+                            </div>
+                            <div className="mt-0_5em">Email</div>
+                            <div className="mt-0_5em">
+                                <input type="email" required></input>
+                            </div>
+                            <div className="mt-0_5em">Password</div>
+                            <div className="mt-0_5em">
+                                <input type="password" required></input>
+                            </div>
+                            <div className="mt-0_5em">Confirm Password</div>
+                            <div className="mt-0_5em">
+                                <input type="password" required></input>
+                            </div>
+                            <div className="mt-1em">
+                                <button>Register</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 :
                 <div>You are logged in</div>
