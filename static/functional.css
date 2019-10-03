@@ -82,6 +82,10 @@
     text-decoration: none;
 }
 
+.td-u {
+    text-decoration: underline;
+}
+
 .w-100p {
     width: 100%;
 }

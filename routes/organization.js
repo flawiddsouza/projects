@@ -38,7 +38,8 @@ router.get('/:project/members', validateProject, async(req, res) => {
                 users.name,
                 (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
             ) as user,
-            organization_roles.role
+            organization_roles.role,
+            organization_members.user_id
         FROM project_members
         JOIN organization_members ON organization_members.id = project_members.organization_member_id
         JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
@@ -56,6 +57,9 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     if(req.query.type !== 'All') {
         additionalParams.push(req.query.type)
     }
+    if(req.query.user !== 'All') {
+        additionalParams.push(req.query.user)
+    }
     let tasks = await dbQuery(`
         SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, tasks.task_type_id, tasks.task_status_id
         FROM tasks
@@ -64,6 +68,9 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         WHERE project_id = ?
         ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
         ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
+        ${req.query.user !== 'All' ? `AND tasks.id IN (
+            SELECT task_id FROM task_assigned_users WHERE user_id = ?
+        )` : ''}
         ORDER BY tasks.created_at DESC
     `, [req.projectId, ...additionalParams])
     res.json(tasks)

@@ -21,6 +21,7 @@ function Index() {
     const [ task, setTask ] = useState(null)
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
+    const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
     const router = useRouter()
 
     var addTaskObj = {
@@ -80,7 +81,7 @@ function Index() {
 
     async function fetchProjectTasks(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&user=${tasksFilterSelectedAssignedUserId}`).json()
 
         setTasks(tasks)
 
@@ -162,7 +163,7 @@ function Index() {
         if(currentProjectSlug) {
             fetchProjectTasks(currentProjectSlug)
         }
-    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId])
+    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedAssignedUserId])
 
     return (
         <Page>
@@ -195,6 +196,14 @@ function Index() {
                                     ))
                                 }
                             </select>
+                            <select className="ml-0_25em" value={tasksFilterSelectedAssignedUserId} onChange={e => setTasksFilterSelectedAssignedUserId(e.target.value)}>
+                                <option>All</option>
+                                {
+                                    projectMembers.map(projectMember => (
+                                        <option key={projectMember.user_id} value={projectMember.user_id}>{projectMember.user}</option>
+                                    ))
+                                }
+                            </select>
                         </div>
                     </Fragment>
                     :
@@ -221,7 +230,13 @@ function Index() {
                                 projectMembers.map(projectMember => {
                                     return (
                                         <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
-                                            { projectMember.user }
+                                            <a
+                                                href="#"
+                                                onClick={e => {
+                                                    e.preventDefault()
+                                                    setTasksFilterSelectedAssignedUserId(projectMember.user_id)
+                                                }}
+                                                className={`td-n c-b ${projectMember.user_id == tasksFilterSelectedAssignedUserId ? 'td-u' : ''}`}>{projectMember.user}</a>
                                         </div>
                                     )
                                 })
