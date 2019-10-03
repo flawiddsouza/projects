@@ -3,6 +3,7 @@ import Container from '../_container'
 import { useRouter } from 'next/router'
 import AsyncSelect from 'react-select/async'
 import api from 'Libs/esm/api'
+import Modal from 'Components/Modal'
 
 function Manage() {
 
@@ -10,6 +11,9 @@ function Manage() {
     const [ organizationMembers, setOrganizationMembers ] = useState([])
     const [ selectedUserId, setSelectedUserId ] = useState(undefined)
     const [ selectedOrganizationRoleId, setSelectedOrganizationRoleId ] = useState('')
+    const [ changeRoleOrganizationMemberId, setChangeRoleOrganizationMemberId ] = useState('')
+    const [ changeRoleOrganizationRoleId, setChangeRoleOrganizationRoleId ] = useState('')
+    const [ changeRoleModalShow, setChangeRoleModalShow ] = useState(false)
     const router = useRouter()
     const { organization } = router.query
 
@@ -31,8 +35,25 @@ function Manage() {
         setSelectedOrganizationRoleId('')
     }
 
-    function showEditModalFunction(e, organizationUser) {
+    function showChangeRoleModal(e, organizationUser) {
         e.preventDefault()
+        setChangeRoleOrganizationMemberId(organizationUser.id)
+        setChangeRoleOrganizationRoleId(organizationUser.organization_role_id)
+        setChangeRoleModalShow(true)
+    }
+
+    function changeRole(e) {
+        e.preventDefault()
+        setChangeRoleModalShow(false)
+        api.put(`${organization}/admin/member/${changeRoleOrganizationMemberId}/change-role`, {
+            json: {
+                organization_role_id: changeRoleOrganizationRoleId
+            }
+        }).then(() => {
+            fetchOrganizationMembers()
+        })
+        setChangeRoleOrganizationMemberId('')
+        setChangeRoleOrganizationRoleId('')
     }
 
     async function deleteItem(e, id) {
@@ -98,7 +119,7 @@ function Manage() {
                                     <td>{organizationUser.user}</td>
                                     <td>{organizationUser.role}</td>
                                     <td>
-                                        <a href="#" onClick={e => showEditModalFunction(e, organizationUser)}>Edit</a>
+                                        <a href="#" onClick={e => showChangeRoleModal(e, organizationUser)}>Change Role</a>
                                     </td>
                                     <td>
                                         <a href="#" onClick={e => deleteItem(e, organizationUser.id)}>Remove</a>
@@ -112,6 +133,22 @@ function Manage() {
                     }
                 </tbody>
             </table>
+            <Modal showModal={changeRoleModalShow} hideModal={() => setChangeRoleModalShow(false)}>
+                <form onSubmit={changeRole}>
+                    <div className="label">Role</div>
+                    <div>
+                    <select required onChange={e => setChangeRoleOrganizationRoleId(e.target.value)} value={changeRoleOrganizationRoleId}>
+                        <option></option>
+                        {
+                            organizationRoles.map(organizationRole => (
+                                <option key={organizationRole.id} value={organizationRole.id}>{organizationRole.role}</option>
+                            ))
+                        }
+                    </select>
+                    </div>
+                    <button className="mt-1em">Update</button>
+                </form>
+            </Modal>
         </Container>
     )
 }

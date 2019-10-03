@@ -25,7 +25,7 @@ router.get('/matching-users', async(req, res) => { // matching users excluding o
 
 router.get('/members', async(req, res) => {
     let organizationMembers = await dbQuery(`
-        SELECT organization_members.id, users.name as user, organization_roles.role
+        SELECT organization_members.id, users.name as user, organization_roles.role, organization_members.organization_role_id
         FROM organization_members
         JOIN users ON users.id = organization_members.user_id
         JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
@@ -35,10 +35,19 @@ router.get('/members', async(req, res) => {
 })
 
 router.post('/member', async(req, res) => {
-    let insertedRecord = await dbQuery(`
+    await dbQuery(`
         INSERT INTO organization_members(organization_id, user_id, organization_role_id) VALUES(?, ?, ?)
     `, [req.organizationId, req.body.user_id, req.body.organization_role_id])
-    res.json({ status: 'success', data: { insertedId: insertedRecord } })
+    res.json({ status: 'success'})
+})
+
+router.put('/member/:id/change-role', async(req, res) => {
+    await dbQuery(`
+        UPDATE organization_members
+        SET organization_role_id = ?
+        WHERE id = ?
+    `, [req.body.organization_role_id, req.params.id])
+    res.json({ status: 'success' })
 })
 
 router.delete('/member/:id', async(req, res) => {
