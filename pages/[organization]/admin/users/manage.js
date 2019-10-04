@@ -81,28 +81,38 @@ function Manage() {
 
     return (
         <Container>
-            <form onSubmit={addMemberToOrganization} className="d-f mb-1em">
-                <div style={{ width: '20em' }}>
-                    <AsyncSelect defaultOptions loadOptions={fetchMatchingUsers} onChange={selectedItem => setSelectedUserId(selectedItem)} value={selectedUserId}>
-                    </AsyncSelect>
-                    <input
-                        tabIndex={-1}
-                        autoComplete="off"
-                        style={{ opacity: 0, height: 0, position: 'absolute' }}
-                        value={selectedUserId || ''}
-                        required={true}
-                        onChange={() => {}}
-                    />
+            <form onSubmit={addMemberToOrganization} className="d-f flex-ai-fs mb-1em">
+                <div>
+                    <div className="label">
+                        Find User
+                    </div>
+                    <div style={{ width: '20em' }}>
+                        <AsyncSelect defaultOptions loadOptions={fetchMatchingUsers} onChange={selectedItem => setSelectedUserId(selectedItem)} value={selectedUserId} placeholder="Search...">
+                        </AsyncSelect>
+                        <input
+                            tabIndex={-1}
+                            autoComplete="off"
+                            style={{ opacity: 0, height: 0, position: 'absolute' }}
+                            value={selectedUserId || ''}
+                            required={true}
+                            onChange={() => {}}
+                        />
+                    </div>
                 </div>
-                <select className="ml-1em" required onChange={e => setSelectedOrganizationRoleId(e.target.value)} value={selectedOrganizationRoleId}>
-                    <option></option>
-                    {
-                        organizationRoles.map(organizationRole => (
-                            <option key={organizationRole.id} value={organizationRole.id}>{organizationRole.role}</option>
-                        ))
-                    }
-                </select>
-                <button className="ml-1em">Add User to Organization</button>
+                <div className="ml-1em">
+                    <div className="label">
+                        Select Role
+                    </div>
+                    <select required onChange={e => setSelectedOrganizationRoleId(e.target.value)} value={selectedOrganizationRoleId} style={{ height: '2.8em' }}>
+                        <option></option>
+                        {
+                            organizationRoles.map(organizationRole => (
+                                <option key={organizationRole.id} value={organizationRole.id}>{organizationRole.role}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+                <button className="flex-as-fe ml-1em" style={{ height: '2.8em' }}>Add User to Organization</button>
             </form>
             <table className="table table-width-auto">
                 <thead>

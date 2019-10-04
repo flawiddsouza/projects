@@ -74,8 +74,16 @@
     justify-content: space-between;
 }
 
+.flex-ai-fs {
+    align-items: flex-start;
+}
+
 .flex-ai-fe {
     align-items: flex-end;
+}
+
+.flex-as-fe {
+    align-self: flex-end;
 }
 
 .td-n {
