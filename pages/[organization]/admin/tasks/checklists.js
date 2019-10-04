@@ -61,15 +61,21 @@ function Checklists() {
 
     return (
         <Container>
-            <form className="d-f mb-1em" onSubmit={addChecklist}>
-                <select required onChange={e => setSelectedTaskTypeId(e.target.value)} value={selectedTaskTypeId}>
-                    {
-                        taskTypes.map(taskType => (
-                            <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
-                        ))
-                    }
-                </select>
-                <input type="text" className="ml-1em" value={newChecklistName} onChange={e => setNewChecklistName(e.target.value)} required></input>
+            <form className="d-f flex-ai-fe mb-1em" onSubmit={addChecklist}>
+                <div>
+                    <div className="label">Select Task Type</div>
+                    <select required onChange={e => setSelectedTaskTypeId(e.target.value)} value={selectedTaskTypeId} className="w-100p">
+                        {
+                            taskTypes.map(taskType => (
+                                <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+                <div className="ml-1em">
+                    <div className="label">New Checklist Name</div>
+                    <input type="text" value={newChecklistName} onChange={e => setNewChecklistName(e.target.value)} required style={{ height: '1.3em' }}></input>
+                </div>
                 <button className="ml-1em">Add Checklist</button>
             </form>
             <table className="table table-width-auto">
