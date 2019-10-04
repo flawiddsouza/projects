@@ -5,6 +5,7 @@ import TaskViewComments from 'Components/TaskViewComments'
 import TaskViewFiles from 'Components/TaskViewFiles'
 import TaskViewAssigned from 'Components/TaskViewAssigned'
 import TaskViewTimeSpent from 'Components/TaskViewTimeSpent'
+import TaskViewChecklist from 'Components/TaskViewChecklist'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 import api from 'Libs/esm/api'
 import Link from 'next/link'
@@ -18,6 +19,8 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
     const [ timeSpentDuration, setTimeSpentDuration ] = useState(0)
     const [ updateTaskColumn, setUpdateTaskColumn ] = useState(null)
     const [ updateTaskColumnData, setUpdateTaskColumnData ] = useState(null)
+    const [ checklists, setChecklists ] = useState([])
+    const [ checklistCount, setChecklistCount ] = useState({})
 
     async function fetchCount() {
         const counts = await api.get(`task/${task.id}/counts`).json()
@@ -28,8 +31,19 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
         setTimeSpentDuration(counts.timeSpends.duration)
     }
 
+    async function fetchChecklists() {
+        const { checklists, checklistCount } = await api.get(`task/${task.id}/checklists`).json()
+        setChecklists(checklists)
+        setChecklistCount(checklistCount)
+    }
+
+    function setChecklistCountSetter(checklistId, countObj) {
+        setChecklistCount({...checklistCount, [checklistId]: countObj })
+    }
+
     useEffect(() => {
         fetchCount()
+        fetchChecklists()
     }, [])
 
     function startTaskColumnUpdate(column, columnData) {
@@ -154,6 +168,13 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
                     <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files ({filesCount})</div>
                     <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedCount})</div>
                     <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpentCount} / {secondsInHHMMSS(timeSpentDuration)})</div>
+                    {
+                        checklists.map(checklist => (
+                            <div key={checklist.id} className={ activeTab === 'checklist-' + checklist.name ? 'active': null} onClick={() => setActiveTab('checklist-' + checklist.name) }>
+                                {checklist.name} ({checklistCount.hasOwnProperty(checklist.id) && checklistCount[checklist.id].checked}/{checklistCount.hasOwnProperty(checklist.id) && checklistCount[checklist.id].count})
+                            </div>
+                        ))
+                    }
                 </div>
                 <div className="tabs-content" style={{ height: tabsContentHeight ? tabsContentHeight : '25em' }}>
                     {
@@ -171,6 +192,16 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
                     {
                         activeTab === 'time-spent' &&
                         <TaskViewTimeSpent taskId={task.id} setTimeSpentCount={setTimeSpentCount} setTimeSpentDuration={setTimeSpentDuration} tabsContentHeight={tabsContentHeight}></TaskViewTimeSpent>
+                    }
+                    {
+                        checklists.map(checklist => (
+                            <div key={checklist.id}>
+                                {
+                                    activeTab === 'checklist-' + checklist.name &&
+                                    <TaskViewChecklist taskId={task.id} checklistId={checklist.id}tabsContentHeight={tabsContentHeight} setChecklistCount={setChecklistCountSetter}></TaskViewChecklist>
+                                }
+                            </div>
+                        ))
                     }
                 </div>
             </div>

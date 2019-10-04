@@ -155,3 +155,8 @@ main > .sidebar, main > .main {
 .hover-show-child-parent:hover .hover-show-child {
     visibility: visible;
 }
+
+input[type="checkbox"] {
+    margin-top: 0;
+    margin-bottom: 0;
+}

@@ -231,4 +231,60 @@ router.put('/update/:field', async(req, res) => {
     }
 })
 
+router.get('/checklists', async(req, res) => {
+    const checklists = await dbQuery(`
+        SELECT task_checklists.id, task_checklists.name
+        FROM task_checklists
+        JOIN tasks ON tasks.task_type_id = task_checklists.task_type_id
+        WHERE tasks.id = ?
+    `, [req.taskId])
+    let checklistCount = {}
+    for(const checklist of checklists) {
+        let count = await dbQuery(`
+            SELECT COUNT(*) as count FROM task_checklist_items
+            WHERE task_id = ?
+            AND task_checklist_id = ?
+        `, [req.taskId, checklist.id])
+        let checked = await dbQuery(`
+            SELECT COUNT(*) as count FROM task_checklist_items
+            WHERE task_id = ?
+            AND task_checklist_id = ?
+            AND checked = 1
+        `, [req.taskId, checklist.id])
+        checklistCount[checklist.id] = {
+            count: count[0].count,
+            checked: checked[0].count
+        }
+    }
+    res.json({ checklists, checklistCount })
+})
+
+router.get('/checklist-items/:task_checklist_id', async(req, res) => {
+    const checklistsItems = await dbQuery(`
+        SELECT id, content, checked, sort_order
+        FROM task_checklist_items
+        WHERE task_id = ?
+        AND task_checklist_id = ?
+        ORDER by sort_order
+    `, [req.taskId, req.params.task_checklist_id])
+    res.json(checklistsItems)
+})
+
+router.post('/checklist-item/:task_checklist_id', async(req, res) => {
+    await dbQuery(`
+        INSERT INTO task_checklist_items(task_id, task_checklist_id, content, sort_order)
+        VALUES(?, ?, ?, ?)
+    `, [req.taskId, req.params.task_checklist_id, req.body.content, req.body.sort_order])
+    res.json({ status: 'success' })
+})
+
+router.put('/checklist-item/:id/checked', async(req, res) => {
+    await dbQuery(`
+        UPDATE task_checklist_items
+        SET checked = ?
+        WHERE id = ?
+    `, [req.body.checked, req.params.id])
+    res.json({ status: 'success' })
+})
+
 module.exports = router
