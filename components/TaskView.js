@@ -141,7 +141,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
                     </div>
                 </div>
                 <div>
-                    <Link href="/task/[taskId]" as={`/task/${task.id}`}>{task.id.toString().padStart(6, '0')}</Link>
+                    <Link href="/task/[taskId]" as={`/task/${task.id}`}><a>{task.id.toString().padStart(6, '0')}</a></Link>
                 </div>
             </div>
             <div className="mt-1em">
