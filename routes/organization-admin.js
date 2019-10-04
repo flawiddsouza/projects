@@ -114,20 +114,21 @@ router.delete('/projects/assign-members/project-member/:id', async(req, res) => 
 
 router.get('/tasks/checklists/:task_type_id', async(req, res) => {
     let checklists = await dbQuery(`
-        SELECT task_checklists.id, task_checklists.name
+        SELECT task_checklists.id, task_checklists.name, task_checklists.sort_order
         FROM task_checklists
         JOIN task_types ON task_types.id = task_checklists.task_type_id
         WHERE task_checklists.task_type_id = ?
         AND task_types.organization_id = ?
+        ORDER BY task_checklists.sort_order
     `, [req.params.task_type_id, req.organizationId])
     res.json(checklists)
 })
 
 router.post('/tasks/checklists/:task_type_id', async(req, res) => {
     await dbQuery(`
-        INSERT INTO task_checklists(task_type_id, name)
-        VALUES(?, ?)
-    `, [req.params.task_type_id, req.body.name])
+        INSERT INTO task_checklists(task_type_id, name, sort_order)
+        VALUES(?, ?, ?)
+    `, [req.params.task_type_id, req.body.name, req.body.sort_order])
     res.json({ status: 'success' })
 })
 

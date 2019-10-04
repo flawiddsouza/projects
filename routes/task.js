@@ -237,6 +237,7 @@ router.get('/checklists', async(req, res) => {
         FROM task_checklists
         JOIN tasks ON tasks.task_type_id = task_checklists.task_type_id
         WHERE tasks.id = ?
+        ORDER BY task_checklists.sort_order
     `, [req.taskId])
     let checklistCount = {}
     for(const checklist of checklists) {

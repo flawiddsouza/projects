@@ -9,6 +9,7 @@ function Checklists() {
     const [ checklists, setChecklists ] = useState([])
     const [ selectedTaskTypeId, setSelectedTaskTypeId ] = useState('')
     const [ newChecklistName, setNewChecklistName ] = useState('')
+    const [ newChecklistSortOrder, setNewChecklistSortOrder ] = useState('')
     const router = useRouter()
     const { organization } = router.query
     const baseURL = `${organization}/admin/tasks/checklists`
@@ -27,12 +28,14 @@ function Checklists() {
         e.preventDefault()
         api.post(`${baseURL}/${selectedTaskTypeId}`, {
             json: {
-                name: newChecklistName
+                name: newChecklistName,
+                sort_order: newChecklistSortOrder
             }
         }).then(() => {
             fetchChecklists()
         })
         setNewChecklistName('')
+        setNewChecklistSortOrder('')
     }
 
     async function deleteItem(e, id) {
@@ -76,12 +79,17 @@ function Checklists() {
                     <div className="label">New Checklist Name</div>
                     <input type="text" value={newChecklistName} onChange={e => setNewChecklistName(e.target.value)} required style={{ height: '1.3em' }}></input>
                 </div>
+                <div className="ml-1em">
+                    <div className="label">Sort Order</div>
+                    <input type="number" value={newChecklistSortOrder} onChange={e => setNewChecklistSortOrder(e.target.value)} required style={{ height: '1.3em', width: '6em' }}></input>
+                </div>
                 <button className="ml-1em">Add Checklist</button>
             </form>
             <table className="table table-width-auto">
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Sort Order</th>
                         <th colSpan="2">Actions</th>
                     </tr>
                 </thead>
@@ -91,8 +99,9 @@ function Checklists() {
                         checklists.map(checklist =>
                                 <tr key={checklist.id}>
                                     <td>{checklist.name}</td>
+                                    <td>{checklist.sort_order}</td>
                                     <td>
-                                        <a href="#" onClick={e => deleteItem(e, checklist.id)}>Rename</a>
+                                        <a href="#" onClick={e => deleteItem(e, checklist.id)}>Edit</a>
                                     </td>
                                     <td>
                                         <a href="#" onClick={e => deleteItem(e, checklist.id)}>Remove</a>
