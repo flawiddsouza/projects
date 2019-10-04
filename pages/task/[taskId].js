@@ -46,7 +46,7 @@ function Task() {
             <Page.Content>
                 {
                     !taskDoesNotExist && task ?
-                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} refreshTasks={fetchTask} tabsContentHeight="75vh" width="100%"></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} refreshTasks={fetchTask} tabsContentHeight="calc(100vh - 15em)" width="100%"></TaskView>
                     :
                         <div>Task Does Not Exist</div>
                 }
