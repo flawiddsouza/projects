@@ -121,7 +121,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                 <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }}></textarea>
                 <div className="mt-0_5em">
                     <div>Attach Files</div>
-                    <input type="file" mutliple="true" />
+                    <input type="file" multiple="true" />
                 </div>
                 <button className="mt-1em">Add Comment</button>
             </form>
