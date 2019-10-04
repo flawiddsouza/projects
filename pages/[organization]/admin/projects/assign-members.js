@@ -71,22 +71,28 @@ function AssignMembers() {
     return (
         <Container>
             <form className="d-f mb-1em" onSubmit={addMemberToProject}>
-                <select required onChange={e => setSelectedProjectId(e.target.value)} value={selectedProjectId}>
-                    {
-                        projects.map(project => (
-                            <option key={project.id} value={project.id}>{project.name}</option>
-                        ))
-                    }
-                </select>
-                <select className="ml-1em" required onChange={e => setSelectedOrganizationMemberId(e.target.value)} value={selectedOrganizationMemberId}>
-                        <option></option>
+                <div>
+                    <div className="label">Select Project</div>
+                    <select required onChange={e => setSelectedProjectId(e.target.value)} value={selectedProjectId}>
                         {
-                            organizationMembers.map(organizationMember => (
-                                <option key={organizationMember.id} value={organizationMember.id}>{organizationMember.user}</option>
+                            projects.map(project => (
+                                <option key={project.id} value={project.id}>{project.name}</option>
                             ))
                         }
-                </select>
-                <button className="ml-1em">Add Member to Project</button>
+                    </select>
+                </div>
+                <div className="ml-1em">
+                    <div className="label">Select Member</div>
+                    <select required onChange={e => setSelectedOrganizationMemberId(e.target.value)} value={selectedOrganizationMemberId} className="w-100p">
+                            <option></option>
+                            {
+                                organizationMembers.map(organizationMember => (
+                                    <option key={organizationMember.id} value={organizationMember.id}>{organizationMember.user}</option>
+                                ))
+                            }
+                    </select>
+                </div>
+                <button className="flex-as-fe ml-1em">Add Member to Project</button>
             </form>
             <table className="table table-width-auto">
                 <thead>
