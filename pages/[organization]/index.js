@@ -302,7 +302,7 @@ function Index() {
                         </div>
                         <div className="mt-0_5em">
                             <div>Attach Files</div>
-                            <input type="file" multiple="true" />
+                            <input type="file" multiple />
                         </div>
                         <div className="mt-1em">
                             <button>Add Task</button>
