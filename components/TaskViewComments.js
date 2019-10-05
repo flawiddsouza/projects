@@ -40,12 +40,12 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
         }
 
         if(e.key === 'Enter') {
-            e.preventDefault()
-            addComment()
+            addComment(e)
         }
     }
 
-    async function addComment() {
+    async function addComment(e) {
+        e.preventDefault()
         if(comment) {
             api.post(`task/${taskId}/comment`, {
                 json: {
