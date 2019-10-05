@@ -302,7 +302,7 @@ function Index() {
                             <div>
                                 <div>Date</div>
                                 <input type="date"
-                                    value={addTaskObj.date}
+                                    defaultValue={addTaskObj.date}
                                     onChange={e => addTaskObj.date = e.target.value}
                                 />
                             </div>
