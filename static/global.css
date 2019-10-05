@@ -156,6 +156,14 @@ main > .sidebar, main > .main {
     visibility: visible;
 }
 
+.hover-hide-child {
+    display: block;
+}
+
+.hover-show-child-parent:hover .hover-hide-child {
+    display: none;
+}
+
 input[type="checkbox"] {
     margin-top: 0;
     margin-bottom: 0;

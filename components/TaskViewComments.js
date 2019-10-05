@@ -2,6 +2,7 @@ import { createRef, useState, useEffect } from 'react'
 import Modal from 'Components/Modal'
 import urlifyText from 'Libs/esm/urlifyText'
 import api from 'Libs/esm/api'
+import formatDateTime from 'Libs/formatDateTime.js'
 
 export default function TaskViewComments({ taskId, setCommentsCount, tabsContentHeight=null }) {
     const [ comment, setComment ] = useState('')
@@ -101,15 +102,18 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
             {
                 comments.map((commentItem, index) =>
                     <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color hover-show-child-parent`}>
-                        <div className="label d-f flex-jc-sb">
-                            <div>{commentItem.user}</div>
-                            <div className="mr-0_5em hover-show-child">
-                                <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
-                                    <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px'  }}></img>
-                                </a>
-                                <a href="#" className="ml-0_5em" onClick={e => removeComment(e, commentItem)}>
-                                    <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px'  }}></img>
-                                </a>
+                        <div className="label d-f flex-jc-sb" style={{ position: 'sticky', top: 0 }}>
+                            <div style={{ backgroundColor: 'white' }}>{commentItem.user}</div>
+                            <div className="d-f">
+                                <div className="mr-0_5em hover-show-child">
+                                    <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
+                                        <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px'  }}></img>
+                                    </a>
+                                    <a href="#" className="ml-0_5em" onClick={e => removeComment(e, commentItem)}>
+                                        <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px'  }}></img>
+                                    </a>
+                                </div>
+                                <div className="hover-hide-child">{formatDateTime(commentItem.created_at)}</div>
                             </div>
                         </div>
                         <div className="mt-0_25em ws-pw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
