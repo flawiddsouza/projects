@@ -113,7 +113,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                         <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px'  }}></img>
                                     </a>
                                 </div>
-                                <div className="hover-hide-child">{formatDateTime(commentItem.created_at)}</div>
+                                <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
                             </div>
                         </div>
                         <div className="mt-0_25em ws-pw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
