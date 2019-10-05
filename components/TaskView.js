@@ -10,6 +10,92 @@ import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 import api from 'Libs/esm/api'
 import Link from 'next/link'
 
+function UpdateTaskModal({ task, taskTypes, taskStatuses, updateTaskColumn, setUpdateTaskColumn, updateTaskColumnData, setUpdateTaskColumnData, refreshTasks }) {
+    const updateColumn = e => {
+        e.preventDefault()
+        api.put(`task/${task.id}/update/${updateTaskColumn}`, {
+            json: {
+                [updateTaskColumn]: updateTaskColumnData
+            }
+        }).then(() => {
+            refreshTasks()
+        })
+        cancelTaskColumnUpdate()
+    }
+
+    const cancelTaskColumnUpdate = () => {
+        setUpdateTaskColumn(null)
+        setUpdateTaskColumnData(null)
+    }
+
+    return (
+        <Modal showModal={updateTaskColumn !== null} hideModal={() => cancelTaskColumnUpdate()}>
+            <form onSubmit={updateColumn} style={{ width: updateTaskColumn !== 'title' ? '15em' : '25em' }}>
+            {
+                updateTaskColumn === 'date' &&
+                <Fragment>
+                    <div>Change Date</div>
+                    <div className="mt-0_5em">
+                        <input type="date" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            {
+                updateTaskColumn === 'task_type_id' &&
+                <Fragment>
+                    <div>Change Type</div>
+                    <div className="mt-0_5em">
+                        <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
+                            {
+                                taskTypes.map(taskType => (
+                                    <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            {
+                updateTaskColumn === 'task_status_id' &&
+                <Fragment>
+                    <div>Change Status</div>
+                    <div className="mt-0_5em">
+                        <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
+                            {
+                                taskStatuses.map(taskStatus => (
+                                    <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            {
+                updateTaskColumn === 'title' &&
+                <Fragment>
+                    <div>Change Title</div>
+                    <div className="mt-0_5em">
+                        <input type="text" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            </form>
+        </Modal>
+    )
+}
+
 export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, tabsContentHeight=null, width=null }) {
     const [ activeTab, setActiveTab ] = useState('comments')
     const [ commentsCount, setCommentsCount ] = useState(0)
@@ -49,92 +135,6 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
     function startTaskColumnUpdate(column, columnData) {
         setUpdateTaskColumnData(columnData)
         setUpdateTaskColumn(column)
-    }
-
-    function UpdateTaskModal() {
-        function updateColumn(e) {
-            e.preventDefault()
-            api.put(`task/${task.id}/update/${updateTaskColumn}`, {
-                json: {
-                    [updateTaskColumn]: updateTaskColumnData
-                }
-            }).then(() => {
-                refreshTasks()
-            })
-            cancelTaskColumnUpdate()
-        }
-
-        function cancelTaskColumnUpdate() {
-            setUpdateTaskColumn(null)
-            setUpdateTaskColumnData(null)
-        }
-
-        return (
-            <Modal showModal={updateTaskColumn !== null} hideModal={() => cancelTaskColumnUpdate()}>
-                <form onSubmit={updateColumn} style={{ width: updateTaskColumn !== 'title' ? '15em' : '25em' }}>
-                {
-                    updateTaskColumn === 'date' &&
-                    <Fragment>
-                        <div>Change Date</div>
-                        <div className="mt-0_5em">
-                            <input type="date" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
-                        </div>
-                        <div className="mt-1em ta-r">
-                            <button>Update</button>
-                        </div>
-                    </Fragment>
-                }
-                {
-                    updateTaskColumn === 'task_type_id' &&
-                    <Fragment>
-                        <div>Change Type</div>
-                        <div className="mt-0_5em">
-                            <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
-                                {
-                                    taskTypes.map(taskType => (
-                                        <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
-                                    ))
-                                }
-                            </select>
-                        </div>
-                        <div className="mt-1em ta-r">
-                            <button>Update</button>
-                        </div>
-                    </Fragment>
-                }
-                {
-                    updateTaskColumn === 'task_status_id' &&
-                    <Fragment>
-                        <div>Change Status</div>
-                        <div className="mt-0_5em">
-                            <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
-                                {
-                                    taskStatuses.map(taskStatus => (
-                                        <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
-                                    ))
-                                }
-                            </select>
-                        </div>
-                        <div className="mt-1em ta-r">
-                            <button>Update</button>
-                        </div>
-                    </Fragment>
-                }
-                {
-                    updateTaskColumn === 'title' &&
-                    <Fragment>
-                        <div>Change Title</div>
-                        <div className="mt-0_5em">
-                            <input type="text" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
-                        </div>
-                        <div className="mt-1em ta-r">
-                            <button>Update</button>
-                        </div>
-                    </Fragment>
-                }
-                </form>
-            </Modal>
-        )
     }
 
     return (
@@ -205,7 +205,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
                     }
                 </div>
             </div>
-            <UpdateTaskModal/>
+            <UpdateTaskModal task={task} taskTypes={taskTypes} taskStatuses={taskStatuses} updateTaskColumn={updateTaskColumn} setUpdateTaskColumn={setUpdateTaskColumn} updateTaskColumnData={updateTaskColumnData} setUpdateTaskColumnData={setUpdateTaskColumnData} refreshTasks={refreshTasks} />
         </div>
     )
 }
