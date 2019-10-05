@@ -22,6 +22,7 @@ function Index() {
     const [ task, setTask ] = useState(null)
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
+    const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
     const router = useRouter()
 
@@ -88,7 +89,7 @@ function Index() {
 
     async function fetchProjectTasks(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&user=${tasksFilterSelectedAssignedUserId}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserId}`).json()
 
         setTasks(tasks)
 
@@ -172,7 +173,7 @@ function Index() {
         if(currentProjectSlug) {
             fetchProjectTasks(currentProjectSlug)
         }
-    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedAssignedUserId])
+    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId])
 
     return (
         <Page>
@@ -202,6 +203,15 @@ function Index() {
                                 {
                                     taskTypes.map(taskType => (
                                         <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                                    ))
+                                }
+                            </select>
+                            <select className="ml-0_25em" value={tasksFilterSelectedProjectCategoryId} onChange={e => setTasksFilterSelectedProjectCategoryId(e.target.value)}>
+                                <option>All</option>
+                                <option value="">Not Applicable</option>
+                                {
+                                    projectCategories.map(projectCategory => (
+                                        <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
                                     ))
                                 }
                             </select>
@@ -260,26 +270,32 @@ function Index() {
                     </Link>
                 </div>
             </Page.Sidebar>
-            <Page.Content>
-                <table className="table table-hover">
-                    <tbody>
-                    {
-                        tasks.map(task => {
-                            return (
-                                <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
-                                    <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
-                                    <td style={{ width: '2em' }}>{ task.type }</td>
-                                    {
-                                        tasksFilterSelectedStatusId === 'All' &&
-                                        <td style={{ width: '2em' }}>{ task.status }</td>
-                                    }
-                                    <td>{ task.title }</td>
-                                </tr>
-                            )
-                        })
-                    }
-                    </tbody>
-                </table>
+            <Page.Content paddingBottom0={true}>
+                <div className="oy-a" style={{ height: 'calc(100vh - 5.2em)' }}>
+                    <table className="table table-hover">
+                        <tbody>
+                        {
+                            tasks.map(task => {
+                                return (
+                                    <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                        <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
+                                        <td style={{ width: '2em' }}>{ task.type }</td>
+                                        {
+                                            tasksFilterSelectedStatusId === 'All' &&
+                                            <td style={{ width: '2em' }}>{ task.status }</td>
+                                        }
+                                        <td>{ task.title }</td>
+                                    </tr>
+                                )
+                            })
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                {
+                    currentProjectSlug &&
+                    <div className="mt-0_5em">{ tasks.length } { tasks.length === 1 ? 'task' : 'tasks' } found</div>
+                }
                 <Modal showModal={showAddTaskModal} hideModal={() => setShowAddTaskModal(false)}>
                     <form onSubmit={addTask} style={{ width: '30vw' }}>
                         <div className="d-f">

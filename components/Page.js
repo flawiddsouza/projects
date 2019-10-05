@@ -25,8 +25,8 @@ function Sidebar({ children }) {
     return <div className="sidebar">{children}</div>
 }
 
-function Content({ children }) {
-    return <div className="main">{children}</div>
+function Content({ children, paddingBottom0=false }) {
+    return <div className={`main${paddingBottom0 ? ' pb-0-i': ''}`}>{children}</div>
 }
 
 Page.Nav = Nav

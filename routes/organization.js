@@ -57,6 +57,9 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     if(req.query.type !== 'All') {
         additionalParams.push(req.query.type)
     }
+    if(req.query.category !== 'All' && req.query.category !== '') {
+        additionalParams.push(req.query.category)
+    }
     if(req.query.user !== 'All') {
         additionalParams.push(req.query.user)
     }
@@ -69,6 +72,8 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         WHERE tasks.project_id = ?
         ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
         ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
+        ${req.query.category !== 'All' && req.query.category !== '' ? 'AND tasks.project_category_id = ?' : ''}
+        ${req.query.category === '' ? 'AND tasks.project_category_id IS NULL': '' }
         ${req.query.user !== 'All' ? `AND tasks.id IN (
             SELECT task_id FROM task_assigned_users WHERE user_id = ?
         )` : ''}

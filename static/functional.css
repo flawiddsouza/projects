@@ -137,3 +137,7 @@
 .pb-0_75em {
     padding-bottom: 0.75em;
 }
+
+.pb-0-i {
+    padding-bottom: 0 !important;
+}
