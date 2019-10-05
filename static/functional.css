@@ -50,6 +50,10 @@
     display: flex;
 }
 
+.d-ib {
+    display: inline-block;
+}
+
 .c-i {
     color: inherit;
 }
@@ -72,6 +76,10 @@
 
 .flex-jc-sb {
     justify-content: space-between;
+}
+
+.flex-jc-fe {
+    justify-content: flex-end;
 }
 
 .flex-ai-fs {
