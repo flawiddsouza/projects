@@ -32,6 +32,9 @@ export default function Container({ children, Nav=null }) {
                     <Link href="/[organization]/admin/projects/assign-members" as={`/${organization}/admin/projects/assign-members`} activeClassName="td-n c-b">
                         <a className="d-b mt-0_25em">Assign Members</a>
                     </Link>
+                    <Link href="/[organization]/admin/projects/categories" as={`/${organization}/admin/projects/categories`} activeClassName="td-n c-b">
+                        <a className="d-b mt-0_25em">Categories</a>
+                    </Link>
                 </div>
                 <div className="fw-b mt-1em">Tasks</div>
                 <div className="mt-0_5em">

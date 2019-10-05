@@ -140,4 +140,39 @@ router.delete('/tasks/checklists/:id', async(req, res) => {
     res.json({ status: 'success' })
 })
 
+router.get('/projects/categories/:project_id', async(req, res) => {
+    let projectCategories = await dbQuery(`
+        SELECT id, category
+        FROM project_categories
+        WHERE project_id = ?
+        ORDER BY category
+    `, [req.params.project_id])
+    res.json(projectCategories)
+})
+
+router.post('/projects/categories/:project_id', async(req, res) => {
+    await dbQuery(`
+        INSERT INTO project_categories(project_id, category)
+        VALUES(?, ?)
+    `, [req.params.project_id, req.body.category])
+    res.json({ status: 'success' })
+})
+
+router.put('/projects/categories/:id', async(req, res) => {
+    await dbQuery(`
+        UPDATE project_categories
+        SET category = ?
+        WHERE id = ?
+    `, [req.body.category, req.params.id])
+    res.json({ status: 'success' })
+})
+
+router.delete('/projects/categories/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM project_categories
+        WHERE id = ?
+    `, [req.params.id])
+    res.json({ status: 'success' })
+})
+
 module.exports = router
