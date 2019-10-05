@@ -1,5 +1,5 @@
 const express = require('express')
-const dbQuery =  require('../libs/db')
+const { dbQuery } =  require('../libs/cjs/db')
 const generateCRUD =  require('../libs/cjs/generateCRUD')
 
 const router = express.Router()

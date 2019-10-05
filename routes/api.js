@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const jwtAuthMiddleware = require('../libs/jwtAuthMiddleware')
-const dbQuery = require('../libs/db')
+const { dbQuery } = require('./../libs/cjs/db')
 
 router.use('/auth', require('./auth'))
 router.use('/admin', jwtAuthMiddleware, require('./admin'))

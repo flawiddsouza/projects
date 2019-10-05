@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const dbQuery =  require('../libs/db')
+const { dbQuery } =  require('../libs/cjs/db')
 
 router.get('/projects', async(req, res) => {
     let projects = await dbQuery('SELECT name, slug FROM projects WHERE organization_id = ?', [req.organizationId])

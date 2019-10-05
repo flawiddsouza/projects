@@ -1,6 +1,6 @@
 const express = require('express')
 const bcrypt =  require('bcrypt')
-const dbQuery =  require('../libs/db')
+const { dbQuery } =  require('../libs/cjs/db')
 const sendMail =  require('../libs/mail')
 const jwt =  require('../libs/jwt')
 

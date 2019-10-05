@@ -21,7 +21,7 @@ if(pendingMigrations.length === 0) {
     process.exit()
 }
 
-const dbQuery = require('./../libs/db')
+const { dbQuery } = require('./../libs/cjs/db')
 
 async function pushToCompletedMigrations(migrationFileName) {
     completedMigrations.push(migrationFileName)
@@ -35,10 +35,14 @@ const path = require('path');
         console.log(`Migrating: ${migration}`)
         let migrationFilePath = path.join(migrationsDirectory, migration)
         let migrationFileString = fs.readFileSync(migrationFilePath, 'utf-8')
-        let results = await dbQuery(migrationFileString)
-        if(results.hasOwnProperty('error')) {
-            console.error(results.error)
-            break
+        let queries = migrationFileString.split(';')
+        queries = queries.filter(query => query.trim())
+        for(const query of queries) {
+            let results = await dbQuery(query)
+            if(results.hasOwnProperty('error')) {
+                console.error(results.error)
+                break
+            }
         }
 
         await pushToCompletedMigrations(migration)

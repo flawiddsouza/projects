@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const dbQuery =  require('../libs/db')
+const { dbQuery } =  require('../libs/cjs/db')
 
 router.get('/', async(req, res) => {
     const task = await dbQuery(`

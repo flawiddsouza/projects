@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise')
 
 const path = require('path')
-const envPath = path.join(__dirname, '../.env')
+const envPath = path.join(__dirname, '../../.env')
 const { parsed: localEnv } = require('dotenv').config({ path: envPath })
 if(localEnv === undefined) {
     throw Error('.env file not found')
@@ -36,4 +36,4 @@ if(localEnv.DB_CONNECTION === 'mysql') {
     throw new Exception('DB Connection Not Implemented')
 }
 
-module.exports = query
+module.exports = { dbQuery: query }

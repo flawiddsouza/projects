@@ -1,4 +1,4 @@
-const dbQuery =  require('../db')
+const { dbQuery } =  require('./db')
 
 function generateCRUD(router, route, table, columns, where=null) {
 
