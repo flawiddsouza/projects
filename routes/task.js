@@ -10,8 +10,10 @@ router.get('/', async(req, res) => {
             tasks.title,
             task_types.type,
             task_statuses.status,
+            project_categories.category as project_category,
             tasks.task_type_id,
             tasks.task_status_id,
+            tasks.project_category_id,
             organizations.name as organization_name,
             organizations.slug as organization_slug,
             projects.name as project_name,
@@ -19,6 +21,7 @@ router.get('/', async(req, res) => {
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+        LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
         JOIN projects ON projects.id = tasks.project_id
         JOIN organizations ON organizations.id = projects.organization_id
         WHERE tasks.id = ?
@@ -38,7 +41,14 @@ router.get('/', async(req, res) => {
         WHERE projects.id = ?
     `, [req.projectId])
 
-    res.json({ task: task[0], taskTypes, taskStatuses })
+    const projectCategories = await dbQuery(`
+        SELECT id, category
+        FROM project_categories
+        WHERE project_categories.project_id = ?
+        ORDER BY category
+    `, [req.projectId])
+
+    res.json({ task: task[0], taskTypes, taskStatuses, projectCategories })
 })
 
 router.get('/counts', async(req, res) => {
@@ -219,7 +229,7 @@ router.delete('/time-spend/:id', async(req, res) => {
 })
 
 router.put('/update/:field', async(req, res) => {
-    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id') {
+    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id') {
         await dbQuery(`
             UPDATE tasks
             SET ${req.params.field} = ?

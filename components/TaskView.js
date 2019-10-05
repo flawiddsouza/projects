@@ -10,12 +10,12 @@ import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 import api from 'Libs/esm/api'
 import Link from 'next/link'
 
-function UpdateTaskModal({ task, taskTypes, taskStatuses, updateTaskColumn, setUpdateTaskColumn, updateTaskColumnData, setUpdateTaskColumnData, refreshTasks }) {
+function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, updateTaskColumn, setUpdateTaskColumn, updateTaskColumnData, setUpdateTaskColumnData, refreshTasks }) {
     const updateColumn = e => {
         e.preventDefault()
         api.put(`task/${task.id}/update/${updateTaskColumn}`, {
             json: {
-                [updateTaskColumn]: updateTaskColumnData
+                [updateTaskColumn]: updateTaskColumnData ? updateTaskColumnData : null
             }
         }).then(() => {
             refreshTasks()
@@ -80,6 +80,25 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, updateTaskColumn, setU
                 </Fragment>
             }
             {
+                updateTaskColumn === 'project_category_id' &&
+                <Fragment>
+                    <div>Change Category</div>
+                    <div className="mt-0_5em">
+                        <select value={updateTaskColumnData ? updateTaskColumnData : ''} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
+                            <option value="">Not Applicable</option>
+                            {
+                                projectCategories.map(projectCategory => (
+                                    <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            {
                 updateTaskColumn === 'title' &&
                 <Fragment>
                     <div>Change Title</div>
@@ -96,7 +115,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, updateTaskColumn, setU
     )
 }
 
-export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, tabsContentHeight=null, width=null }) {
+export default function TaskView({ task, taskStatuses, taskTypes, projectCategories, refreshTasks, tabsContentHeight=null, width=null }) {
     const [ activeTab, setActiveTab ] = useState('comments')
     const [ commentsCount, setCommentsCount ] = useState(0)
     const [ filesCount, setFilesCount ] = useState(0)
@@ -153,6 +172,10 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
                         <div className="label">Status</div>
                         <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_status_id', task.task_status_id)}>{ task.status }</div>
                     </div>
+                    <div className="ml-3em">
+                        <div className="label">Category</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('project_category_id', task.project_category_id)}>{ task.project_category ? task.project_category : 'Not Applicable' }</div>
+                    </div>
                 </div>
                 <div>
                     <Link href="/task/[taskId]" as={`/task/${task.id}`}><a>{task.id.toString().padStart(6, '0')}</a></Link>
@@ -205,7 +228,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, refreshTasks, 
                     }
                 </div>
             </div>
-            <UpdateTaskModal task={task} taskTypes={taskTypes} taskStatuses={taskStatuses} updateTaskColumn={updateTaskColumn} setUpdateTaskColumn={setUpdateTaskColumn} updateTaskColumnData={updateTaskColumnData} setUpdateTaskColumnData={setUpdateTaskColumnData} refreshTasks={refreshTasks} />
+            <UpdateTaskModal task={task} taskTypes={taskTypes} taskStatuses={taskStatuses} projectCategories={projectCategories} updateTaskColumn={updateTaskColumn} setUpdateTaskColumn={setUpdateTaskColumn} updateTaskColumnData={updateTaskColumnData} setUpdateTaskColumnData={setUpdateTaskColumnData} refreshTasks={refreshTasks} />
         </div>
     )
 }

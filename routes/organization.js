@@ -61,11 +61,12 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         additionalParams.push(req.query.user)
     }
     let tasks = await dbQuery(`
-        SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, tasks.task_type_id, tasks.task_status_id
+        SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
-        WHERE project_id = ?
+        LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
+        WHERE tasks.project_id = ?
         ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
         ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
         ${req.query.user !== 'All' ? `AND tasks.id IN (
@@ -76,10 +77,19 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     res.json(tasks)
 })
 
+router.get('/:project/categories', validateProject, async(req, res) => {
+    let projectCategories = await dbQuery(`
+        SELECT id, category
+        FROM project_categories
+        WHERE project_id = ?
+    `, [req.projectId])
+    res.json(projectCategories)
+})
+
 router.post('/:project/task', validateProject, async(req, res) => {
     let insertedRecord = await dbQuery(`
-        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id) VALUES(?, ?, ?, ?, ?)
-    `, [req.projectId, req.body.date, req.body.title, req.body.task_type_id, req.body.task_status_id])
+        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id, project_category_id) VALUES(?, ?, ?, ?, ?, ?)
+    `, [req.projectId, req.body.date, req.body.title, req.body.task_type_id, req.body.task_status_id, req.body.project_category_id])
 
     if(req.body.description) {
         await dbQuery(`

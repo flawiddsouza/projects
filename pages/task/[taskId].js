@@ -11,6 +11,7 @@ function Task() {
     const [ task, setTask ] = useState(null)
     const [ taskTypes, setTaskTypes ] = useState([])
     const [ taskStatuses, setTaskStatuses ] = useState([])
+    const [ projectCategories, setProjectCategories ] = useState([])
     const router = useRouter()
     const { taskId } = router.query
 
@@ -22,6 +23,7 @@ function Task() {
             setTask(response.task)
             setTaskTypes(response.taskTypes)
             setTaskStatuses(response.taskStatuses)
+            setProjectCategories(response.projectCategories)
         }
     }
 
@@ -46,7 +48,7 @@ function Task() {
             <Page.Content>
                 {
                     !taskDoesNotExist && task ?
-                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} refreshTasks={fetchTask} tabsContentHeight="calc(100vh - 15em)" width="100%"></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={fetchTask} tabsContentHeight="calc(100vh - 15em)" width="100%"></TaskView>
                     :
                         <div>Task Does Not Exist</div>
                 }

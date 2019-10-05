@@ -13,6 +13,7 @@ function Index() {
     const [ projects, setProjects ] = useState([])
     const [ taskTypes, setTaskTypes ] = useState([])
     const [ taskStatuses, setTaskStatuses ] = useState([])
+    const [ projectCategories, setProjectCategories ] = useState([])
     const [ projectMembers, setProjectMembers ] = useState([])
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
@@ -46,6 +47,12 @@ function Index() {
         const organizationSlug = document.location.pathname.replace('/', '')
         const taskStatuses = await api.get(`${organizationSlug}/task-statuses`).json()
         setTaskStatuses(taskStatuses)
+    }
+
+    async function fetchProjectCategories(projectSlug) {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const projectCategories = await api.get(`${organizationSlug}/${projectSlug}/categories`).json()
+        setProjectCategories(projectCategories)
     }
 
     function handleCurrentHash(hash) {
@@ -95,6 +102,7 @@ function Index() {
 
         fetchProjectMembers(projectSlug)
         fetchProjectTasks(projectSlug)
+        fetchProjectCategories(projectSlug)
     }
 
     function handleAddTaskKeydown(e) {
@@ -107,13 +115,14 @@ function Index() {
         e.preventDefault()
 
         const organizationSlug = document.location.pathname.replace('/', '')
-        let response = await api.post(`${organizationSlug}/${currentProjectSlug}/task`, {
+        await api.post(`${organizationSlug}/${currentProjectSlug}/task`, {
             headers: {
                 Token: localStorage.getItem('token')
             },
             json: Object.assign(addTaskObj, {
                 task_status_id: taskStatuses[0].id,
-                task_type_id: addTaskObj.task_type_id ? addTaskObj.task_type_id : taskTypes[0].id
+                task_type_id: addTaskObj.task_type_id ? addTaskObj.task_type_id : taskTypes[0].id,
+                project_category_id: addTaskObj.project_category_id ? addTaskObj.project_category_id : null
             })
         }).json()
 
@@ -291,6 +300,17 @@ function Index() {
                                     }
                                 </select>
                             </div>
+                            <div className="ml-0_5em">
+                                <div>Category</div>
+                                <select onChange={e => addTaskObj.project_category_id = e.target.value}>
+                                    <option value="">Not Applicable</option>
+                                    {
+                                        projectCategories.map(projectCategory => (
+                                            <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
                         </div>
                         <div className="mt-0_5em">
                             <div>Title</div>
@@ -313,7 +333,7 @@ function Index() {
                 {
                     task &&
                     <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
-                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} refreshTasks={() => fetchProjectTasks(currentProjectSlug)}></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={() => fetchProjectTasks(currentProjectSlug)}></TaskView>
                     </Modal>
                 }
             </Page.Content>
