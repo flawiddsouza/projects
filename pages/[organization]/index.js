@@ -233,58 +233,61 @@ function Index() {
                 </div>
             </Page.Sidebar>
             <Page.Content paddingBottom0={true}>
-                <div className="d-f flex-ai-fe mb-1em flex-jc-fe">
-                    <div>
-                        <div className="label">Status</div>
-                        <select value={tasksFilterSelectedStatusId} onChange={e => setTasksFilterSelectedStatusId(e.target.value)}>
-                            <option>All</option>
-                            {
-                                taskStatuses.map(taskStatus => (
-                                    <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
-                                ))
-                            }
+                {
+                    currentProjectSlug &&
+                    <div className="d-f flex-ai-fe mb-1em flex-jc-fe filters">
+                        <div>
+                            <div className="label">Status</div>
+                            <select className="mt-0_25em" value={tasksFilterSelectedStatusId} onChange={e => setTasksFilterSelectedStatusId(e.target.value)}>
+                                <option>All</option>
+                                {
+                                    taskStatuses.map(taskStatus => (
+                                        <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <div className="ml-0_5em">
+                            <div className="label">Type</div>
+                            <select className="mt-0_25em" value={tasksFilterSelectedTypeId} onChange={e => setTasksFilterSelectedTypeId(e.target.value)}>
+                                <option>All</option>
+                                {
+                                    taskTypes.map(taskType => (
+                                        <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <div className="ml-0_5em">
+                            <div className="label">Category</div>
+                            <select className="mt-0_25em" value={tasksFilterSelectedProjectCategoryId} onChange={e => setTasksFilterSelectedProjectCategoryId(e.target.value)}>
+                                <option>All</option>
+                                <option value="">Not Applicable</option>
+                                {
+                                    projectCategories.map(projectCategory => (
+                                        <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <div className="ml-0_5em">
+                            <div className="label">Assigned To</div>
+                            <select className="mt-0_25em" value={tasksFilterSelectedAssignedUserId} onChange={e => setTasksFilterSelectedAssignedUserId(e.target.value)}>
+                                <option>All</option>
+                                {
+                                    projectMembers.map(projectMember => (
+                                        <option key={projectMember.user_id} value={projectMember.user_id}>{projectMember.user}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <select className="ml-0_5em">
+                            <option>Show Last 50</option>
+                            <option>Show Last 100</option>
+                            <option>Show All</option>
                         </select>
                     </div>
-                    <div className="ml-0_5em">
-                        <div className="label">Type</div>
-                        <select value={tasksFilterSelectedTypeId} onChange={e => setTasksFilterSelectedTypeId(e.target.value)}>
-                            <option>All</option>
-                            {
-                                taskTypes.map(taskType => (
-                                    <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
-                                ))
-                            }
-                        </select>
-                    </div>
-                    <div className="ml-0_5em">
-                        <div className="label">Category</div>
-                        <select value={tasksFilterSelectedProjectCategoryId} onChange={e => setTasksFilterSelectedProjectCategoryId(e.target.value)}>
-                            <option>All</option>
-                            <option value="">Not Applicable</option>
-                            {
-                                projectCategories.map(projectCategory => (
-                                    <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
-                                ))
-                            }
-                        </select>
-                    </div>
-                    <div className="ml-0_5em">
-                        <div className="label">Assigned To</div>
-                        <select value={tasksFilterSelectedAssignedUserId} onChange={e => setTasksFilterSelectedAssignedUserId(e.target.value)}>
-                            <option>All</option>
-                            {
-                                projectMembers.map(projectMember => (
-                                    <option key={projectMember.user_id} value={projectMember.user_id}>{projectMember.user}</option>
-                                ))
-                            }
-                        </select>
-                    </div>
-                    <select className="ml-0_5em">
-                        <option>Show Last 50</option>
-                        <option>Show Last 100</option>
-                        <option>Show All</option>
-                    </select>
-                </div>
+                }
                 <div className="oy-a" style={{ height: 'calc(100vh - 9.9em)' }}>
                     <table className="table table-hover">
                         <tbody>
