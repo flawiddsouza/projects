@@ -81,9 +81,11 @@ router.post('/:project/task', validateProject, async(req, res) => {
         INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id) VALUES(?, ?, ?, ?, ?)
     `, [req.projectId, req.body.date, req.body.title, req.body.task_type_id, req.body.task_status_id])
 
-    await dbQuery(`
-        INSERT INTO task_comments(task_id, user_id, comment) VALUES(?, ?, ?)
-    `, [insertedRecord.insertId, req.authUserId, req.body.description])
+    if(req.body.description) {
+        await dbQuery(`
+            INSERT INTO task_comments(task_id, user_id, comment) VALUES(?, ?, ?)
+        `, [insertedRecord.insertId, req.authUserId, req.body.description])
+    }
 
     res.json({ status: 'success' })
 })
