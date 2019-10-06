@@ -1,5 +1,7 @@
 const express = require('express')
 const next = require('next')
+const fileUpload = require('express-fileupload')
+const os = require('os')
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const dev = process.env.NODE_ENV !== 'production'
@@ -10,6 +12,11 @@ app.prepare().then(() => {
     const server = express()
 
     server.use(express.json())
+    server.use(fileUpload({
+        useTempFiles : true,
+        tempFileDir : os.tmpdir()
+    }))
+
     server.use('/api', require('./routes/api'))
 
     server.get('*', (req, res) => {

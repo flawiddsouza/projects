@@ -3,6 +3,7 @@ import Modal from 'Components/Modal'
 import urlifyText from 'Libs/esm/urlifyText'
 import api from 'Libs/esm/api'
 import formatDateTime from 'Libs/formatDateTime.js'
+import bytesToHumanReadableFileSize from 'Libs/esm/bytesToHumanReadableFileSize'
 
 export default function TaskViewComments({ taskId, setCommentsCount, tabsContentHeight=null }) {
     const [ comment, setComment ] = useState('')
@@ -11,6 +12,8 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
     const [ updateCommentData, setUpdateCommentData ] = useState(null)
     const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
     const commentsContainer = createRef()
+    const fileInput = createRef()
+    const [ scrollCommentsToBottom, setScrollCommentsToBottom ] = useState(true)
 
     async function fetchComments() {
         const comments = await api.get(`task/${taskId}/comments`).json()
@@ -27,10 +30,13 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
             setCommentsCount(comments.length)
         }
 
-        let commentsContainer2 = commentsContainer.current
-        setTimeout(() => {
-            commentsContainer2.scrollTop = commentsContainer2.scrollHeight
-        }, 0)
+        if(scrollCommentsToBottom) {
+            let commentsContainer2 = commentsContainer.current
+            setTimeout(() => {
+                commentsContainer2.scrollTop = commentsContainer2.scrollHeight
+            }, 0)
+            setScrollCommentsToBottom(false)
+        }
     }, [comments])
 
     function handleAddCommentKeydown(e) {
@@ -48,14 +54,32 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
     async function addComment(e) {
         e.preventDefault()
         if(comment) {
-            api.post(`task/${taskId}/comment`, {
+            const { data: response } = await api.post(`task/${taskId}/comment`, {
                 json: {
                     comment
                 }
-            }).then(() => {
-                fetchComments()
-            })
+            }).json()
+
+            const fileInputElement = fileInput.current
+
+            if(fileInputElement.files.length > 0) {
+                const formData = new FormData()
+
+                for(const file of fileInputElement.files) {
+                    formData.append('files', file)
+                }
+
+                await api.post(`task/${taskId}/comment-files/${response.insertedId}`, {
+                    body: formData
+                })
+            }
+
             setComment('')
+
+            fileInputElement.value = ''
+
+            setScrollCommentsToBottom(true)
+            fetchComments()
         }
     }
 
@@ -119,6 +143,18 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                 </div>
                             </div>
                             <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
+                            <table className={`table table-width-auto ${commentItem.files.length > 0 && 'mt-0_5em'}`}>
+                                <tbody>
+                                {
+                                    commentItem.files.map(file =>
+                                        <tr key={file.id}>
+                                            <td><a href={`static/uploads/${file.saved_file_name}`} target="_blank">{file.original_file_name}</a></td>
+                                            <td style={{ width: '5em' }}>{bytesToHumanReadableFileSize(file.file_size)}</td>
+                                        </tr>
+                                    )
+                                }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )
@@ -128,7 +164,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                 <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }}></textarea>
                 <div className="mt-0_5em">
                     <div>Attach Files</div>
-                    <input type="file" multiple />
+                    <input type="file" multiple ref={fileInput} />
                 </div>
                 <button className="mt-1em">Add Comment</button>
             </form>

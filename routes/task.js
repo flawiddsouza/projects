@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const { dbQuery } =  require('../libs/cjs/db')
+const path = require('path')
+const fs = require('fs')
 
 router.get('/', async(req, res) => {
     const task = await dbQuery(`
@@ -93,6 +95,18 @@ router.get('/comments', async(req, res) => {
         WHERE task_comments.task_id = ?
         ORDER BY task_comments.created_at
     `, [req.authUserId, req.authUserId, req.taskId])
+
+    let commentFiles = await dbQuery(`
+        SELECT task_comment_files.id, task_comment_files.original_file_name, task_comment_files.saved_file_name, task_comment_files.file_size, task_comment_files.task_comment_id
+        FROM task_comment_files
+        JOIN task_comments ON task_comments.id = task_comment_files.task_comment_id
+        WHERE task_comments.task_id = ?
+    `, [req.taskId])
+
+    for(const i in comments) {
+        comments[i].files = commentFiles.filter(commentFile => commentFile.task_comment_id === comments[i].id)
+    }
+
     res.json(comments)
 })
 
@@ -100,7 +114,28 @@ router.post('/comment', async(req, res) => {
     let insertedRecord = await dbQuery(`
         INSERT INTO task_comments(task_id, user_id, comment) VALUES(?, ?, ?)
     `, [req.taskId, req.authUserId, req.body.comment])
-    res.json({ status: 'success', data: { insertedId: insertedRecord } })
+    res.json({ status: 'success', data: { insertedId: insertedRecord.insertId } })
+})
+
+const uploadDir = path.join(__dirname, '..', 'static', 'uploads')
+
+async function uploadCommentFile(req, file) {
+    const uploadFileName = new Date().getTime() + '_' + file.name
+    file.mv(path.join(uploadDir, uploadFileName))
+    await dbQuery(`
+        INSERT INTO task_comment_files(task_comment_id, original_file_name, saved_file_name, file_size) VALUES(?, ?, ?, ?)
+    `, [req.params.comment_id, file.name, uploadFileName, file.size])
+}
+
+router.post('/comment-files/:comment_id', async(req, res) => {
+    if(req.files.files.hasOwnProperty('length')) {
+        for(const file of req.files.files) {
+            await uploadCommentFile(req, file)
+        }
+    } else {
+        await uploadCommentFile(req, req.files.files)
+    }
+    res.json({ status: 'success' })
 })
 
 router.put('/comment/:id', async(req, res) => {
@@ -113,6 +148,25 @@ router.put('/comment/:id', async(req, res) => {
 })
 
 router.delete('/comment/:id', async(req, res) => {
+    let commentFiles = await dbQuery(`
+        SELECT saved_file_name
+        FROM task_comment_files
+        WHERE task_comment_id = ?
+    `, [req.params.id])
+
+    for(const commentFile of commentFiles) {
+        fs.unlink(path.join(uploadDir, commentFile.saved_file_name), (err) => {
+            if(err) {
+                console.log(err)
+            }
+        })
+    }
+
+    await dbQuery(`
+        DELETE FROM task_comment_files
+        WHERE task_comment_id = ?
+    `, [req.params.id])
+
     await dbQuery(`
         DELETE FROM task_comments
         WHERE id = ? AND user_id = ?
