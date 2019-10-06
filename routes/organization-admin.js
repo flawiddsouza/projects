@@ -132,6 +132,15 @@ router.post('/tasks/checklists/:task_type_id', async(req, res) => {
     res.json({ status: 'success' })
 })
 
+router.put('/tasks/checklists/:id', async(req, res) => {
+    await dbQuery(`
+        UPDATE task_checklists
+        SET name = ?, sort_order = ?
+        WHERE id = ?
+    `, [req.body.name, req.body.sort_order, req.params.id])
+    res.json({ status: 'success' })
+})
+
 router.delete('/tasks/checklists/:id', async(req, res) => {
     await dbQuery(`
         DELETE FROM task_checklists

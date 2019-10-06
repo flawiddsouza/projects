@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Container from '../_container'
 import { useRouter } from 'next/router'
 import api from 'Libs/esm/api'
+import Modal from 'Components/Modal'
 
 function Checklists() {
 
@@ -10,6 +11,10 @@ function Checklists() {
     const [ selectedTaskTypeId, setSelectedTaskTypeId ] = useState('')
     const [ newChecklistName, setNewChecklistName ] = useState('')
     const [ newChecklistSortOrder, setNewChecklistSortOrder ] = useState('')
+    const [ editChecklistModalShow, setEditChecklistModalShow ] = useState(false)
+    const [ editChecklistId, setEditChecklistId ] = useState(null)
+    const [ editChecklistName, setEditChecklistName ] = useState(null)
+    const [ editChecklistSortOrder, setEditChecklistSortOrder ] = useState(null)
     const router = useRouter()
     const { organization } = router.query
     const baseURL = `${organization}/admin/tasks/checklists`
@@ -36,6 +41,27 @@ function Checklists() {
         })
         setNewChecklistName('')
         setNewChecklistSortOrder('')
+    }
+
+    function startEditChecklist(e, checklist) {
+        e.preventDefault()
+        setEditChecklistId(checklist.id)
+        setEditChecklistName(checklist.name)
+        setEditChecklistSortOrder(checklist.sort_order)
+        setEditChecklistModalShow(true)
+    }
+
+    function updateChecklist(e) {
+        e.preventDefault()
+        api.put(`${baseURL}/${editChecklistId}`, {
+            json: {
+                name: editChecklistName,
+                sort_order: editChecklistSortOrder
+            }
+        }).then(() => {
+            fetchChecklists()
+        })
+        setEditChecklistModalShow(false)
     }
 
     async function deleteItem(e, id) {
@@ -101,7 +127,7 @@ function Checklists() {
                                     <td>{checklist.name}</td>
                                     <td>{checklist.sort_order}</td>
                                     <td>
-                                        <a href="#" onClick={e => deleteItem(e, checklist.id)}>Edit</a>
+                                        <a href="#" onClick={e => startEditChecklist(e, checklist)}>Edit</a>
                                     </td>
                                     <td>
                                         <a href="#" onClick={e => deleteItem(e, checklist.id)}>Remove</a>
@@ -115,6 +141,19 @@ function Checklists() {
                     }
                 </tbody>
             </table>
+            <Modal showModal={editChecklistModalShow} hideModal={() => setEditChecklistModalShow(false)}>
+                <form onSubmit={updateChecklist}>
+                    <div className="label">Name</div>
+                    <div>
+                        <input type="text" value={editChecklistName} onChange={e => setEditChecklistName(e.target.value)} required autoFocus></input>
+                    </div>
+                    <div className="label">Sort Order</div>
+                    <div>
+                        <input type="number" value={editChecklistSortOrder ? editChecklistSortOrder : ''} onChange={e => setEditChecklistSortOrder(e.target.value)} required></input>
+                    </div>
+                    <button className="mt-1em">Update</button>
+                </form>
+            </Modal>
         </Container>
     )
 
