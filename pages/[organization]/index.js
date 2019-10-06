@@ -365,7 +365,7 @@ function Index() {
                 </Modal>
                 {
                     task &&
-                    <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)}>
+                    <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)} inner={false}>
                         <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={() => fetchProjectTasks(currentProjectSlug)} tabsContentHeight="calc(100vh - 20em)"></TaskView>
                     </Modal>
                 }

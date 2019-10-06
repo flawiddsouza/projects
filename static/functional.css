@@ -82,6 +82,10 @@
     justify-content: flex-end;
 }
 
+.flex-jc-c {
+    justify-content: center;
+}
+
 .flex-ai-fs {
     align-items: flex-start;
 }
@@ -168,4 +172,8 @@
 
 .pos-a {
     position: absolute;
+}
+
+.top-0 {
+    top: 0;
 }
