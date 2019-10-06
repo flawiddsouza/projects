@@ -101,22 +101,25 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
             <div className="oy-a" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 5em)' : '14em' }} ref={commentsContainer}>
             {
                 comments.map((commentItem, index) =>
-                    <div key={commentItem.id} className={`${index > 0 ? 'mt-0_75em' : ''} hover-background-color hover-show-child-parent`}>
-                        <div className="label d-f flex-jc-sb" style={{ position: 'sticky', top: 0 }}>
-                            <div style={{ backgroundColor: 'white' }}>{commentItem.user}</div>
-                            <div className="d-f">
-                                <div className="mr-0_5em hover-show-child">
-                                    <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
-                                        <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px'  }}></img>
-                                    </a>
-                                    <a href="#" className="ml-0_5em" onClick={e => removeComment(e, commentItem)}>
-                                        <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px'  }}></img>
-                                    </a>
+                    <div key={commentItem.id}>
+                        <div style={{ borderBottom: index > 0 ? '1px solid lightgrey' : '' }}></div>
+                        <div className={`${index > 0 ? '' : 'mt-1em'} hover-background-color hover-show-child-parent p-1em`}>
+                            <div className="label d-f flex-jc-sb">
+                                <div>{commentItem.user}</div>
+                                <div className="d-f" style={{ position: 'relative' }}>
+                                    <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-28px', 'left': '-76px' }}>
+                                        <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
+                                            <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                        </a>
+                                        <a href="#" className="ml-1em" onClick={e => removeComment(e, commentItem)}>
+                                            <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                        </a>
+                                    </div>
+                                    <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
                                 </div>
-                                <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
                             </div>
+                            <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
                         </div>
-                        <div className="mt-0_25em ws-pw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
                     </div>
                 )
             }

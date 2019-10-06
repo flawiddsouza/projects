@@ -149,3 +149,15 @@
 .pb-0-i {
     padding-bottom: 0 !important;
 }
+
+.p-1em {
+    padding: 1em;
+}
+
+.wb-bw {
+    word-break: break-word;
+}
+
+.pos-s {
+    position: sticky;
+}
