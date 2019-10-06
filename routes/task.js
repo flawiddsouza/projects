@@ -32,6 +32,7 @@ router.get('/', async(req, res) => {
         JOIN organizations ON organizations.id = task_types.organization_id
         JOIN projects ON projects.organization_id = organizations.id
         WHERE projects.id = ?
+        ORDER BY task_types.sort_order
     `, [req.projectId])
 
     const taskStatuses = await dbQuery(`
@@ -39,6 +40,7 @@ router.get('/', async(req, res) => {
         JOIN organizations ON organizations.id = task_statuses.organization_id
         JOIN projects ON projects.organization_id = organizations.id
         WHERE projects.id = ?
+        ORDER BY task_statuses.sort_order
     `, [req.projectId])
 
     const projectCategories = await dbQuery(`
