@@ -274,7 +274,7 @@ router.get('/checklists', async(req, res) => {
 
 router.get('/checklist-items/:task_checklist_id', async(req, res) => {
     const checklistsItems = await dbQuery(`
-        SELECT id, content, checked, sort_order
+        SELECT id, content, checked, sort_order, created_at
         FROM task_checklist_items
         WHERE task_id = ?
         AND task_checklist_id = ?
@@ -297,6 +297,23 @@ router.put('/checklist-item/:id/checked', async(req, res) => {
         SET checked = ?
         WHERE id = ?
     `, [req.body.checked, req.params.id])
+    res.json({ status: 'success' })
+})
+
+router.put('/checklist-item/:id', async(req, res) => {
+    await dbQuery(`
+        UPDATE task_checklist_items
+        SET content = ?
+        WHERE id = ?
+    `, [req.body.content, req.params.id])
+    res.json({ status: 'success' })
+})
+
+router.delete('/checklist-item/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM task_checklist_items
+        WHERE id = ?
+    `, [req.params.id])
     res.json({ status: 'success' })
 })
 
