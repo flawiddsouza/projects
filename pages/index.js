@@ -2,11 +2,13 @@ import Page from 'Components/Page'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import api from 'Libs/esm/api'
+import logout from 'Libs/esm/logout'
 
 function Index() {
 
     const [ loggedIn, setLoggedIn ] = useState(false)
     const [ organizations, setOrganizations ] = useState([])
+    const [ isSuperAdmin, setIsSuperAdmin ] = useState(false)
 
     async function login(e) {
         e.preventDefault()
@@ -54,11 +56,21 @@ function Index() {
         setOrganizations(organizations)
     }
 
+    async function fetchIsSuperAdmin() {
+        const isSuperAdmin = await api.get('is-super-admin').json()
+        setIsSuperAdmin(isSuperAdmin)
+    }
+
+    function logoutExtended(e) {
+        logout(e, () => setLoggedIn(false))
+    }
+
     useEffect(() => {
         if(localStorage.getItem('token')) {
             setLoggedIn(true)
         }
         if(loggedIn) {
+            fetchIsSuperAdmin()
             fetchOrganizations()
         }
     }, [loggedIn])
@@ -67,6 +79,18 @@ function Index() {
         <Page>
             <Page.Nav>
                 <select className="v-h"></select>
+                {
+                    loggedIn &&
+                    <div>
+                        {
+                            isSuperAdmin &&
+                            <Link href="/admin">
+                                <a className="c-i">Admin Panel</a>
+                            </Link>
+                        }
+                        <a className="c-i ml-1em" href="#" onClick={logoutExtended}>Logout</a>
+                    </div>
+                }
             </Page.Nav>
             {
                 loggedIn &&
@@ -74,20 +98,17 @@ function Index() {
                     <div className="fw-b">Organizations</div>
                     <div className="mt-0_5em">
                         {
+                            organizations.length > 0 ?
                             organizations.map(organization =>
                                 <Link href="/[organization]" as={`/${organization.slug}`} key={organization.slug}>
                                     <a className="d-b mt-0_5em">{organization.name}</a>
                                 </Link>
                             )
+                            :
+                            'You don\'t belong to any organizations'
                         }
                     </div>
-                    <div className="fw-b mt-1em">Other Links</div>
-                    <div className="mt-0_5em">
-                        <Link href="/admin">
-                            <a>Admin Panel</a>
-                        </Link>
-                    </div>
-                </Page.Sidebar>
+                    </Page.Sidebar>
             }
             <Page.Content>
             {

@@ -7,6 +7,7 @@ import formatDate from 'Libs/formatDate.js'
 import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
 import api from 'Libs/esm/api'
+import logout from 'Libs/esm/api'
 
 function Index() {
 
@@ -24,6 +25,7 @@ function Index() {
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
+    const [ isAdmin, setIsAdmin ] = useState(false)
     const router = useRouter()
 
     var addTaskObj = {
@@ -149,6 +151,12 @@ function Index() {
         }
     }
 
+    async function fetchIsAdmin() {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const isAdmin = await api.get(`${organizationSlug}/is-admin`).json()
+        setIsAdmin(isAdmin)
+    }
+
     useEffect(() => {
         handleCurrentHash(document.location.hash)
 
@@ -159,6 +167,7 @@ function Index() {
         Router.events.on('hashChangeComplete', handleReset)
         Router.events.on('routeChangeComplete', handleReset)
 
+        fetchIsAdmin()
         fetchProjects()
         fetchTaskTypes()
         fetchTaskStatuses()
@@ -185,21 +194,42 @@ function Index() {
 
                         <div>
                             <select className="v-h"></select>
+                            {
+                                isAdmin &&
+                                <Link href="[organization]/admin" as={`${router.query.organization}/admin`}>
+                                    <a className="c-i">Admin Panel</a>
+                                </Link>
+                            }
+                            <a className="c-i ml-1em" href="#" onClick={logout}>Logout</a>
                         </div>
                     </Fragment>
                     :
-                    <select className="v-h"></select>
+                    <Fragment>
+                        <select className="v-h"></select>
+                        <div>
+                            {
+                                isAdmin &&
+                                <Link href="[organization]/admin" as={`${router.query.organization}/admin`}>
+                                    <a className="c-i">Admin Panel</a>
+                                </Link>
+                            }
+                            <a className="c-i ml-1em" href="#" onClick={logout}>Logout</a>
+                        </div>
+                    </Fragment>
                 }
                 </Page.Nav>
             <Page.Sidebar>
             <div className="fw-b">Projects</div>
                 <div className="mt-0_5em">
                     {
+                        projects.length > 0 ?
                         projects.map(project => {
                             return (
                                 <a className={`mt-0_25em d-b ${project.slug === currentProjectSlug ? 'td-n c-b' : ''}`} key={project.slug} href={ '#project:' + project.slug}>{ project.name }</a>
                             )
                         })
+                        :
+                        'No Projects Found'
                     }
                 </div>
                 {
@@ -225,12 +255,6 @@ function Index() {
                         </div>
                     </Fragment>
                 }
-                <div className="fw-b mt-1em">Other Links</div>
-                <div className="mt-0_5em">
-                    <Link href="[organization]/admin" as={`${router.query.organization}/admin`}>
-                        <a>Admin Panel</a>
-                    </Link>
-                </div>
             </Page.Sidebar>
             <Page.Content paddingBottom0={true}>
                 {

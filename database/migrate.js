@@ -37,12 +37,20 @@ const path = require('path');
         let migrationFileString = fs.readFileSync(migrationFilePath, 'utf-8')
         let queries = migrationFileString.split(';')
         queries = queries.filter(query => query.trim())
+
+        let breakLoop = false
+
         for(const query of queries) {
             let results = await dbQuery(query)
             if(results.hasOwnProperty('error')) {
                 console.error(results.error)
+                breakLoop = true
                 break
             }
+        }
+
+        if(breakLoop) {
+            break
         }
 
         await pushToCompletedMigrations(migration)

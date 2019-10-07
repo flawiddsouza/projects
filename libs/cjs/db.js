@@ -20,7 +20,8 @@ if(localEnv.DB_CONNECTION === 'mysql') {
                 database: localEnv.DB_DATABASE,
                 user: localEnv.DB_USERNAME,
                 password: localEnv.DB_PASSWORD,
-                dateStrings: true
+                dateStrings: true,
+                namedPlaceholders: true
             })
 
             const [rows, fields] = await db.execute(queryToExecute, params)
