@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import api from 'Libs/esm/api'
 import logout from 'Libs/esm/logout'
+import Router from 'next/router'
 
 function Index() {
 
@@ -51,14 +52,18 @@ function Index() {
         inputs[3].value = ''
     }
 
-    async function fetchOrganizations() {
+    async function fetchOrganizations(isSuperAdmin) {
         const organizations = await api.get('organizations').json()
         setOrganizations(organizations)
+        if(!isSuperAdmin && organizations.length === 1) {
+            Router.push('/' + organizations[0].slug)
+        }
     }
 
-    async function fetchIsSuperAdmin() {
+    async function fetchIsSuperAdminAndOrganizations() {
         const isSuperAdmin = await api.get('is-super-admin').json()
         setIsSuperAdmin(isSuperAdmin)
+        await fetchOrganizations(isSuperAdmin)
     }
 
     function logoutExtended(e) {
@@ -70,8 +75,7 @@ function Index() {
             setLoggedIn(true)
         }
         if(loggedIn) {
-            fetchIsSuperAdmin()
-            fetchOrganizations()
+            fetchIsSuperAdminAndOrganizations()
         }
     }, [loggedIn])
 
