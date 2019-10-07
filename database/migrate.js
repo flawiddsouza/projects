@@ -21,7 +21,7 @@ if(pendingMigrations.length === 0) {
     process.exit()
 }
 
-const { dbQuery } = require('./../libs/cjs/db')
+const { queryWithoutParams } = require('./../libs/cjs/db')
 
 async function pushToCompletedMigrations(migrationFileName) {
     completedMigrations.push(migrationFileName)
@@ -41,7 +41,7 @@ const path = require('path');
         let breakLoop = false
 
         for(const query of queries) {
-            let results = await dbQuery(query)
+            let results = await queryWithoutParams(query)
             if(results.hasOwnProperty('error')) {
                 console.error(results.error)
                 breakLoop = true
