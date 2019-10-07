@@ -7,7 +7,7 @@ import formatDate from 'Libs/formatDate.js'
 import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
 import api from 'Libs/esm/api'
-import logout from 'Libs/esm/api'
+import logout from 'Libs/esm/logout'
 
 function Index() {
 
