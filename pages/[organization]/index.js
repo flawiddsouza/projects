@@ -25,6 +25,7 @@ function Index() {
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
+    const [ tasksFilterSelectedLimit, setTasksFilterSelectedLimit ] = useState('50')
     const [ isAdmin, setIsAdmin ] = useState(false)
     const router = useRouter()
 
@@ -91,7 +92,7 @@ function Index() {
 
     async function fetchProjectTasks(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserId}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserId}&limit=${tasksFilterSelectedLimit}`).json()
 
         setTasks(tasks)
 
@@ -182,7 +183,7 @@ function Index() {
         if(currentProjectSlug) {
             fetchProjectTasks(currentProjectSlug)
         }
-    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId])
+    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId, tasksFilterSelectedLimit])
 
     return (
         <Page>
@@ -305,10 +306,10 @@ function Index() {
                                 }
                             </select>
                         </div>
-                        <select className="ml-0_5em">
-                            <option>Show Last 50</option>
-                            <option>Show Last 100</option>
-                            <option>Show All</option>
+                        <select className="ml-0_5em" value={tasksFilterSelectedLimit} onChange={e => setTasksFilterSelectedLimit(e.target.value)}>
+                            <option value="50">Show Last 50</option>
+                            <option value="100">Show Last 100</option>
+                            <option value="All">Show All</option>
                         </select>
                     </div>
                 }

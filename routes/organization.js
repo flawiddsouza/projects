@@ -64,6 +64,12 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     if(req.query.user !== 'All') {
         additionalParams.push(req.query.user)
     }
+
+    let limit = 'All'
+    if(req.query.limit === '50' || req.query.limit === '100') {
+        limit = req.query.limit
+    }
+
     let tasks = await dbQuery(`
         SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id
         FROM tasks
@@ -79,6 +85,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
             SELECT task_id FROM task_assigned_users WHERE user_id = ?
         )` : ''}
         ORDER BY tasks.created_at DESC
+        ${limit !== 'All' ? 'LIMIT ' + limit : ''}
     `, [req.projectId, ...additionalParams])
     res.json(tasks)
 })
