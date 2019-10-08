@@ -11,6 +11,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
     const [ updateCommentId, setUpdateCommentId ] = useState(null)
     const [ updateCommentData, setUpdateCommentData ] = useState(null)
     const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
+    const [ addingComment, setAddingComment ] = useState(false)
     const commentsContainer = createRef()
     const fileInput = createRef()
     const [ scrollCommentsToBottom, setScrollCommentsToBottom ] = useState(true)
@@ -53,14 +54,20 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
 
     async function addComment(e) {
         e.preventDefault()
-        if(comment) {
+
+        const fileInputElement = fileInput.current
+        const filesCount = fileInputElement.files.length
+
+        if(comment || filesCount > 0) {
+            if(filesCount > 0) {
+                setAddingComment(true)
+            }
+
             const { data: response } = await api.post(`task/${taskId}/comment`, {
                 json: {
-                    comment
+                    comment: comment !== '' ? comment : null
                 }
             }).json()
-
-            const fileInputElement = fileInput.current
 
             if(fileInputElement.files.length > 0) {
                 const formData = new FormData()
@@ -80,6 +87,10 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
 
             setScrollCommentsToBottom(true)
             fetchComments()
+
+            if(filesCount > 0) {
+                setAddingComment(false)
+            }
         }
     }
 
@@ -142,7 +153,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                     <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
                                 </div>
                             </div>
-                            <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: urlifyText(commentItem.comment) }}></div>
+                            <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: commentItem.comment ? urlifyText(commentItem.comment) : '' }}></div>
                             <table className={`table table-width-auto ${commentItem.files.length > 0 && 'mt-0_5em'}`}>
                                 <tbody>
                                 {
@@ -161,12 +172,17 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
             }
             </div>
             <form onSubmit={addComment} className="mt-1em">
-                <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }}></textarea>
+                <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }} disabled={addingComment}></textarea>
                 <div className="mt-0_5em">
                     <div>Attach Files</div>
-                    <input type="file" multiple ref={fileInput} />
+                    <input type="file" multiple ref={fileInput} disabled={addingComment} />
                 </div>
-                <button className="mt-1em">Add Comment</button>
+                {
+                    !addingComment ?
+                    <button className="mt-1em">Add Comment</button>
+                    :
+                    <button className="mt-1em" disabled>Adding Comment...</button>
+                }
             </form>
             <Modal showModal={updateCommentId !== null} hideModal={() => cancelUpdateComment()}>
                 <form onSubmit={updateComment} style={{ width: '50em' }}>
