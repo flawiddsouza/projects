@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from 'react'
+import { useEffect, useState, Fragment, createRef } from 'react'
 import { format } from 'date-fns'
 import Modal from 'Components/Modal.js'
 import TaskView from 'Components/TaskView.js'
@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Router, { useRouter } from 'next/router'
 import api from 'Libs/esm/api'
 import logout from 'Libs/esm/logout'
+import createLoader from 'Libs/esm/createLoader'
 
 function Index() {
 
@@ -27,6 +28,7 @@ function Index() {
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
     const [ tasksFilterSelectedLimit, setTasksFilterSelectedLimit ] = useState('50')
     const [ isAdmin, setIsAdmin ] = useState(false)
+    const fileInput = createRef()
     const router = useRouter()
 
     var addTaskObj = {
@@ -118,21 +120,42 @@ function Index() {
     async function addTask(e) {
         e.preventDefault()
 
+        let loader = createLoader('Adding task...')
+
+        const fileInputElement = fileInput.current
+        const filesCount = fileInputElement.files.length
+
         const organizationSlug = document.location.pathname.replace('/', '')
-        await api.post(`${organizationSlug}/${currentProjectSlug}/task`, {
+        const { data: response } = await api.post(`${organizationSlug}/${currentProjectSlug}/task`, {
             headers: {
                 Token: localStorage.getItem('token')
             },
             json: Object.assign(addTaskObj, {
                 task_status_id: taskStatuses[0].id,
                 task_type_id: addTaskObj.task_type_id ? addTaskObj.task_type_id : taskTypes[0].id,
-                project_category_id: addTaskObj.project_category_id ? addTaskObj.project_category_id : null
+                project_category_id: addTaskObj.project_category_id ? addTaskObj.project_category_id : null,
+                description: addTaskObj.description ? addTaskObj.description : null,
+                hasAttachments: filesCount > 0 ? true : false
             })
         }).json()
+
+        if(filesCount > 0) {
+            const formData = new FormData()
+
+            for(const file of fileInputElement.files) {
+                formData.append('files', file)
+            }
+
+            await api.post(`task/${response.insertedId}/comment-files/${response.insertedCommentId}`, {
+                body: formData
+            })
+        }
 
         fetchProjectTasks(currentProjectSlug)
 
         setShowAddTaskModal(false)
+
+        loader.remove()
 
         addTaskObj = {
             date: format(new Date, 'yyyy-MM-dd'),
@@ -380,7 +403,7 @@ function Index() {
                         </div>
                         <div className="mt-0_5em">
                             <div>Attach Files</div>
-                            <input type="file" multiple />
+                            <input type="file" multiple ref={fileInput} />
                         </div>
                         <div className="mt-1em">
                             <button>Add Task</button>
