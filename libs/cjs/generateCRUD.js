@@ -22,7 +22,7 @@ function generateCRUD(router, route, table, columns, where=null) {
         if(result.hasOwnProperty('error')) {
             res.send({ status: 'error', message: 'Duplicate Entry' })
         } else {
-            res.send({ status: 'success', data: { insertedId: result.insertId } })
+            res.send({ status: 'success' })
         }
     })
 
