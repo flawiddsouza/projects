@@ -102,6 +102,7 @@ main > .sidebar, main > .main {
     position: absolute;
     border: 1px solid var(--border-color);
     top: 5%;
+    box-shadow: 1px 1px 29px -12px black;
 }
 
 .modal-background {
