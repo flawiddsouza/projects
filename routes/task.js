@@ -74,7 +74,8 @@ router.get('/counts', async(req, res) => {
         timeSpends: {
             count: (await dbQuery('SELECT COUNT(*) as count FROM task_time_spends WHERE task_id = ?', [req.taskId]))[0].count,
             duration: duration ? duration : 0
-        }
+        },
+        subTasks: (await dbQuery('SELECT COUNT(*) as count FROM task_sub_tasks WHERE task_id = ?', [req.taskId]))[0].count
     })
 })
 
@@ -281,6 +282,77 @@ router.delete('/time-spend/:id', async(req, res) => {
         DELETE FROM task_time_spends
         WHERE id = ? AND user_id = ?
     `, [req.params.id, req.authUserId])
+    res.json({ status: 'success' })
+})
+
+router.get('/sub-tasks', async(req, res) => {
+    const subTasks = await dbQuery(`
+        SELECT
+            task_sub_tasks.id,
+            sub_tasks.date,
+            task_types.type as type,
+            task_statuses.status as status,
+            project_categories.category as category,
+            sub_tasks.title
+        FROM task_sub_tasks
+        JOIN tasks as sub_tasks ON sub_tasks.id = task_sub_tasks.sub_task_id
+        JOIN task_types ON task_types.id = sub_tasks.task_type_id
+        JOIN task_statuses ON task_statuses.id = sub_tasks.task_status_id
+        LEFT JOIN project_categories ON project_categories.id = sub_tasks.project_category_id
+        WHERE task_sub_tasks.task_id = ?
+        ORDER BY task_sub_tasks.id
+    `, [req.taskId])
+    res.json(subTasks)
+})
+
+router.get('/sub-tasks/matching-tasks', async(req, res) => {
+    if(req.query.task) {
+        let matchingTasks = await dbQuery(`
+            SELECT
+                tasks.id as value,
+                CONCAT(
+                    '[',
+                    DATE_FORMAT(tasks.date, '%d-%b-%y'),
+                    '] ',
+                    '[',
+                    task_types.type,
+                    '] ',
+                    '[',
+                    task_statuses.status,
+                    '] ',
+                    CASE WHEN project_categories.category IS NOT NULL THEN '[' ELSE '' END,
+                    CASE WHEN project_categories.category IS NOT NULL THEN project_categories.category ELSE '' END,
+                    CASE WHEN project_categories.category IS NOT NULL THEN '] ' ELSE '' END,
+                    tasks.title
+                ) as label
+            FROM tasks
+            JOIN task_types ON task_types.id = tasks.task_type_id
+            JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+            LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
+            WHERE tasks.project_id = ?
+            AND tasks.id != ?
+            HAVING label LIKE ?
+            LIMIT 4
+        `, [req.projectId, req.taskId, `%${req.query.task}%`])
+        res.json(matchingTasks)
+    } else {
+        res.json([])
+    }
+})
+
+router.post('/sub-task', async(req, res) => {
+    await dbQuery(`
+        INSERT INTO task_sub_tasks(task_id, sub_task_id)
+        VALUES(?, ?)
+    `, [req.taskId, req.body.sub_task_id])
+    res.json({ status: 'success' })
+})
+
+router.delete('/sub-task/:id', async(req, res) => {
+    await dbQuery(`
+        DELETE FROM task_sub_tasks
+        WHERE id = ?
+    `, [req.params.id])
     res.json({ status: 'success' })
 })
 
