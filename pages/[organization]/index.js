@@ -346,11 +346,11 @@ function Index() {
                                         <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
                                         {
                                             tasksFilterSelectedTypeId === 'All' &&
-                                            <td style={{ width: '2em' }}>{ task.type }</td>
+                                            <td style={{ width: '2em' }} className="ws-nw">{ task.type }</td>
                                         }
                                         {
                                             tasksFilterSelectedStatusId === 'All' &&
-                                            <td style={{ width: '2em' }}>{ task.status }</td>
+                                            <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
                                         }
                                         {
                                             tasksFilterSelectedProjectCategoryId === 'All' &&
