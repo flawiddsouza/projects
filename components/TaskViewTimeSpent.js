@@ -103,8 +103,8 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
             <form onSubmit={addTimeSpend}>
                 <div className="d-f flex-ai-fe">
                     <div className="w-100p">
-                        <div className="label">Description</div>
-                        <input type="text" value={timeSpendStartDescription} onChange={e => setTimeSpendDescription(e.target.value)} required className="w-100p"></input>
+                        <div className="label">Additional Description</div>
+                        <input type="text" value={timeSpendStartDescription} onChange={e => setTimeSpendDescription(e.target.value)} className="w-100p"></input>
                     </div>
                     <div className="ml-1em">
                         <div className="label">Start Date Time</div>
@@ -132,7 +132,7 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
                     <thead>
                         <tr>
                             <th style={{ width: '6em' }}>Member</th>
-                            <th className="ta-l">Description</th>
+                            <th className="ta-l">Additional Description</th>
                             <th style={{ width: '9.5em' }}>Start Date Time</th>
                             <th style={{ width: '9.5em' }}>End Date Time</th>
                             <th style={{ width: '4em' }}>Duration</th>
