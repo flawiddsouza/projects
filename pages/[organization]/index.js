@@ -396,7 +396,7 @@ function Index() {
                             <input type="text" required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.title = e.target.value} className="w-100p" autoFocus></input>
                         </div>
                         <div className="mt-0_5em">
-                            <div>Description</div>
+                            <div>Additional Comment</div>
                             <textarea onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }}></textarea>
                         </div>
                         <div className="mt-0_5em">
