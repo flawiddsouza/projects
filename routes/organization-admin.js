@@ -16,6 +16,7 @@ router.get('/matching-users', async(req, res) => { // matching users excluding o
             FROM users
             LEFT JOIN organization_members ON organization_members.user_id = users.id AND organization_members.organization_id = ?
             WHERE (users.name LIKE ? OR users.email LIKE ?) AND organization_members.id IS NULL
+            AND users.email_verification_code IS NULL
         `, [req.organizationId, `%${req.query.name}%`, `%${req.query.name}%`])
         res.json(matchingUsers)
     } else {
