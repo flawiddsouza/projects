@@ -247,7 +247,7 @@ router.get('/assigned-users', async(req, res) => {
 })
 
 router.post('/assigned-user', async(req, res) => {
-    let insertedRecord = await dbQuery(`
+    await dbQuery(`
         INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
     `, [req.taskId, req.body.user_id])
     res.json({ status: 'success' })
@@ -262,7 +262,7 @@ router.delete('/assigned-user/:id', async(req, res) => {
 })
 
 router.post('/time-spend', async(req, res) => {
-    let insertedRecord = await dbQuery(`
+    await dbQuery(`
         INSERT INTO task_time_spends(task_id, user_id, description, start_date_time, end_date_time) VALUES(?, ?, ?, ?, ?)
     `, [req.taskId, req.authUserId, req.body.description ? req.body.description : null, req.body.start_date_time, req.body.end_date_time])
     res.json({ status: 'success' })
