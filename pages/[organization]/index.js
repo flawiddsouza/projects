@@ -344,18 +344,9 @@ function Index() {
                                 return (
                                     <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
                                         <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
-                                        {
-                                            tasksFilterSelectedTypeId === 'All' &&
-                                            <td style={{ width: '2em' }} className="ws-nw">{ task.type }</td>
-                                        }
-                                        {
-                                            tasksFilterSelectedStatusId === 'All' &&
-                                            <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
-                                        }
-                                        {
-                                            tasksFilterSelectedProjectCategoryId === 'All' &&
-                                            <td style={{ width: '5em' }} className="ws-nw">{ task.project_category }</td>
-                                        }
+                                        <td style={{ width: '2em' }} className="ws-nw">{ task.type }</td>
+                                        <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
+                                        <td style={{ width: '5em' }} className="ws-nw">{ task.project_category }</td>
                                         <td>{ task.title }</td>
                                     </tr>
                                 )
