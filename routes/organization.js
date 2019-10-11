@@ -70,6 +70,23 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         limit = req.query.limit
     }
 
+    let completedTaskStatusId = await dbQuery(`
+        SELECT id FROM task_statuses
+        WHERE organization_id = ?
+        ORDER BY sort_order DESC
+        LIMIT 1
+    `, [req.organizationId])
+
+    if(completedTaskStatusId.length > 0) {
+        completedTaskStatusId = completedTaskStatusId[0].id
+    } else {
+        completedTaskStatusId = null
+    }
+
+    if(req.query.status === 'All' && completedTaskStatusId) {
+        additionalParams.unshift(completedTaskStatusId)
+    }
+
     let tasks = await dbQuery(`
         SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id
         FROM tasks
@@ -77,6 +94,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
         WHERE tasks.project_id = ?
+        ${req.query.status === 'All' && completedTaskStatusId ? 'AND tasks.task_status_id != ?' : ''}
         ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
         ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
         ${req.query.category !== 'All' && req.query.category !== '' ? 'AND tasks.project_category_id = ?' : ''}
