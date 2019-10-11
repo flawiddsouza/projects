@@ -109,6 +109,10 @@ function Index() {
         fetchProjectMembers(projectSlug)
         fetchProjectTasks(projectSlug)
         fetchProjectCategories(projectSlug)
+
+        // close view task modal on project change
+        setShowViewTaskModal(false)
+        setTask(null)
     }
 
     function handleAddTaskKeydown(e) {
