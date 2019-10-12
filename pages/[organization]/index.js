@@ -20,6 +20,7 @@ function Index() {
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
+    const [ addTaskModalSelectedUserIds, setAddTaskModalSelectedUserIds ] = useState([])
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
@@ -139,7 +140,8 @@ function Index() {
                 task_type_id: addTaskObj.task_type_id ? addTaskObj.task_type_id : taskTypes[0].id,
                 project_category_id: addTaskObj.project_category_id ? addTaskObj.project_category_id : null,
                 description: addTaskObj.description ? addTaskObj.description : null,
-                hasAttachments: filesCount > 0 ? true : false
+                hasAttachments: filesCount > 0 ? true : false,
+                assignTo: addTaskModalSelectedUserIds
             })
         }).json()
 
@@ -185,6 +187,25 @@ function Index() {
         setIsAdmin(isAdmin)
     }
 
+    function initAddTask(e) {
+        e.preventDefault()
+        setShowViewTaskModal(false)
+        setAddTaskModalSelectedUserIds(projectMembers.filter(item => item.you).map(item => item.user_id))
+        setShowAddTaskModal(true)
+    }
+
+    function addToAddTaskModalSelectedUserIds(e) {
+        if(e.target.checked) {
+            setAddTaskModalSelectedUserIds(
+                addTaskModalSelectedUserIds.concat([Number(e.target.value)])
+            )
+        } else {
+            setAddTaskModalSelectedUserIds(
+                addTaskModalSelectedUserIds.filter(item => item !== Number(e.target.value))
+            )
+        }
+    }
+
     useEffect(() => {
         handleCurrentHash(document.location.hash)
 
@@ -218,7 +239,7 @@ function Index() {
                 {
                     currentProjectSlug ?
                     <Fragment>
-                        <a className="c-i" href="#" onClick={(e) => { e.preventDefault(); setShowViewTaskModal(false); setShowAddTaskModal(true) }}>+ Add task</a>
+                        <a className="c-i" href="#" onClick={initAddTask}>+ Add task</a>
 
                         <div>
                             <select className="v-h"></select>
@@ -406,6 +427,21 @@ function Index() {
                         <div className="mt-0_5em">
                             <div>Attach Files</div>
                             <input type="file" multiple ref={fileInput} />
+                        </div>
+                        <div className="mt-1em">
+                            <div>Assign Members</div>
+                            <div className="p-0_5em pb-0_75em-i oy-a" style={{ border: '1px solid var(--border-color)', maxHeight: '10em' }}>
+                                {
+                                    projectMembers.map(projectMember => (
+                                        <div key={projectMember.id}>
+                                            <label className="d-b mt-0_5em">
+                                                <input type="checkbox" value={projectMember.user_id} checked={addTaskModalSelectedUserIds.includes(projectMember.user_id)} onChange={addToAddTaskModalSelectedUserIds}></input>
+                                                {projectMember.user}
+                                            </label>
+                                        </div>
+                                    ))
+                                }
+                            </div>
                         </div>
                         <div className="mt-1em">
                             <button>Add Task</button>

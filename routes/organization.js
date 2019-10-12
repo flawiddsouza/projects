@@ -38,6 +38,7 @@ router.get('/:project/members', validateProject, async(req, res) => {
                 users.name,
                 (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
             ) as user,
+            (CASE WHEN users.id = ? THEN true ELSE false END) as you,
             organization_roles.role,
             organization_members.user_id
         FROM project_members
@@ -46,7 +47,7 @@ router.get('/:project/members', validateProject, async(req, res) => {
         JOIN users ON users.id = organization_members.user_id
         WHERE project_members.project_id = ?
         ORDER BY users.name
-    `, [req.authUserId, req.projectId])
+    `, [req.authUserId, req.authUserId, req.projectId])
     res.json(projectMembers)
 })
 
@@ -129,6 +130,14 @@ router.post('/:project/task', validateProject, async(req, res) => {
             INSERT INTO task_comments(task_id, user_id, comment) VALUES(?, ?, ?)
         `, [insertedRecord.insertId, req.authUserId, req.body.description])
         insertedCommentId = insertedCommentId.insertId
+    }
+
+    if(req.body.assignTo.length > 0) {
+        for(const userId of req.body.assignTo) {
+            await dbQuery(`
+                INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
+            `, [insertedRecord.insertId, userId])
+        }
     }
 
     res.json(
