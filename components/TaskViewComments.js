@@ -1,4 +1,4 @@
-import { createRef, useState, useEffect } from 'react'
+import { createRef, useState, useEffect, Fragment } from 'react'
 import Modal from 'Components/Modal'
 import urlifyText from 'Libs/esm/urlifyText'
 import api from 'Libs/esm/api'
@@ -132,58 +132,60 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
     }
 
     return (
-        <div className="d-f flex-d-c flex-jc-sb h-100p">
-            <div className="oy-a" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 5em)' : '14em' }} ref={commentsContainer}>
-            {
-                comments.map((commentItem, index) =>
-                    <div key={commentItem.id}>
-                        <div style={{ borderBottom: index > 0 ? '1px solid lightgrey' : '' }}></div>
-                        <div className={`${index > 0 ? '' : 'mt-1em'} hover-background-color hover-show-child-parent p-1em`}>
-                            <div className="label d-f flex-jc-sb">
-                                <div>{commentItem.user}</div>
-                                <div className="d-f" style={{ position: 'relative' }}>
-                                    <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-28px', 'left': '-76px' }}>
-                                        <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
-                                            <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
-                                        </a>
-                                        <a href="#" className="ml-1em" onClick={e => removeComment(e, commentItem)}>
-                                            <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
-                                        </a>
-                                    </div>
-                                    <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
-                                </div>
-                            </div>
-                            <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: commentItem.comment ? urlifyText(commentItem.comment) : '' }}></div>
-                            <table className={`table table-width-auto ${commentItem.files.length > 0 && 'mt-0_5em'}`}>
-                                <tbody>
-                                {
-                                    commentItem.files.map(file =>
-                                        <tr key={file.id}>
-                                            <td><a href={`static/uploads/${file.saved_file_name}`} target="_blank">{file.original_file_name}</a></td>
-                                            <td style={{ width: '5em' }}>{bytesToHumanReadableFileSize(file.file_size)}</td>
-                                        </tr>
-                                    )
-                                }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )
-            }
-            </div>
-            <form onSubmit={addComment} className="mt-1em">
-                <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }} disabled={addingComment}></textarea>
-                <div className="mt-0_5em">
-                    <div>Attach Files</div>
-                    <input type="file" multiple ref={fileInput} disabled={addingComment} />
-                </div>
+        <Fragment>
+            <div className="d-f flex-d-c flex-jc-sb h-100p">
+                <div className="oy-a" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 5em)' : '14em' }} ref={commentsContainer}>
                 {
-                    !addingComment ?
-                    <button className="mt-1em">Add Comment</button>
-                    :
-                    <button className="mt-1em" disabled>Adding Comment...</button>
+                    comments.map((commentItem, index) =>
+                        <div key={commentItem.id}>
+                            <div style={{ borderBottom: index > 0 ? '1px solid lightgrey' : '' }}></div>
+                            <div className={`${index > 0 ? '' : 'mt-1em'} hover-background-color hover-show-child-parent p-1em`}>
+                                <div className="label d-f flex-jc-sb">
+                                    <div>{commentItem.user}</div>
+                                    <div className="d-f" style={{ position: 'relative' }}>
+                                        <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-28px', 'left': '-76px' }}>
+                                            <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
+                                                <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                            </a>
+                                            <a href="#" className="ml-1em" onClick={e => removeComment(e, commentItem)}>
+                                                <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                            </a>
+                                        </div>
+                                        <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
+                                    </div>
+                                </div>
+                                <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: commentItem.comment ? urlifyText(commentItem.comment) : '' }}></div>
+                                <table className={`table table-width-auto ${commentItem.files.length > 0 && 'mt-0_5em'}`}>
+                                    <tbody>
+                                    {
+                                        commentItem.files.map(file =>
+                                            <tr key={file.id}>
+                                                <td><a href={`static/uploads/${file.saved_file_name}`} target="_blank">{file.original_file_name}</a></td>
+                                                <td style={{ width: '5em' }}>{bytesToHumanReadableFileSize(file.file_size)}</td>
+                                            </tr>
+                                        )
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )
                 }
-            </form>
+                </div>
+                <form onSubmit={addComment} className="mt-1em">
+                    <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }} disabled={addingComment}></textarea>
+                    <div className="mt-0_5em">
+                        <div>Attach Files</div>
+                        <input type="file" multiple ref={fileInput} disabled={addingComment} />
+                    </div>
+                    {
+                        !addingComment ?
+                        <button className="mt-1em">Add Comment</button>
+                        :
+                        <button className="mt-1em" disabled>Adding Comment...</button>
+                    }
+                </form>
+            </div>
             <Modal showModal={updateCommentId !== null} hideModal={() => cancelUpdateComment()}>
                 <form onSubmit={updateComment} style={{ width: '50em' }}>
                     <div>Edit Comment</div>
@@ -195,6 +197,6 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                     </div>
                 </form>
             </Modal>
-        </div>
+        </Fragment>
     )
 }
