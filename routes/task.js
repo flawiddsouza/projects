@@ -443,4 +443,72 @@ router.delete('/checklist-item/:id', async(req, res) => {
     res.json({ status: 'success' })
 })
 
+router.delete('/', async(req, res) => {
+
+    let taskCommentIds = await dbQuery(`
+        SELECT id FROM task_comments
+        WHERE task_id = ?
+    `, [req.taskId])
+
+    taskCommentIds = taskCommentIds.map(taskComment => taskComment.id)
+
+    if(taskCommentIds.length > 0) {
+
+        let taskCommentFiles = await dbQuery(`
+            SELECT saved_file_name FROM task_comment_files
+            WHERE task_comment_id IN (${Array(taskCommentIds.length).fill('?')})
+        `, [...taskCommentIds])
+
+        if(taskCommentFiles.length > 0) {
+
+            for(const taskCommentFile of taskCommentFiles) {
+                fs.unlink(path.join(uploadDir, taskCommentFile.saved_file_name), (err) => {
+                    if(err) {
+                        console.log(err)
+                    }
+                })
+            }
+
+            await dbQuery(`
+                DELETE FROM task_comment_files
+                WHERE task_comment_id IN (${Array(taskCommentIds.length).fill('?')})
+            `, [...taskCommentIds])
+
+        }
+
+        await dbQuery(`
+            DELETE FROM task_comments
+            WHERE task_id = ?
+        `, [req.taskId])
+
+    }
+
+    await dbQuery(`
+        DELETE FROM task_assigned_users
+        WHERE task_id = ?
+    `, [req.taskId])
+
+    await dbQuery(`
+        DELETE FROM task_time_spends
+        WHERE task_id = ?
+    `, [req.taskId])
+
+    await dbQuery(`
+        DELETE FROM task_sub_tasks
+        WHERE task_id = ? OR sub_task_id = ?
+    `, [req.taskId, req.taskId])
+
+    await dbQuery(`
+        DELETE FROM task_checklist_items
+        WHERE task_id = ?
+    `, [req.taskId])
+
+    await dbQuery(`
+        DELETE FROM tasks
+        WHERE id = ?
+    `, [req.taskId])
+
+    res.json({ status: 'success' })
+})
+
 module.exports = router

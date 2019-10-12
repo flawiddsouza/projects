@@ -4,6 +4,7 @@ import Page from 'Components/Page'
 import TaskView from 'Components/TaskView'
 import api from 'Libs/esm/api'
 import Link from 'next/link'
+import Router from 'next/router'
 
 function Task() {
 
@@ -12,6 +13,7 @@ function Task() {
     const [ taskTypes, setTaskTypes ] = useState([])
     const [ taskStatuses, setTaskStatuses ] = useState([])
     const [ projectCategories, setProjectCategories ] = useState([])
+    const [ isAdmin, setIsAdmin ] = useState(false)
     const router = useRouter()
     const { taskId } = router.query
 
@@ -24,6 +26,23 @@ function Task() {
             setTaskTypes(response.taskTypes)
             setTaskStatuses(response.taskStatuses)
             setProjectCategories(response.projectCategories)
+            fetchIsAdmin(response.task)
+        }
+    }
+
+    async function fetchIsAdmin(task) {
+        const isAdmin = await api.get(`${task.organization_slug}/is-admin`).json()
+        setIsAdmin(isAdmin)
+    }
+
+    async function deleteTask(e) {
+        e.preventDefault()
+        if(confirm('Are you sure you want to delete this task? All its contents will be lost forever. Continue?')) {
+            let answer = prompt('Type \'yes\' to confirm')
+            if(answer === 'yes') {
+                await api.delete(`task/${taskId}`)
+                Router.push(`/${task.organization_slug}#project:${task.project_slug}`)
+            }
         }
     }
 
@@ -42,7 +61,13 @@ function Task() {
                         <Link href="/[organization]" as={`/${task.organization_slug}#project:${task.project_slug}`}><a className="c-i">{task.project_name}</a></Link>
                     </div>
                 }
-                <select className="v-h"></select>
+                <div>
+                    <select className="v-h"></select>
+                    {
+                        isAdmin &&
+                        <a href="#" className="c-i" onClick={deleteTask}>Delete Task</a>
+                    }
+                </div>
             </Page.Nav>
             <Page.Sidebar></Page.Sidebar>
             <Page.Content>
