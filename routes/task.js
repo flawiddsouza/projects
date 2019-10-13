@@ -63,6 +63,20 @@ router.get('/counts', async(req, res) => {
         WHERE task_id = ?
     `, [req.taskId]))[0].duration
 
+    let completedTaskStatusId = await dbQuery(`
+        SELECT task_statuses.id FROM projects
+        JOIN task_statuses ON task_statuses.organization_id = projects.organization_id
+        WHERE projects.id = ?
+        ORDER BY task_statuses.sort_order DESC
+        LIMIT 1
+    `, [req.projectId])
+
+    if(completedTaskStatusId.length > 0) {
+        completedTaskStatusId = completedTaskStatusId[0].id
+    } else {
+        completedTaskStatusId = null
+    }
+
     res.json({
         comments: (await dbQuery('SELECT COUNT(*) as count FROM task_comments WHERE task_id = ?', [req.taskId]))[0].count,
         files: (await dbQuery(`
@@ -75,7 +89,16 @@ router.get('/counts', async(req, res) => {
             count: (await dbQuery('SELECT COUNT(*) as count FROM task_time_spends WHERE task_id = ?', [req.taskId]))[0].count,
             duration: duration ? duration : 0
         },
-        subTasks: (await dbQuery('SELECT COUNT(*) as count FROM task_sub_tasks WHERE task_id = ?', [req.taskId]))[0].count
+        subTasks: {
+            count: (await dbQuery('SELECT COUNT(*) as count FROM task_sub_tasks WHERE task_id = ?', [req.taskId]))[0].count,
+            completedCount: (await dbQuery(`
+                SELECT COUNT(*) as count
+                FROM task_sub_tasks
+                JOIN tasks ON tasks.id = task_sub_tasks.sub_task_id
+                WHERE task_sub_tasks.task_id = ?
+                AND tasks.task_status_id = ?
+            `, [req.taskId, completedTaskStatusId]))[0].count
+        }
     })
 })
 

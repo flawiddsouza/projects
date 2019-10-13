@@ -122,8 +122,9 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
     const [ filesCount, setFilesCount ] = useState(0)
     const [ assignedCount, setAssignedCount ] = useState(0)
     const [ timeSpentCount, setTimeSpentCount ] = useState(0)
-    const [ subTasksCount, setSubTasksCount ] = useState(0)
     const [ timeSpentDuration, setTimeSpentDuration ] = useState(0)
+    const [ subTasksCount, setSubTasksCount ] = useState(0)
+    const [ completedSubTasksCount, setCompletedSubTasksCount ] = useState(0)
     const [ updateTaskColumn, setUpdateTaskColumn ] = useState(null)
     const [ updateTaskColumnData, setUpdateTaskColumnData ] = useState(null)
     const [ checklists, setChecklists ] = useState([])
@@ -136,7 +137,8 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
         setAssignedCount(counts.assigned)
         setTimeSpentCount(counts.timeSpends.count)
         setTimeSpentDuration(counts.timeSpends.duration)
-        setSubTasksCount(counts.subTasks)
+        setSubTasksCount(counts.subTasks.count)
+        setCompletedSubTasksCount(counts.subTasks.completedCount)
     }
 
     async function fetchChecklists() {
@@ -194,7 +196,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     <div className={ activeTab === 'files' ? 'active': null} onClick={() => setActiveTab('files') }>Files ({filesCount})</div>
                     <div className={ activeTab === 'assigned' ? 'active': null} onClick={() => setActiveTab('assigned') }>Assigned ({assignedCount})</div>
                     <div className={ activeTab === 'time-spent' ? 'active': null} onClick={() => setActiveTab('time-spent') }>Time Spent ({timeSpentCount} / {secondsInHHMMSS(timeSpentDuration)})</div>
-                    <div className={ activeTab === 'sub-tasks' ? 'active': null} onClick={() => setActiveTab('sub-tasks') }>Sub Tasks ({subTasksCount})</div>
+                    <div className={ activeTab === 'sub-tasks' ? 'active': null} onClick={() => setActiveTab('sub-tasks') }>Sub Tasks ({completedSubTasksCount}/{subTasksCount})</div>
                     {
                         checklists.map(checklist => (
                             <div key={checklist.id} className={ activeTab === 'checklist-' + checklist.name ? 'active': null} onClick={() => setActiveTab('checklist-' + checklist.name) }>
