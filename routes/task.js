@@ -36,6 +36,8 @@ router.get('/', async(req, res) => {
             tasks.task_type_id,
             tasks.task_status_id,
             tasks.project_category_id,
+            tasks.due_date,
+            tasks.completed_date,
             CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed,
             organizations.name as organization_name,
             organizations.slug as organization_slug,
@@ -404,7 +406,7 @@ router.delete('/sub-task/:id', async(req, res) => {
 })
 
 router.put('/update/:field', async(req, res) => {
-    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id') {
+    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id' || req.params.field === 'due_date' || req.params.field === 'completed_date') {
 
         let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
 
@@ -448,7 +450,21 @@ router.put('/update/:field', async(req, res) => {
                 })
 
                 return
+            } else {
+                await dbQuery(`
+                    UPDATE tasks
+                    SET completed_date = CURRENT_DATE
+                    WHERE id = ?
+                `, [req.taskId])
             }
+        }
+
+        if(req.params.field === 'task_status_id' && Number(req.body[req.params.field]) !== completedTaskStatusId) {
+            await dbQuery(`
+                UPDATE tasks
+                SET completed_date = null
+                WHERE id = ?
+            `, [req.taskId])
         }
 
         await dbQuery(`

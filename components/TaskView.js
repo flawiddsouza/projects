@@ -115,6 +115,30 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
                     </div>
                 </Fragment>
             }
+            {
+                updateTaskColumn === 'due_date' &&
+                <Fragment>
+                    <div>Change Due Date</div>
+                    <div className="mt-0_5em">
+                        <input type="date" value={updateTaskColumnData || ''} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p"></input>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            {
+                updateTaskColumn === 'completed_date' &&
+                <Fragment>
+                    <div>Change Completed Date</div>
+                    <div className="mt-0_5em">
+                        <input type="date" value={updateTaskColumnData || ''} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
             </form>
         </Modal>
     )
@@ -161,7 +185,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
     }, [])
 
     function startTaskColumnUpdate(column, columnData) {
-        if(task.completed && column !== 'task_status_id') {
+        if(task.completed && column !== 'task_status_id' && column !== 'completed_date') {
             alert('You cannot edit a task unless you reopen it')
             return
         }
@@ -189,6 +213,19 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                         <div className="label">Category</div>
                         <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('project_category_id', task.project_category_id)}>{ task.project_category ? task.project_category : 'Not Applicable' }</div>
                     </div>
+                    <div className="ml-3em">
+                        <div className="label">Due Date</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('due_date', task.due_date)}>{ task.due_date ? formatDate(task.due_date) : 'No Due Date' }</div>
+                    </div>
+                    {
+                        task.completed ?
+                        <div className="ml-3em">
+                            <div className="label">Completed Date</div>
+                            <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('completed_date', task.completed_date)}>{ task.completed_date ? formatDate(task.completed_date) : 'No Completed Date' }</div>
+                        </div>
+                        :
+                        ''
+                    }
                 </div>
                 <div>
                     <Link href="/task/[taskId]" as={`/task/${task.id}`}><a>{task.id.toString().padStart(6, '0')}</a></Link>

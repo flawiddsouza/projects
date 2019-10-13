@@ -35,7 +35,8 @@ function Index() {
     var addTaskObj = {
         date: format(new Date, 'yyyy-MM-dd'),
         title: '',
-        description: ''
+        description: '',
+        due_date: null
     }
 
     async function fetchProjects() {
@@ -141,7 +142,8 @@ function Index() {
                 project_category_id: addTaskObj.project_category_id ? addTaskObj.project_category_id : null,
                 description: addTaskObj.description ? addTaskObj.description : null,
                 hasAttachments: filesCount > 0 ? true : false,
-                assignTo: addTaskModalSelectedUserIds
+                assignTo: addTaskModalSelectedUserIds,
+                due_date: addTaskObj.due_date ? addTaskObj.due_date : null
             })
         }).json()
 
@@ -166,7 +168,8 @@ function Index() {
         addTaskObj = {
             date: format(new Date, 'yyyy-MM-dd'),
             title: '',
-            description: ''
+            description: '',
+            due_date: null
         }
     }
 
@@ -392,6 +395,7 @@ function Index() {
                                 <input type="date"
                                     defaultValue={addTaskObj.date}
                                     onChange={e => addTaskObj.date = e.target.value}
+                                    required
                                 />
                             </div>
                             <div className="ml-0_5em">
@@ -414,6 +418,13 @@ function Index() {
                                         ))
                                     }
                                 </select>
+                            </div>
+                            <div className="ml-0_5em">
+                                <div>Due Date</div>
+                                <input type="date"
+                                    defaultValue={addTaskObj.due_date}
+                                    onChange={e => addTaskObj.due_date = e.target.value}
+                                />
                             </div>
                         </div>
                         <div className="mt-0_5em">

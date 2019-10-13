@@ -91,6 +91,8 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     let tasks = await dbQuery(`
         SELECT
             tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id,
+            tasks.due_date,
+            tasks.completed_date,
             CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
@@ -122,8 +124,16 @@ router.get('/:project/categories', validateProject, async(req, res) => {
 
 router.post('/:project/task', validateProject, async(req, res) => {
     let insertedRecord = await dbQuery(`
-        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id, project_category_id) VALUES(?, ?, ?, ?, ?, ?)
-    `, [req.projectId, req.body.date, req.body.title, req.body.task_type_id, req.body.task_status_id, req.body.project_category_id])
+        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id, project_category_id, due_date) VALUES(?, ?, ?, ?, ?, ?, ?)
+    `, [
+        req.projectId,
+        req.body.date,
+        req.body.title,
+        req.body.task_type_id,
+        req.body.task_status_id,
+        req.body.project_category_id,
+        req.body.due_date
+    ])
 
     let insertedCommentId = null
 
