@@ -18,7 +18,12 @@ export default ky.extend({
                     if(location.pathname === '/') {
                         location.reload()
                     } else {
-                        Router.push('/')
+                        Router.push({
+                            pathname: '/',
+                            query: {
+                                redirectTo: location.pathname + location.hash
+                            }
+                        })
                     }
                 }
             }

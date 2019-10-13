@@ -3,13 +3,15 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import api from 'Libs/esm/api'
 import logout from 'Libs/esm/logout'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 
 function Index() {
 
     const [ loggedIn, setLoggedIn ] = useState(false)
     const [ organizations, setOrganizations ] = useState([])
     const [ isSuperAdmin, setIsSuperAdmin ] = useState(false)
+    const router = useRouter()
+    const { redirectTo } = router.query
 
     async function login(e) {
         e.preventDefault()
@@ -21,6 +23,10 @@ function Index() {
         }).json()
         if(response.status === 'success') {
             localStorage.setItem('token', response.data.token)
+            if(redirectTo) {
+                Router.push(redirectTo)
+                return
+            }
             setLoggedIn(true)
         } else {
             alert(response.message)
@@ -166,5 +172,7 @@ function Index() {
         </Page>
     )
 }
+
+Index.getInitialProps = () => ({})
 
 export default Index
