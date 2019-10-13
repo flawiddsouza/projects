@@ -405,6 +405,52 @@ router.delete('/sub-task/:id', async(req, res) => {
 
 router.put('/update/:field', async(req, res) => {
     if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id') {
+
+        let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+
+        if(req.params.field === 'task_status_id' && Number(req.body[req.params.field]) === completedTaskStatusId) {
+
+            let pendingStuff = []
+
+            let pendingSubTasksCount = (await dbQuery(`
+                SELECT COUNT(*) as count
+                FROM task_sub_tasks
+                JOIN tasks ON tasks.id = task_sub_tasks.sub_task_id
+                WHERE task_sub_tasks.task_id = ?
+                AND tasks.task_status_id != ?
+            `, [req.taskId, completedTaskStatusId]))[0].count
+
+            if(pendingSubTasksCount > 0) {
+                pendingStuff.push('sub tasks')
+            }
+
+            let pendingChecklistItemsCount = await dbQuery(`
+                SELECT
+                    COUNT(*) as count,
+                    task_checklists.name as checklist_name
+                FROM task_checklist_items
+                JOIN task_checklists ON task_checklists.id = task_checklist_items.task_checklist_id
+                WHERE task_checklist_items.task_id = ?
+                AND task_checklist_items.checked = 0
+                GROUP BY task_checklists.id
+            `, [req.taskId])
+
+            for(const pendingChecklistItemsCountSingle of pendingChecklistItemsCount) {
+                if(pendingChecklistItemsCountSingle.count > 0) {
+                    pendingStuff.push(pendingChecklistItemsCountSingle.checklist_name)
+                }
+            }
+
+            if(pendingStuff.length > 0) {
+                res.json({
+                    status: 'error',
+                    message: 'You can\'t mark this task as completed without completing your ' + pendingStuff.join(', ').replace(/,(?!.*,)/gmi, ' and')
+                })
+
+                return
+            }
+        }
+
         await dbQuery(`
             UPDATE tasks
             SET ${req.params.field} = ?

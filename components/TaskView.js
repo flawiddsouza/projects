@@ -18,8 +18,12 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
             json: {
                 [updateTaskColumn]: updateTaskColumnData ? updateTaskColumnData : null
             }
-        }).then(() => {
-            refreshTasks()
+        }).json().then(response => {
+            if(response.status === 'success') {
+                refreshTasks()
+            } else {
+                alert(response.message)
+            }
         })
         cancelTaskColumnUpdate()
     }
