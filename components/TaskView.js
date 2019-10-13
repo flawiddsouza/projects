@@ -228,7 +228,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     }
                     {
                         activeTab === 'sub-tasks' &&
-                        <TaskViewSubTasks taskId={task.id} taskCompleted={task.completed} setSubTasksCount={setSubTasksCount} tabsContentHeight={tabsContentHeight}></TaskViewSubTasks>
+                        <TaskViewSubTasks taskId={task.id} taskCompleted={task.completed} setSubTasksCount={setSubTasksCount} setCompletedSubTasksCount={setCompletedSubTasksCount} tabsContentHeight={tabsContentHeight}></TaskViewSubTasks>
                     }
                     {
                         checklists.map(checklist => (

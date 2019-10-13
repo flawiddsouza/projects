@@ -3,7 +3,7 @@ import api from 'Libs/esm/api'
 import formatDate from 'Libs/formatDate.js'
 import AsyncSelect from 'react-select/async'
 
-export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHeight=null, taskCompleted }) {
+export default function TaskViewFiles({ taskId, setSubTasksCount, setCompletedSubTasksCount, tabsContentHeight=null, taskCompleted }) {
     const [ subTasks, setSubTasks ] = useState([])
     const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
     const [ selectedTaskId, setSelectedTaskId ] = useState(null)
@@ -11,7 +11,8 @@ export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHei
     async function fetchSubTasks() {
         const subTasks = await api.get(`task/${taskId}/sub-tasks`).json()
         setIntialLoadComplete(true)
-        setSubTasks(subTasks)
+        setSubTasks(subTasks.data)
+        setCompletedSubTasksCount(subTasks.completedCount)
     }
 
     async function fetchMatchingTasks(inputValue) {

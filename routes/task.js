@@ -334,7 +334,19 @@ router.get('/sub-tasks', async(req, res) => {
         WHERE task_sub_tasks.task_id = ?
         ORDER BY task_sub_tasks.id
     `, [req.taskId])
-    res.json(subTasks)
+
+    let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+
+    res.json({
+        data: subTasks,
+        completedCount: (await dbQuery(`
+            SELECT COUNT(*) as count
+            FROM task_sub_tasks
+            JOIN tasks ON tasks.id = task_sub_tasks.sub_task_id
+            WHERE task_sub_tasks.task_id = ?
+            AND tasks.task_status_id = ?
+        `, [req.taskId, completedTaskStatusId]))[0].count
+    })
 })
 
 router.get('/sub-tasks/matching-tasks', async(req, res) => {
