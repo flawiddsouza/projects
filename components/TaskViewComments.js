@@ -4,6 +4,7 @@ import urlifyText from 'Libs/esm/urlifyText'
 import api from 'Libs/esm/api'
 import formatDateTime from 'Libs/formatDateTime.js'
 import bytesToHumanReadableFileSize from 'Libs/esm/bytesToHumanReadableFileSize'
+import Select from 'react-select'
 
 export default function TaskViewComments({ taskId, setCommentsCount, tabsContentHeight=null, taskCompleted }) {
     const [ comment, setComment ] = useState('')
@@ -15,6 +16,8 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
     const commentsContainer = createRef()
     const fileInput = createRef()
     const [ scrollCommentsToBottom, setScrollCommentsToBottom ] = useState(true)
+    const [ assignedUsers, setAssignedUsers ] = useState([])
+    const [ commentNotifyList, setCommentNotifyList ] = useState([])
 
     async function fetchComments() {
         const comments = await api.get(`task/${taskId}/comments`).json()
@@ -22,8 +25,21 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
         setComments(comments)
     }
 
+    async function fetchAssignedUsers() {
+        let { assignedUsers } = await api.get(`task/${taskId}/assigned-users`).json()
+        assignedUsers = assignedUsers.filter(item => !item.you).map(item => {
+            return {
+                label: item.user,
+                value: item.user_id
+            }
+        })
+        setAssignedUsers(assignedUsers)
+        setCommentNotifyList(assignedUsers)
+    }
+
     useEffect(() => {
         fetchComments()
+        fetchAssignedUsers()
     }, [])
 
     useEffect(() => {
@@ -41,14 +57,16 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
     }, [comments])
 
     function handleAddCommentKeydown(e) {
-        if(e.altKey && e.key === 'Enter') {
-            e.target.value = e.target.value + '\n'
-            e.target.scrollTop = e.target.scrollHeight
+        if(e.ctrlKey && e.key === 'Enter') { // Add comment on Ctrl + Enter
+            e.preventDefault()
+            addComment(e)
             return
         }
 
-        if(e.key === 'Enter') {
-            addComment(e)
+        if(e.target.value === '@all') {
+            e.preventDefault()
+            setCommentNotifyList(assignedUsers)
+            setComment('')
         }
     }
 
@@ -65,7 +83,8 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
 
             const { data: response } = await api.post(`task/${taskId}/comment`, {
                 json: {
-                    comment: comment !== '' ? comment : null
+                    comment: comment !== '' ? comment : null,
+                    notifyUserIds: commentNotifyList.map(item => item.value)
                 }
             }).json()
 
@@ -183,7 +202,28 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                     </div>
                     {
                         !addingComment ?
-                        <button className="mt-1em" disabled={taskCompleted}>Add Comment</button>
+                        <div className="mt-1em pos-r">
+                            <button disabled={taskCompleted}>Add Comment</button>
+                            <div className="pos-a" style={{ top: '-33px', right: '2px' }}>
+                                <div className="label">Notify By Email</div>
+                                <div style={{ width: '30em' }}>
+                                    <Select
+                                        isMulti
+                                        options={assignedUsers}
+                                        menuPlacement="auto"
+                                        isClearable={false}
+                                        value={commentNotifyList}
+                                        onChange={value => {
+                                            if(value) {
+                                                setCommentNotifyList(value)
+                                            } else {
+                                                setCommentNotifyList([])
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         :
                         <button className="mt-1em" disabled>Adding Comment...</button>
                     }

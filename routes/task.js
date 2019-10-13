@@ -251,14 +251,16 @@ router.get('/assigned-users', async(req, res) => {
     let assignedUsers = await dbQuery(`
         SELECT
             task_assigned_users.id,
+            task_assigned_users.user_id,
             CONCAT(
                 users.name,
                 (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
-            ) as user
+            ) as user,
+            (CASE WHEN users.id = ? THEN true ELSE false END) as you
         FROM task_assigned_users
         JOIN users ON users.id = task_assigned_users.user_id
         WHERE task_assigned_users.task_id = ?
-    `, [req.authUserId, req.taskId])
+    `, [req.authUserId, req.authUserId, req.taskId])
     let assignableUsers = await dbQuery(`
         SELECT
             users.id,
