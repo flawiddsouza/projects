@@ -20,6 +20,7 @@ function Index() {
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
+    const [ addTaskObj, setAddTaskObj ] = useState({})
     const [ addTaskModalSelectedUserIds, setAddTaskModalSelectedUserIds ] = useState([])
     const [ addTaskNotifyUsersByEmail, setAddTaskNotifyUsersByEmail ] = useState(true)
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
@@ -33,11 +34,15 @@ function Index() {
     const fileInput = createRef()
     const router = useRouter()
 
-    var addTaskObj = {
-        date: format(new Date, 'yyyy-MM-dd'),
-        title: '',
-        description: '',
-        due_date: null
+    function setPropState(state, setStateFunction, prop, value) {
+        setStateFunction({
+            ...state,
+            [prop]: value
+        })
+    }
+
+    function setAddTaskObjProp(prop, value) {
+        setPropState(addTaskObj, setAddTaskObj, prop, value)
     }
 
     async function fetchProjects() {
@@ -166,13 +171,6 @@ function Index() {
         setShowAddTaskModal(false)
 
         loader.remove()
-
-        addTaskObj = {
-            date: format(new Date, 'yyyy-MM-dd'),
-            title: '',
-            description: '',
-            due_date: null
-        }
     }
 
     function viewTask(task) {
@@ -197,6 +195,9 @@ function Index() {
         setShowViewTaskModal(false)
         setAddTaskModalSelectedUserIds(projectMembers.filter(item => item.you).map(item => item.user_id))
         setAddTaskNotifyUsersByEmail(true)
+        setAddTaskObj({
+            date: format(new Date, 'yyyy-MM-dd')
+        })
         setShowAddTaskModal(true)
     }
 
@@ -396,14 +397,14 @@ function Index() {
                             <div>
                                 <div>Date</div>
                                 <input type="date"
-                                    defaultValue={addTaskObj.date}
-                                    onChange={e => addTaskObj.date = e.target.value}
+                                    value={addTaskObj.date}
+                                    onChange={e => setAddTaskObjProp('date', e.target.value)}
                                     required
                                 />
                             </div>
                             <div className="ml-0_5em">
                                 <div>Type</div>
-                                <select onChange={e => addTaskObj.task_type_id = e.target.value}>
+                                <select onChange={e => setAddTaskObjProp('task_type_id', e.target.value)}>
                                     {
                                         taskTypes.map(taskType => (
                                             <option key={taskType.id} value={taskType.id}>{taskType.type}</option>
@@ -413,7 +414,7 @@ function Index() {
                             </div>
                             <div className="ml-0_5em">
                                 <div>Category</div>
-                                <select onChange={e => addTaskObj.project_category_id = e.target.value}>
+                                <select onChange={e => setAddTaskObjProp('project_category_id', e.target.value)}>
                                     <option value="">Not Applicable</option>
                                     {
                                         projectCategories.map(projectCategory => (
@@ -426,17 +427,17 @@ function Index() {
                                 <div>Due Date</div>
                                 <input type="date"
                                     defaultValue={addTaskObj.due_date}
-                                    onChange={e => addTaskObj.due_date = e.target.value}
+                                    onChange={e => setAddTaskObjProp('due_date', e.target.value)}
                                 />
                             </div>
                         </div>
                         <div className="mt-0_5em">
                             <div>Title</div>
-                            <input type="text" required onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.title = e.target.value} className="w-100p" autoFocus></input>
+                            <input type="text" required onKeyDown={handleAddTaskKeydown} onChange={e => setAddTaskObjProp('title', e.target.value)} className="w-100p" autoFocus></input>
                         </div>
                         <div className="mt-0_5em">
                             <div>Additional Comment</div>
-                            <textarea onKeyDown={handleAddTaskKeydown} onChange={e => addTaskObj.description = e.target.value} className="w-100p" style={{ height: '5em' }}></textarea>
+                            <textarea onKeyDown={handleAddTaskKeydown} onChange={e => setAddTaskObjProp('description', e.target.value)} className="w-100p" style={{ height: '5em' }}></textarea>
                         </div>
                         <div className="mt-0_5em">
                             <div>Attach Files</div>

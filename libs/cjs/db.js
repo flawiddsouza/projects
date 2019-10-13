@@ -31,7 +31,7 @@ if(localEnv.DB_CONNECTION === 'mysql') {
             await db.end()
             return rows
         } catch(e) {
-            // console.log(queryToExecute, e.message)
+            // console.log(queryToExecute, params, e.message)
             return { error: 'DB Error: ' + e.message }
         }
 
