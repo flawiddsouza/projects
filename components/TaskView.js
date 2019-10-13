@@ -157,6 +157,10 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
     }, [])
 
     function startTaskColumnUpdate(column, columnData) {
+        if(task.completed && column !== 'task_status_id') {
+            alert('You cannot edit a task unless you reopen it')
+            return
+        }
         setUpdateTaskColumnData(columnData)
         setUpdateTaskColumn(column)
     }
@@ -208,7 +212,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                 <div className="tabs-content" style={{ height: tabsContentHeight ? tabsContentHeight : '25em' }}>
                     {
                         activeTab === 'comments' &&
-                        <TaskViewComments taskId={task.id} setCommentsCount={setCommentsCount} tabsContentHeight={tabsContentHeight}></TaskViewComments>
+                        <TaskViewComments taskId={task.id} taskCompleted={task.completed} setCommentsCount={setCommentsCount} tabsContentHeight={tabsContentHeight}></TaskViewComments>
                     }
                     {
                         activeTab === 'files' &&
@@ -216,22 +220,22 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     }
                     {
                         activeTab === 'assigned' &&
-                        <TaskViewAssigned taskId={task.id} setAssignedCount={setAssignedCount}></TaskViewAssigned>
+                        <TaskViewAssigned taskId={task.id} taskCompleted={task.completed} setAssignedCount={setAssignedCount}></TaskViewAssigned>
                     }
                     {
                         activeTab === 'time-spent' &&
-                        <TaskViewTimeSpent taskId={task.id} setTimeSpentCount={setTimeSpentCount} setTimeSpentDuration={setTimeSpentDuration} tabsContentHeight={tabsContentHeight}></TaskViewTimeSpent>
+                        <TaskViewTimeSpent taskId={task.id} taskCompleted={task.completed} setTimeSpentCount={setTimeSpentCount} setTimeSpentDuration={setTimeSpentDuration} tabsContentHeight={tabsContentHeight}></TaskViewTimeSpent>
                     }
                     {
                         activeTab === 'sub-tasks' &&
-                        <TaskViewSubTasks taskId={task.id} setSubTasksCount={setSubTasksCount} tabsContentHeight={tabsContentHeight}></TaskViewSubTasks>
+                        <TaskViewSubTasks taskId={task.id} taskCompleted={task.completed} setSubTasksCount={setSubTasksCount} tabsContentHeight={tabsContentHeight}></TaskViewSubTasks>
                     }
                     {
                         checklists.map(checklist => (
                             <div key={checklist.id}>
                                 {
                                     activeTab === 'checklist-' + checklist.name &&
-                                    <TaskViewChecklist taskId={task.id} checklistId={checklist.id}tabsContentHeight={tabsContentHeight} setChecklistCount={setChecklistCountSetter}></TaskViewChecklist>
+                                    <TaskViewChecklist taskId={task.id} taskCompleted={task.completed} checklistId={checklist.id}tabsContentHeight={tabsContentHeight} setChecklistCount={setChecklistCountSetter}></TaskViewChecklist>
                                 }
                             </div>
                         ))

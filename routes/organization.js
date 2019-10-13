@@ -89,7 +89,9 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     }
 
     let tasks = await dbQuery(`
-        SELECT tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id
+        SELECT
+            tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id,
+            CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
@@ -105,7 +107,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         )` : ''}
         ORDER BY tasks.created_at DESC
         ${limit !== 'All' ? 'LIMIT ' + limit : ''}
-    `, [req.projectId, ...additionalParams])
+    `, [completedTaskStatusId, req.projectId, ...additionalParams])
     res.json(tasks)
 })
 

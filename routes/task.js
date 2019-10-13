@@ -4,7 +4,27 @@ const { dbQuery } =  require('../libs/cjs/db')
 const path = require('path')
 const fs = require('fs')
 
+async function getCompletedTaskStatusId(projectId) {
+    let completedTaskStatusId = await dbQuery(`
+        SELECT task_statuses.id FROM projects
+        JOIN task_statuses ON task_statuses.organization_id = projects.organization_id
+        WHERE projects.id = ?
+        ORDER BY task_statuses.sort_order DESC
+        LIMIT 1
+    `, [projectId])
+
+    if(completedTaskStatusId.length > 0) {
+        completedTaskStatusId = completedTaskStatusId[0].id
+    } else {
+        completedTaskStatusId = null
+    }
+
+    return completedTaskStatusId
+}
+
 router.get('/', async(req, res) => {
+    let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+
     const task = await dbQuery(`
         SELECT
             tasks.id,
@@ -16,6 +36,7 @@ router.get('/', async(req, res) => {
             tasks.task_type_id,
             tasks.task_status_id,
             tasks.project_category_id,
+            CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed,
             organizations.name as organization_name,
             organizations.slug as organization_slug,
             projects.name as project_name,
@@ -27,7 +48,7 @@ router.get('/', async(req, res) => {
         JOIN projects ON projects.id = tasks.project_id
         JOIN organizations ON organizations.id = projects.organization_id
         WHERE tasks.id = ?
-    `, [req.taskId])
+    `, [completedTaskStatusId, req.taskId])
 
     const taskTypes = await dbQuery(`
         SELECT task_types.id, task_types.type FROM task_types
@@ -63,19 +84,7 @@ router.get('/counts', async(req, res) => {
         WHERE task_id = ?
     `, [req.taskId]))[0].duration
 
-    let completedTaskStatusId = await dbQuery(`
-        SELECT task_statuses.id FROM projects
-        JOIN task_statuses ON task_statuses.organization_id = projects.organization_id
-        WHERE projects.id = ?
-        ORDER BY task_statuses.sort_order DESC
-        LIMIT 1
-    `, [req.projectId])
-
-    if(completedTaskStatusId.length > 0) {
-        completedTaskStatusId = completedTaskStatusId[0].id
-    } else {
-        completedTaskStatusId = null
-    }
+    let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
 
     res.json({
         comments: (await dbQuery('SELECT COUNT(*) as count FROM task_comments WHERE task_id = ?', [req.taskId]))[0].count,

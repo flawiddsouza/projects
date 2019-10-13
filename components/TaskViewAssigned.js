@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from 'Libs/esm/api'
 
-export default function TaskViewAssigned({ taskId, setAssignedCount }) {
+export default function TaskViewAssigned({ taskId, setAssignedCount, taskCompleted }) {
     const [ assignableUsers, setAssignableUsers ] = useState([])
     const [ assignedUsers, setAssignedUsers ] = useState([])
     const [ assignUserUser, setAssignUserUser ] = useState('')
@@ -49,7 +49,7 @@ export default function TaskViewAssigned({ taskId, setAssignedCount }) {
             <form onSubmit={assignUser} className="d-f flex-ai-fe">
                 <div>
                     <div className="label">Member</div>
-                    <select required onChange={e => setAssignUserUser(e.target.value)} value={assignUserUser}>
+                    <select required onChange={e => setAssignUserUser(e.target.value)} value={assignUserUser} disabled={taskCompleted}>
                         <option></option>
                         {
                             assignableUsers.map(assignableUser => (
@@ -59,7 +59,7 @@ export default function TaskViewAssigned({ taskId, setAssignedCount }) {
                     </select>
                 </div>
                 <div className="ml-1em">
-                    <button>Assign to Task</button>
+                    <button disabled={taskCompleted}>Assign to Task</button>
                 </div>
             </form>
             <div className="oy-a mt-1em" style={{ maxHeight: '17em' }}>
@@ -69,9 +69,12 @@ export default function TaskViewAssigned({ taskId, setAssignedCount }) {
                         assignedUsers.map(assignedUser =>
                             <tr key={assignedUser.id}>
                                 <td>{assignedUser.user}</td>
-                                <td>
-                                    <a href="#" onClick={e => removeAssignedUser(e, assignedUser)}>Remove</a>
-                                </td>
+                                {
+                                    !taskCompleted &&
+                                    <td>
+                                        <a href="#" onClick={e => removeAssignedUser(e, assignedUser)}>Remove</a>
+                                    </td>
+                                }
                             </tr>
                         )
                     }

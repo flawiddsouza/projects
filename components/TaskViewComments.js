@@ -5,7 +5,7 @@ import api from 'Libs/esm/api'
 import formatDateTime from 'Libs/formatDateTime.js'
 import bytesToHumanReadableFileSize from 'Libs/esm/bytesToHumanReadableFileSize'
 
-export default function TaskViewComments({ taskId, setCommentsCount, tabsContentHeight=null }) {
+export default function TaskViewComments({ taskId, setCommentsCount, tabsContentHeight=null, taskCompleted }) {
     const [ comment, setComment ] = useState('')
     const [ comments, setComments ] = useState([])
     const [ updateCommentId, setUpdateCommentId ] = useState(null)
@@ -143,15 +143,18 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                 <div className="label d-f flex-jc-sb">
                                     <div>{commentItem.user}</div>
                                     <div className="d-f" style={{ position: 'relative' }}>
-                                        <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-28px', 'left': '-76px' }}>
-                                            <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
-                                                <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
-                                            </a>
-                                            <a href="#" className="ml-1em" onClick={e => removeComment(e, commentItem)}>
-                                                <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
-                                            </a>
-                                        </div>
-                                        <div className="hover-hide-child mr-0_5em">{formatDateTime(commentItem.created_at)}</div>
+                                        {
+                                            !taskCompleted &&
+                                            <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-28px', 'left': '-76px' }}>
+                                                <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
+                                                    <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                                </a>
+                                                <a href="#" className="ml-1em" onClick={e => removeComment(e, commentItem)}>
+                                                    <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                                </a>
+                                            </div>
+                                        }
+                                        <div className={`${!taskCompleted ? 'hover-hide-child' : ''} mr-0_5em`}>{formatDateTime(commentItem.created_at)}</div>
                                     </div>
                                 </div>
                                 <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: commentItem.comment ? urlifyText(commentItem.comment) : '' }}></div>
@@ -173,14 +176,14 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                 }
                 </div>
                 <form onSubmit={addComment} className="mt-1em">
-                    <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }} disabled={addingComment}></textarea>
+                    <textarea className="w-100p r-n" value={comment} onChange={e => setComment( e.target.value)} onKeyDown={handleAddCommentKeydown} style={{ height: '3.5em' }} disabled={addingComment || taskCompleted}></textarea>
                     <div className="mt-0_5em">
                         <div>Attach Files</div>
-                        <input type="file" multiple ref={fileInput} disabled={addingComment} />
+                        <input type="file" multiple ref={fileInput} disabled={addingComment || taskCompleted} />
                     </div>
                     {
                         !addingComment ?
-                        <button className="mt-1em">Add Comment</button>
+                        <button className="mt-1em" disabled={taskCompleted}>Add Comment</button>
                         :
                         <button className="mt-1em" disabled>Adding Comment...</button>
                     }

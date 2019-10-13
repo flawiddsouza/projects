@@ -64,7 +64,7 @@ function Task() {
                 <div>
                     <select className="v-h"></select>
                     {
-                        isAdmin &&
+                        isAdmin && !task.completed &&
                         <a href="#" className="c-i" onClick={deleteTask}>Delete Task</a>
                     }
                 </div>

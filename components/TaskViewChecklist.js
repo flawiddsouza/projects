@@ -3,7 +3,7 @@ import api from 'Libs/esm/api'
 import formatDateTime from 'Libs/formatDateTime.js'
 import Modal from 'Components/Modal'
 
-export default function TaskViewChecklist({ taskId, checklistId, setChecklistCount=null, tabsContentHeight=null }) {
+export default function TaskViewChecklist({ taskId, checklistId, setChecklistCount=null, tabsContentHeight=null, taskCompleted }) {
     const [ checklistItems, setChecklistItems ] = useState([])
     const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
     const [ newChecklistItemContent, setNewChecklistItemContent ] = useState('')
@@ -97,8 +97,9 @@ export default function TaskViewChecklist({ taskId, checklistId, setChecklistCou
                     required
                     value={newChecklistItemContent}
                     onChange={e => setNewChecklistItemContent(e.target.value)}
+                    disabled={taskCompleted}
                 />
-                <button className="ws-nw ml-1em">Add to List</button>
+                <button className="ws-nw ml-1em" disabled={taskCompleted}>Add to List</button>
             </form>
             <div className="oy-a" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 4em)' : '21em' }}>
                 <div className="mt-1em"></div>
@@ -107,19 +108,22 @@ export default function TaskViewChecklist({ taskId, checklistId, setChecklistCou
                         <div key={checklistItem.id}>
                             <div className="hover-background-color pos-r hover-show-child-parent">
                                 <label className="d-f flex-ai-c p-1em">
-                                    <input type="checkbox" checked={checklistItem.checked} onChange={e => updateChecked(checklistItem.id, e.target.checked)}></input>
+                                    <input type="checkbox" disabled={taskCompleted} checked={checklistItem.checked} onChange={e => updateChecked(checklistItem.id, e.target.checked)}></input>
                                     <span className="ml-0_5em">{checklistItem.content}</span>
                                 </label>
                                 <div className="pos-a" style={{ top: '0', right: '0' }}>
-                                    <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-13px', 'right': '20px' }}>
-                                        <a href="#" onClick={e => startChecklistItemUpdate(e, checklistItem)}>
-                                            <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
-                                        </a>
-                                        <a href="#" className="ml-1em" onClick={e => removeChecklistItem(e, checklistItem)}>
-                                            <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
-                                        </a>
-                                    </div>
-                                    <div className="hover-hide-child mr-0_5em mt-0_25em label">{formatDateTime(checklistItem.created_at)}</div>
+                                    {
+                                        !taskCompleted &&
+                                        <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-13px', 'right': '20px' }}>
+                                            <a href="#" onClick={e => startChecklistItemUpdate(e, checklistItem)}>
+                                                <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                            </a>
+                                            <a href="#" className="ml-1em" onClick={e => removeChecklistItem(e, checklistItem)}>
+                                                <img src="/static/assets/delete.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
+                                            </a>
+                                        </div>
+                                    }
+                                    <div className={`${!taskCompleted ? 'hover-hide-child' : ''} mr-0_5em mt-0_25em label`}>{formatDateTime(checklistItem.created_at)}</div>
                                 </div>
                             </div>
                             <div style={{ borderBottom: index < (checklistItems.length - 1) ? '1px solid lightgrey' : '' }}></div>

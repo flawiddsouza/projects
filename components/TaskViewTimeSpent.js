@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import format from 'date-fns/format'
 import formatDateTime from 'Libs/formatDateTime.js'
 import parseISO from 'date-fns/parseISO'
@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import api from 'Libs/esm/api'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 
-export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSpentDuration, tabsContentHeight=null }) {
+export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSpentDuration, tabsContentHeight=null, taskCompleted }) {
     const [ timeSpends, setTimeSpends ] = useState([])
     const [ timeSpendStartDescription, setTimeSpendDescription ] = useState('')
     const [ timeSpendStartDateTime, setTimeSpendStartDateTime ] = useState('')
@@ -104,20 +104,20 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
                 <div className="d-f flex-ai-fe">
                     <div className="w-100p">
                         <div className="label">Additional Description</div>
-                        <input type="text" value={timeSpendStartDescription} onChange={e => setTimeSpendDescription(e.target.value)} className="w-100p"></input>
+                        <input type="text" value={timeSpendStartDescription} onChange={e => setTimeSpendDescription(e.target.value)} className="w-100p" disabled={taskCompleted}></input>
                     </div>
                     <div className="ml-1em">
                         <div className="label">Start Date Time</div>
-                        <DatePicker selected={timeSpendStartDateTime} onChange={date => setTimeSpendStartDateTime(date)} showTimeSelect dateFormat="dd-MMM-yy hh:mm a" required></DatePicker>
+                        <DatePicker selected={timeSpendStartDateTime} onChange={date => setTimeSpendStartDateTime(date)} showTimeSelect dateFormat="dd-MMM-yy hh:mm a" required disabled={taskCompleted}></DatePicker>
                     </div>
                     <div className="ml-1em">
                         <div className="label">End Date Time</div>
-                        <DatePicker selected={timeSpendEndDateTime} onChange={date => setTimeSpendEndDateTime(date)} showTimeSelect dateFormat="dd-MMM-yy hh:mm a"></DatePicker>
+                        <DatePicker selected={timeSpendEndDateTime} onChange={date => setTimeSpendEndDateTime(date)} showTimeSelect dateFormat="dd-MMM-yy hh:mm a" disabled={taskCompleted}></DatePicker>
                     </div>
                     <div className="ml-1em">
                         {
                             !timeSpendUpdate ?
-                                <button className="ws-nw">Add Time Spend</button>
+                                <button className="ws-nw" disabled={taskCompleted}>Add Time Spend</button>
                             :
                                 <div className="ws-nw">
                                     <button className="ws-nw">Update</button>
@@ -136,7 +136,10 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
                             <th style={{ width: '9.5em' }}>Start Date Time</th>
                             <th style={{ width: '9.5em' }}>End Date Time</th>
                             <th style={{ width: '4em' }}>Duration</th>
-                            <th colSpan="2">Actions</th>
+                            {
+                                !taskCompleted &&
+                                <th colSpan="2">Actions</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -148,12 +151,17 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
                                 <td className="ta-c">{formatDateTime(timeSpent.start_date_time)}</td>
                                 <td className="ta-c">{timeSpent.end_date_time ? formatDateTime(timeSpent.end_date_time) : null}</td>
                                 <td className="ta-c">{timeSpent.duration ? secondsInHHMMSS(timeSpent.duration) : null}</td>
-                                <td style={{ width: '2em' }}>
-                                    <a href="#" onClick={e => editTimeSpend(e, timeSpent)}>Edit</a>
-                                </td>
-                                <td style={{ width: '4em' }}>
-                                    <a href="#" onClick={e => removeTimeSpend(e, timeSpent)}>Remove</a>
-                                </td>
+                                {
+                                    !taskCompleted &&
+                                    <Fragment>
+                                        <td style={{ width: '2em' }}>
+                                            <a href="#" onClick={e => editTimeSpend(e, timeSpent)}>Edit</a>
+                                        </td>
+                                        <td style={{ width: '4em' }}>
+                                            <a href="#" onClick={e => removeTimeSpend(e, timeSpent)}>Remove</a>
+                                        </td>
+                                    </Fragment>
+                                }
                             </tr>
                         )
                     }

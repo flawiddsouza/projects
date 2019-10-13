@@ -3,7 +3,7 @@ import api from 'Libs/esm/api'
 import formatDate from 'Libs/formatDate.js'
 import AsyncSelect from 'react-select/async'
 
-export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHeight=null }) {
+export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHeight=null, taskCompleted }) {
     const [ subTasks, setSubTasks ] = useState([])
     const [ initialLoadComplete, setIntialLoadComplete ] = useState(false)
     const [ selectedTaskId, setSelectedTaskId ] = useState(null)
@@ -56,7 +56,7 @@ export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHei
                         Find Task
                     </div>
                     <div style={{ width: '30em' }}>
-                        <AsyncSelect defaultOptions loadOptions={fetchMatchingTasks} onChange={selectedItem => setSelectedTaskId(selectedItem)} value={selectedTaskId} placeholder="Search...">
+                        <AsyncSelect defaultOptions loadOptions={fetchMatchingTasks} onChange={selectedItem => setSelectedTaskId(selectedItem)} value={selectedTaskId} placeholder="Search..." isDisabled={taskCompleted}>
                         </AsyncSelect>
                         <input
                             tabIndex={-1}
@@ -68,7 +68,7 @@ export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHei
                         />
                     </div>
                 </div>
-                <button className="flex-as-fe ml-1em" style={{ height: '2.8em' }}>Add Sub Task</button>
+                <button className="flex-as-fe ml-1em" style={{ height: '2.8em' }} disabled={taskCompleted}>Add Sub Task</button>
             </form>
             <div className="oy-a" style={{ maxHeight: tabsContentHeight ? `calc(${tabsContentHeight} - 4em)` : '23.2em' }}>
                 <table className="table table-width-auto">
@@ -81,9 +81,12 @@ export default function TaskViewFiles({ taskId, setSubTasksCount, tabsContentHei
                                 <td>{subTask.status}</td>
                                 <td>{subTask.category}</td>
                                 <td>{subTask.title}</td>
-                                <td>
-                                    <a href="#" onClick={e => removeSubTask(e, subTask)}>Remove</a>
-                                </td>
+                                {
+                                    !taskCompleted &&
+                                    <td>
+                                        <a href="#" onClick={e => removeSubTask(e, subTask)}>Remove</a>
+                                    </td>
+                                }
                             </tr>
                         )
                     }
