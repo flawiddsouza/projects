@@ -329,11 +329,14 @@ router.get('/sub-tasks/matching-tasks', async(req, res) => {
             JOIN task_types ON task_types.id = tasks.task_type_id
             JOIN task_statuses ON task_statuses.id = tasks.task_status_id
             LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
+            LEFT JOIN task_sub_tasks ON task_sub_tasks.task_id = tasks.id AND task_sub_tasks.sub_task_id = ?
             WHERE tasks.project_id = ?
             AND tasks.id != ?
+            AND task_sub_tasks.id IS NULL
             HAVING label LIKE ?
             LIMIT 4
-        `, [req.projectId, req.taskId, `%${req.query.task}%`])
+        `, [req.taskId, req.projectId, req.taskId, `%${req.query.task}%`])
+
         res.json(matchingTasks)
     } else {
         res.json([])
