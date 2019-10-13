@@ -3,6 +3,7 @@ const router = express.Router()
 const { dbQuery } =  require('../libs/cjs/db')
 const path = require('path')
 const fs = require('fs')
+const sendMail =  require('../libs/mail')
 
 async function getCompletedTaskStatusId(projectId) {
     let completedTaskStatusId = await dbQuery(`
@@ -284,6 +285,37 @@ router.post('/assigned-user', async(req, res) => {
     await dbQuery(`
         INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
     `, [req.taskId, req.body.user_id])
+
+    if(req.body.notify_user_by_email && Number(req.body.user_id) !== req.authUserId) {
+        const task = await dbQuery(`
+            SELECT
+                task_types.type,
+                project_categories.category,
+                tasks.title,
+                projects.name as project_name
+            FROM tasks
+            JOIN task_types ON task_types.id = tasks.task_type_id
+            LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
+            JOIN projects ON projects.id = tasks.project_id
+            WHERE tasks.id = ?
+        `, [req.taskId])
+
+        const users = await dbQuery(`
+            SELECT id, name, email FROM users
+            WHERE id IN (?, ?)
+        `, [req.body.user_id, req.authUserId])
+
+        const subject = `[${task[0].project_name} ${req.taskId.toString().padStart(6, '0')}]: ${users.find(user => user.id === req.authUserId).name} assigned you to [${task[0].type}] ${task[0].category ? '[' + task[0].category + ']' : ''} ${task[0].title}`
+
+        const body = `Click <a href="SUBSTITUTE_APP_URL/task/${req.taskId}">here</a> to view the task`
+
+        sendMail(
+            users.find(user => user.id === Number(req.body.user_id)).email,
+            subject,
+            body
+        )
+    }
+
     res.json({ status: 'success' })
 })
 
