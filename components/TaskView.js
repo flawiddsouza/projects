@@ -233,7 +233,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
             </div>
             <div className="mt-1em">
                 <div className="label">Title</div>
-                <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('title', task.title)}>{ task.title }</div>
+                <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('title', task.title)}>{ task.title.trim() ? task.title : 'UNTITLED' }</div>
             </div>
             <div className="mt-1em">
                 <div className="tabs">
