@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { dbQuery } =  require('../libs/cjs/db')
+const notifyUserByEmailTaskAssigned =  require('../libs/cjs/notifyUserByEmailTaskAssigned')
 
 router.get('/projects', async(req, res) => {
     let projects = await dbQuery('SELECT name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
@@ -149,6 +150,10 @@ router.post('/:project/task', validateProject, async(req, res) => {
             await dbQuery(`
                 INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
             `, [insertedRecord.insertId, userId])
+
+            if(req.body.notifyUsersByEmail && req.authUserId !== userId) {
+                notifyUserByEmailTaskAssigned(insertedRecord.insertId, userId, req.authUserId)
+            }
         }
     }
 

@@ -21,6 +21,7 @@ function Index() {
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
     const [ addTaskModalSelectedUserIds, setAddTaskModalSelectedUserIds ] = useState([])
+    const [ addTaskNotifyUsersByEmail, setAddTaskNotifyUsersByEmail ] = useState(true)
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
@@ -143,7 +144,8 @@ function Index() {
                 description: addTaskObj.description ? addTaskObj.description : null,
                 hasAttachments: filesCount > 0 ? true : false,
                 assignTo: addTaskModalSelectedUserIds,
-                due_date: addTaskObj.due_date ? addTaskObj.due_date : null
+                due_date: addTaskObj.due_date ? addTaskObj.due_date : null,
+                notifyUsersByEmail: addTaskNotifyUsersByEmail
             })
         }).json()
 
@@ -194,6 +196,7 @@ function Index() {
         e.preventDefault()
         setShowViewTaskModal(false)
         setAddTaskModalSelectedUserIds(projectMembers.filter(item => item.you).map(item => item.user_id))
+        setAddTaskNotifyUsersByEmail(true)
         setShowAddTaskModal(true)
     }
 
@@ -454,7 +457,13 @@ function Index() {
                                 }
                             </div>
                         </div>
-                        <div className="mt-1em">
+                        <div className="mt-0_5em">
+                            <label className="d-f flex-ai-c">
+                                <input type="checkbox" checked={addTaskNotifyUsersByEmail} onChange={e => setAddTaskNotifyUsersByEmail(e.target.checked ? true : false)}></input>
+                                <span className="ml-0_25em">Notify Users By Email</span>
+                            </label>
+                        </div>
+                        <div className="mt-1_5em">
                             <button>Add Task</button>
                             <button className="ml-1em" type="button" onClick={() => setShowAddTaskModal(false)}>Cancel</button>
                         </div>
