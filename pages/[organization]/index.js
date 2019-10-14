@@ -392,7 +392,7 @@ function Index() {
                     <div className="mt-0_5em">{ tasks.length } { tasks.length === 1 ? 'task' : 'tasks' } found</div>
                 }
                 <Modal showModal={showAddTaskModal} hideModal={() => setShowAddTaskModal(false)}>
-                    <form onSubmit={addTask} style={{ width: '30vw' }}>
+                    <form onSubmit={addTask}>
                         <div className="d-f">
                             <div>
                                 <div>Date</div>
