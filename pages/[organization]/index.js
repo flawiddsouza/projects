@@ -2,6 +2,7 @@ import { useEffect, useState, Fragment, createRef } from 'react'
 import { format } from 'date-fns'
 import Modal from 'Components/Modal.js'
 import TaskView from 'Components/TaskView.js'
+import AddTimeSpend from 'Components/AddTimeSpend.js'
 import Page from 'Components/Page.js'
 import formatDate from 'Libs/formatDate.js'
 import Link from 'next/link'
@@ -20,6 +21,7 @@ function Index() {
     const [ tasks, setTasks ] = useState([])
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
+    const [ showAddTimeSpendModal, setShowAddTimeSpendModal ] = useState(false)
     const [ addTaskObj, setAddTaskObj ] = useState({})
     const [ addTaskModalSelectedUserIds, setAddTaskModalSelectedUserIds ] = useState([])
     const [ addTaskNotifyUsersByEmail, setAddTaskNotifyUsersByEmail ] = useState(true)
@@ -33,6 +35,7 @@ function Index() {
     const [ isAdmin, setIsAdmin ] = useState(false)
     const fileInput = createRef()
     const router = useRouter()
+    const { organization } = router.query
 
     function setPropState(state, setStateFunction, prop, value) {
         setStateFunction({
@@ -197,6 +200,7 @@ function Index() {
 
     function initAddTask(e) {
         e.preventDefault()
+        setShowAddTimeSpendModal(false)
         setShowViewTaskModal(false)
         setAddTaskModalSelectedUserIds(projectMembers.filter(item => item.you).map(item => item.user_id))
         setAddTaskNotifyUsersByEmail(true)
@@ -251,7 +255,14 @@ function Index() {
                 {
                     currentProjectSlug ?
                     <Fragment>
-                        <a className="c-i" href="#" onClick={initAddTask}>+ Add task</a>
+                        <div>
+                            <a className="c-i" href="#" onClick={initAddTask}>+ Add task</a>
+                            <a className="c-i ml-2em" href="#" onClick={e => {
+                                e.preventDefault()
+                                setShowAddTaskModal(false)
+                                setShowAddTimeSpendModal(true)
+                            }}>+ Add time spend</a>
+                        </div>
 
                         <div>
                             <select className="v-h"></select>
@@ -481,9 +492,14 @@ function Index() {
                         <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={() => fetchProjectTasks(currentProjectSlug)} tabsContentHeight="calc(100vh - 20em)"></TaskView>
                     </Modal>
                 }
+                <Modal showModal={showAddTimeSpendModal} hideModal={() => setShowAddTimeSpendModal(false)} inner={false}>
+                    <AddTimeSpend organizationSlug={organization} projectSlug={currentProjectSlug} height="calc(100vh - 25em)"></AddTimeSpend>
+                </Modal>
             </Page.Content>
         </Page>
     )
 }
+
+Index.getInitialProps = () => ({})
 
 export default Index
