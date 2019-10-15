@@ -98,6 +98,11 @@ function Index() {
         const projectMembers = await api.get(`${organizationSlug}/${projectSlug}/members`).json()
 
         setProjectMembers(projectMembers)
+
+        let authenticatedUserId = projectMembers.find(item => item.you)
+        if(authenticatedUserId) {
+            setTasksFilterSelectedAssignedUserId(authenticatedUserId.user_id)
+        }
     }
 
     async function fetchProjectTasks(projectSlug) {
