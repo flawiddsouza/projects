@@ -319,7 +319,7 @@ function Index() {
                         <div>
                             <div className="label">Status</div>
                             <select className="mt-0_25em" value={tasksFilterSelectedStatusId} onChange={e => setTasksFilterSelectedStatusId(e.target.value)}>
-                                <option>All</option>
+                                <option value="All">All Open</option>
                                 {
                                     taskStatuses.map(taskStatus => (
                                         <option key={taskStatus.id} value={taskStatus.id}>{taskStatus.status}</option>
