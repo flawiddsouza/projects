@@ -77,10 +77,10 @@ export default function TaskViewFiles({ taskId, setSubTasksCount, setCompletedSu
                     {
                         subTasks.map(subTask =>
                             <tr key={subTask.id}>
-                                <td>{formatDate(subTask.date)}</td>
-                                <td>{subTask.type}</td>
-                                <td>{subTask.status}</td>
-                                <td>{subTask.category}</td>
+                                <td className="ws-nw">{formatDate(subTask.date)}</td>
+                                <td className="ws-nw">{subTask.type}</td>
+                                <td className="ws-nw">{subTask.status}</td>
+                                <td className="ws-nw">{subTask.category}</td>
                                 <td>{subTask.title}</td>
                                 {
                                     !taskCompleted &&
