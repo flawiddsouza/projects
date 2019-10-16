@@ -358,7 +358,7 @@ function Index() {
                             <div className="label">Category</div>
                             <select className="mt-0_25em" value={tasksFilterSelectedProjectCategoryId} onChange={e => setTasksFilterSelectedProjectCategoryId(e.target.value)}>
                                 <option>All</option>
-                                <option value="">Not Applicable</option>
+                                <option value="">Other</option>
                                 {
                                     projectCategories.map(projectCategory => (
                                         <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
@@ -431,7 +431,7 @@ function Index() {
                             <div className="ml-0_5em">
                                 <div>Category</div>
                                 <select onChange={e => setAddTaskObjProp('project_category_id', e.target.value)}>
-                                    <option value="">Not Applicable</option>
+                                    <option value="">Other</option>
                                     {
                                         projectCategories.map(projectCategory => (
                                             <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>

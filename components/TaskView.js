@@ -90,7 +90,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
                     <div>Change Category</div>
                     <div className="mt-0_5em">
                         <select value={updateTaskColumnData ? updateTaskColumnData : ''} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
-                            <option value="">Not Applicable</option>
+                            <option value="">Other</option>
                             {
                                 projectCategories.map(projectCategory => (
                                     <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
@@ -211,7 +211,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     </div>
                     <div className="ml-3em">
                         <div className="label">Category</div>
-                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('project_category_id', task.project_category_id)}>{ task.project_category ? task.project_category : 'Not Applicable' }</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('project_category_id', task.project_category_id)}>{ task.project_category ? task.project_category : 'Other' }</div>
                     </div>
                     <div className="ml-3em">
                         <div className="label">Due Date</div>
