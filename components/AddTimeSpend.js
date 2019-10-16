@@ -62,17 +62,17 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
 
         } else { // update
 
-            // api.put(`task/${taskId}/time-spend/${timeSpendUpdate}`, {
-            //     json: {
-            //         description: timeSpendStartDescription,
-            //         start_date_time: format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm'),
-            //         end_date_time: timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null
-            //     }
-            // }).then(() => {
-            //     fetchTimeSpends()
-            // })
+            api.put(`task/${timeSpendUpdate.task_id}/time-spend/${timeSpendUpdate.id}`, {
+                json: {
+                    description: description,
+                    start_date_time: format(startTime, 'yyyy-MM-dd HH:mm'),
+                    end_date_time: endTime ? format(endTime, 'yyyy-MM-dd HH:mm') : null
+                }
+            }).then(() => {
+                fetchTimeSpends()
+            })
 
-            // setTimeSpendUpdate(null)
+            setTimeSpendUpdate(null)
 
         }
 
@@ -83,14 +83,28 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
 
     function editTimeSpend(e, timeSpend) {
         e.preventDefault()
+
+        setDescription(timeSpend.description)
+        setStartTime(parseISO(timeSpend.start_date_time))
+        setEndTime(timeSpend.end_date_time ? parseISO(timeSpend.end_date_time) : null)
+
+        setTimeSpendUpdate(timeSpend)
+    }
+
+    function cancelEditTimeSpend() {
+        setDescription('')
+        setStartTime('')
+        setEndTime('')
+
+        setTimeSpendUpdate(null)
     }
 
     async function removeTimeSpend(e, timeSpend) {
         e.preventDefault()
         if(confirm('Are you sure you want to remove this time spend?')) {
-            // if(timeSpendUpdate && timeSpendUpdate === timeSpend.id) {
-            //     cancelEditTimeSpend()
-            // }
+            if(timeSpendUpdate && timeSpendUpdate.id === timeSpend.id) {
+                cancelEditTimeSpend()
+            }
 
             await api.delete(`task/${timeSpend.task_id}/time-spend/${timeSpend.id}`)
             fetchTimeSpends()
@@ -153,7 +167,15 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
                             dateFormat="h:mm aa" />
                     </div>
                     <div className="ml-1em">
-                        <button className="ws-nw">Add Time Spend</button>
+                        {
+                            !timeSpendUpdate ?
+                                <button className="ws-nw">Add Time Spend</button>
+                            :
+                                <div className="ws-nw">
+                                    <button className="ws-nw">Update</button>
+                                    <button className="ws-nw ml-0_5em" type="button" onClick={cancelEditTimeSpend}>Cancel</button>
+                                </div>
+                        }
                     </div>
                 </div>
             </form>

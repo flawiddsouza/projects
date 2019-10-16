@@ -198,6 +198,8 @@ router.get('/:project/time-spends-for-authenticated-user', validateProject, asyn
             project_categories.category as project_category,
             tasks.title as task,
             task_time_spends.description as description,
+            task_time_spends.start_date_time,
+            task_time_spends.end_date_time,
             DATE_FORMAT(task_time_spends.start_date_time, '%h:%i %p') as start_time,
             DATE_FORMAT(task_time_spends.end_date_time, '%h:%i %p') as end_time,
             (CASE
