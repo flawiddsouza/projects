@@ -4,6 +4,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import api from 'Libs/esm/api'
 import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
+import parseISO from 'date-fns/parseISO'
 
 export default function AddTimeSpend({ organizationSlug, projectSlug, height }) {
 
@@ -35,11 +36,25 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
 
         if(!timeSpendUpdate) { // add
 
+            let selectedDateObj = parseISO(selectedDate)
+
+            let startDateTime = startTime
+            startDateTime.setDate(selectedDateObj.getDate())
+            startDateTime.setMonth(selectedDateObj.getMonth())
+            startDateTime.setFullYear(selectedDateObj.getFullYear())
+
+            let endDateTime = endTime
+            if(endDateTime) {
+                endDateTime.setDate(selectedDateObj.getDate())
+                endDateTime.setMonth(selectedDateObj.getMonth())
+                endDateTime.setFullYear(selectedDateObj.getFullYear())
+            }
+
             api.post(`task/${selectedTaskId}/time-spend`, {
                 json: {
                     description: description,
-                    start_date_time: format(startTime, 'yyyy-MM-dd HH:mm'),
-                    end_date_time: endTime ? format(endTime, 'yyyy-MM-dd HH:mm') : null
+                    start_date_time: format(startDateTime, 'yyyy-MM-dd HH:mm'),
+                    end_date_time: endDateTime ? format(endDateTime, 'yyyy-MM-dd HH:mm') : null
                 }
             }).then(() => {
                 fetchTimeSpends()
