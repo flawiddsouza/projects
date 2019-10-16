@@ -52,19 +52,44 @@ router.get('/:project/members', validateProject, async(req, res) => {
     res.json(projectMembers)
 })
 
+async function getCompletedTaskStatusId(organizationId) {
+    let completedTaskStatusId = await dbQuery(`
+        SELECT id FROM task_statuses
+        WHERE organization_id = ?
+        ORDER BY sort_order DESC
+        LIMIT 1
+    `, [organizationId])
+
+    if(completedTaskStatusId.length > 0) {
+        completedTaskStatusId = completedTaskStatusId[0].id
+    } else {
+        completedTaskStatusId = null
+    }
+
+    return completedTaskStatusId
+}
+
 router.get('/:project/tasks', validateProject, async(req, res) => {
     let additionalParams = []
+
     if(req.query.status !== 'All') {
         additionalParams.push(req.query.status)
     }
+
     if(req.query.type !== 'All') {
         additionalParams.push(req.query.type)
+
     }
     if(req.query.category !== 'All' && req.query.category !== '') {
         additionalParams.push(req.query.category)
     }
-    if(req.query.user !== 'All') {
+
+    if(req.query.user !== 'All' && req.query.user !== 'authenticated') {
         additionalParams.push(req.query.user)
+    }
+
+    if(req.query.user === 'authenticated') {
+        additionalParams.push(req.authUserId)
     }
 
     let limit = 'All'
@@ -72,18 +97,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         limit = req.query.limit
     }
 
-    let completedTaskStatusId = await dbQuery(`
-        SELECT id FROM task_statuses
-        WHERE organization_id = ?
-        ORDER BY sort_order DESC
-        LIMIT 1
-    `, [req.organizationId])
-
-    if(completedTaskStatusId.length > 0) {
-        completedTaskStatusId = completedTaskStatusId[0].id
-    } else {
-        completedTaskStatusId = null
-    }
+    const completedTaskStatusId = await getCompletedTaskStatusId(req.organizationId)
 
     if(req.query.status === 'All' && completedTaskStatusId) {
         additionalParams.unshift(completedTaskStatusId)
@@ -166,6 +180,43 @@ router.post('/:project/task', validateProject, async(req, res) => {
             }
         }
     )
+})
+
+router.get('/:project/time-spends-for-authenticated-user', validateProject, async(req, res) => {
+
+    let additionalParams = []
+
+    if(req.query.filter === 'Selected Date') {
+        additionalParams.push(req.query.date)
+    }
+
+    const timeSpends = await dbQuery(`
+        SELECT
+            task_time_spends.id,
+            task_time_spends.task_id,
+            task_types.type as type,
+            project_categories.category as project_category,
+            tasks.title as task,
+            task_time_spends.description as description,
+            DATE_FORMAT(task_time_spends.start_date_time, '%h:%i %p') as start_time,
+            DATE_FORMAT(task_time_spends.end_date_time, '%h:%i %p') as end_time,
+            (CASE
+                WHEN task_time_spends.end_date_time IS NOT NULL THEN
+                    TIMESTAMPDIFF(SECOND, task_time_spends.start_date_time, task_time_spends.end_date_time)
+                ELSE
+                    ''
+                END
+            ) as duration
+        FROM task_time_spends
+        JOIN tasks ON tasks.id = task_time_spends.task_id
+        JOIN task_types ON task_types.id = tasks.task_type_id
+        LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
+        WHERE task_time_spends.user_id = ?
+        ${req.query.filter === 'Selected Date' ? 'AND DATE(task_time_spends.start_date_time) = ?' : ''}
+        ORDER BY task_time_spends.start_date_time DESC
+    `, [req.authUserId, ...additionalParams])
+
+    res.json(timeSpends)
 })
 
 module.exports = router

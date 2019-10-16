@@ -2,82 +2,84 @@ import { useState, useEffect } from 'react'
 import format from 'date-fns/format'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import api from 'Libs/esm/api'
+import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 
 export default function AddTimeSpend({ organizationSlug, projectSlug, height }) {
 
     const [ pendingTasksAssignedToYou, setPendingTasksAssignedToYou ] = useState([])
     const [ selectedDate, setSelectedDate ] = useState(format(new Date, 'yyyy-MM-dd'))
+    const [ description, setDescription ] = useState('')
     const [ startTime, setStartTime ] = useState('')
     const [ endTime, setEndTime ] = useState('')
     const [ timeSpends, setTimeSpends ] = useState([])
+    const [ selectedFilter, setSelectedFilter ] = useState('Selected Date')
+    const [ selectedTaskId, setSelectedTaskId ] = useState('')
+    const [ timeSpendUpdate, setTimeSpendUpdate ] = useState(null)
 
     async function fetchPendingTasksAssignedToYou() {
-        setPendingTasksAssignedToYou([
-            {
-                id: 1,
-                title: 'hey 1'
-            },
-            {
-                id: 2,
-                title: 'hey 2'
-            },
-            {
-                id: 3,
-                title: 'hey 3'
-            },
-            {
-                id: 4,
-                title: 'hey 4'
-            }
-        ])
+        const pendingTasksAssignedToYou = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=All&type=All&category=All&user=authenticated`).json()
+        setPendingTasksAssignedToYou(pendingTasksAssignedToYou)
+        if(pendingTasksAssignedToYou.length > 0) {
+            setSelectedTaskId(pendingTasksAssignedToYou[0].id)
+        }
     }
 
     async function fetchTimeSpends() {
-        setTimeSpends([
-            {
-                id: 1,
-                task: 'Test 1',
-                start_time: '01:00 PM',
-                end_time: '02:00 PM',
-                duration: '01:00:00'
-            },
-            {
-                id: 2,
-                task: 'Test 2',
-                start_time: '02:00 PM',
-                end_time: '03:00 PM',
-                duration: '01:00:00'
-            },
-            {
-                id: 3,
-                task: 'Test 3',
-                start_time: '02:00 PM',
-                end_time: '03:00 PM',
-                duration: '01:00:00'
-            },
-            {
-                id: 4,
-                task: 'Test 4',
-                start_time: '03:00 PM',
-                end_time: '04:00 PM',
-                duration: '01:00:00'
-            },
-            {
-                id: 5,
-                task: 'Test 5',
-                start_time: '04:00 PM',
-                end_time: '05:00 PM',
-                duration: '01:00:00'
-            }
-        ])
+        const timeSpends = await api.get(`${organizationSlug}/${projectSlug}/time-spends-for-authenticated-user?filter=${selectedFilter}&date=${selectedDate}`).json()
+        setTimeSpends(timeSpends)
+    }
+
+    function addTimeSpend(e) {
+        e.preventDefault()
+
+        if(!timeSpendUpdate) { // add
+
+            api.post(`task/${selectedTaskId}/time-spend`, {
+                json: {
+                    description: description,
+                    start_date_time: format(startTime, 'yyyy-MM-dd HH:mm'),
+                    end_date_time: endTime ? format(endTime, 'yyyy-MM-dd HH:mm') : null
+                }
+            }).then(() => {
+                fetchTimeSpends()
+            })
+
+        } else { // update
+
+            // api.put(`task/${taskId}/time-spend/${timeSpendUpdate}`, {
+            //     json: {
+            //         description: timeSpendStartDescription,
+            //         start_date_time: format(timeSpendStartDateTime, 'yyyy-MM-dd HH:mm'),
+            //         end_date_time: timeSpendEndDateTime ? format(timeSpendEndDateTime, 'yyyy-MM-dd HH:mm') : null
+            //     }
+            // }).then(() => {
+            //     fetchTimeSpends()
+            // })
+
+            // setTimeSpendUpdate(null)
+
+        }
+
+        setDescription('')
+        setStartTime('')
+        setEndTime('')
     }
 
     function editTimeSpend(e, timeSpend) {
         e.preventDefault()
     }
 
-    function removeTimeSpend(e, timeSpend) {
+    async function removeTimeSpend(e, timeSpend) {
         e.preventDefault()
+        if(confirm('Are you sure you want to remove this time spend?')) {
+            // if(timeSpendUpdate && timeSpendUpdate === timeSpend.id) {
+            //     cancelEditTimeSpend()
+            // }
+
+            await api.delete(`task/${timeSpend.task_id}/time-spend/${timeSpend.id}`)
+            fetchTimeSpends()
+        }
     }
 
     useEffect(() => {
@@ -92,17 +94,17 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
 
     return (
         <div style={{ minWidth: '60vw' }} className="p-1em">
-            <form>
+            <form onSubmit={addTimeSpend}>
                 <div className="d-f flex-d-c flex-ai-fe">
                     <div className="label">Date</div>
                     <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} required></input>
                 </div>
                 <div className="mt-1em">
                     <div className="label">Task</div>
-                    <select className="w-100p" required autoFocus>
+                    <select className="w-100p" required autoFocus value={selectedTaskId} onChange={e => setSelectedTaskId(e.target.value)}>
                         {
                             pendingTasksAssignedToYou.map(task => (
-                                <option key={task.id} value={task.id}>{task.title}</option>
+                                <option key={task.id} value={task.id}>[{task.type}] {task.project_category ? `[${task.project_category}] ` : ''}{task.title}</option>
                             ))
                         }
                     </select>
@@ -110,7 +112,7 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
                 <div className="mt-1em d-f flex-ai-fe">
                     <div className="w-100p">
                         <div className="label">Additional Description</div>
-                        <input type="text" className="w-100p"></input>
+                        <input type="text" className="w-100p" value={description} onChange={e => setDescription(e.target.value)}></input>
                     </div>
                     <div className="ml-1em">
                         <div className="label">Start Time</div>
@@ -133,8 +135,7 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
                             showTimeSelectOnly
                             timeIntervals={15}
                             timeCaption="Time"
-                            dateFormat="h:mm aa"
-                            required />
+                            dateFormat="h:mm aa" />
                     </div>
                     <div className="ml-1em">
                         <button className="ws-nw">Add Time Spend</button>
@@ -143,7 +144,7 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
             </form>
             <div className="mt-1em d-f flex-d-c flex-ai-fe">
                 <div className="label">Filter</div>
-                <select>
+                <select value={selectedFilter} onChange={e => setSelectedFilter(e.target.value)} disabled>
                     <option>Selected Date</option>
                     <option>This Week</option>
                     <option>Last Week</option>
@@ -157,26 +158,26 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
                     <table className="table table-comfortable">
                         <thead>
                             <tr>
-                                <th className="ta-l">Task</th>
-                                <th style={{ width: '5em' }}>Start Time</th>
-                                <th style={{ width: '5em' }}>End Time</th>
-                                <th style={{ width: '5em' }}>Duration</th>
-                                <th colSpan="2">Actions</th>
+                                <th className="w-100p ta-l">Task</th>
+                                <th className="ws-nw" style={{ width: '5em' }}>Start Time</th>
+                                <th className="ws-nw" style={{ width: '5em' }}>End Time</th>
+                                <th className="ws-nw" style={{ width: '5em' }}>Duration</th>
+                                <th style={{ width: '6em' }} colSpan="2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 timeSpends.map(timeSpend => (
                                     <tr key={timeSpend.id}>
-                                        <td>{timeSpend.task}</td>
+                                        <td>[{timeSpend.type}] {timeSpend.project_category ? `[${timeSpend.project_category}] ` : ''}{timeSpend.task}{timeSpend.description ? ' - ' + timeSpend.description : ''}</td>
                                         <td className="ta-c">{timeSpend.start_time}</td>
                                         <td className="ta-c">{timeSpend.end_time}</td>
-                                        <td className="ta-c">{timeSpend.duration}</td>
+                                        <td className="ta-c">{timeSpend.duration ? secondsInHHMMSS(timeSpend.duration) : null}</td>
                                         <td style={{ width: '2em' }}>
-                                            <a href="#" onClick={e => editTimeSpend(e, timeSpent)}>Edit</a>
+                                            <a href="#" onClick={e => editTimeSpend(e, timeSpend)}>Edit</a>
                                         </td>
                                         <td style={{ width: '4em' }}>
-                                            <a href="#" onClick={e => removeTimeSpend(e, timeSpent)}>Remove</a>
+                                            <a href="#" onClick={e => removeTimeSpend(e, timeSpend)}>Remove</a>
                                         </td>
                                     </tr>
                                 ))
@@ -186,7 +187,7 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
                             <tr>
                                 <th className="ta-l">{timeSpends.length} time spends</th>
                                 <th colSpan="2">Total Duration</th>
-                                <th>05:00:00</th>
+                                <th>{ secondsInHHMMSS(timeSpends.reduce((a, b) => a + Number(b.duration), 0)) }</th>
                                 <th colSpan="2"></th>
                             </tr>
                         </tfoot>
