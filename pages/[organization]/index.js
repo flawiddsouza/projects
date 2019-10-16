@@ -122,13 +122,14 @@ function Index() {
     async function loadProject(projectSlug) {
         setCurrentProjectSlug(projectSlug)
 
-        fetchProjectMembers(projectSlug)
-        fetchProjectTasks(projectSlug)
-        fetchProjectCategories(projectSlug)
-
         // close view task modal on project change
         setShowViewTaskModal(false)
         setTask(null)
+        setShowAddTimeSpendModal(false)
+
+        fetchProjectCategories(projectSlug)
+        await fetchProjectMembers(projectSlug)
+        fetchProjectTasks(projectSlug)
     }
 
     function handleAddTaskKeydown(e) {
