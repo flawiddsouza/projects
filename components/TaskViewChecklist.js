@@ -109,7 +109,7 @@ export default function TaskViewChecklist({ taskId, checklistId, setChecklistCou
                             <div className="hover-background-color pos-r hover-show-child-parent">
                                 <label className="d-f flex-ai-c p-1em">
                                     <input type="checkbox" disabled={taskCompleted} checked={checklistItem.checked} onChange={e => updateChecked(checklistItem.id, e.target.checked)}></input>
-                                    <span className="ml-0_5em">{checklistItem.content}</span>
+                                    <span className="ml-0_5em ws-pw wb-bw">{checklistItem.content}</span>
                                 </label>
                                 <div className="pos-a" style={{ top: '0', right: '0' }}>
                                     {
