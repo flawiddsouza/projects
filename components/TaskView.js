@@ -39,7 +39,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
             {
                 updateTaskColumn === 'date' &&
                 <Fragment>
-                    <div>Change Date</div>
+                    <div>Change Start Date</div>
                     <div className="mt-0_5em">
                         <input type="date" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
                     </div>
@@ -106,7 +106,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
             {
                 updateTaskColumn === 'title' &&
                 <Fragment>
-                    <div>Change Title</div>
+                    <div>Change Task Title</div>
                     <div className="mt-0_5em">
                         <input type="text" value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
                     </div>
