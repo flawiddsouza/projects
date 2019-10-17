@@ -130,6 +130,10 @@
     cursor: pointer;
 }
 
+.ox-a {
+    overflow-x: auto;
+}
+
 .oy-a {
     overflow-y: auto;
 }
