@@ -194,7 +194,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
     }
 
     return (
-        <div style={{ width: width ? width : '63vw' }}>
+        <div style={{ minWidth: '63vw', width: width ? width : 'auto' }}>
             <div className="d-f flex-jc-sb">
                 <div className="d-f">
                     <div>
