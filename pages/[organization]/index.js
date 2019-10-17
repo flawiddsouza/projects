@@ -385,28 +385,49 @@ function Index() {
                         </select>
                     </div>
                 }
-                <div className="oy-a" style={{ height: 'calc(100vh - 9.9em)' }}>
-                    <table className="table table-hover">
-                        <tbody>
-                        {
-                            tasks.map(task => {
-                                return (
-                                    <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
-                                        <td style={{ width: '5em' }}>{ formatDate(task.date) }</td>
-                                        <td style={{ width: '2em' }} className="ws-nw">{ task.type }</td>
-                                        <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
-                                        <td style={{ width: '5em' }} className="ws-nw">{ task.project_category }</td>
-                                        <td>{ task.title }</td>
-                                    </tr>
-                                )
-                            })
-                        }
-                        </tbody>
-                    </table>
-                </div>
                 {
                     currentProjectSlug &&
-                    <div className="mt-0_5em">{ tasks.length } { tasks.length === 1 ? 'task' : 'tasks' } found</div>
+                    <Fragment>
+                        <div className="oy-a" style={{ height: 'calc(100vh - 9.9em)' }}>
+                            <table className="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Date</th>
+                                        <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
+                                        <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Status</th>
+                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Category</th>
+                                        <th className="pos-s top-0 bc-white ta-l">Task</th>
+                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Due Date</th>
+                                        {
+                                            taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
+                                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white">Completed Date</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {
+                                    tasks.map(task => {
+                                        return (
+                                            <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                                <td style={{ width: '5em' }} className="ta-c">{ formatDate(task.date) }</td>
+                                                <td style={{ width: '2em' }} className="ws-nw ta-c">{ task.type }</td>
+                                                <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
+                                                <td style={{ width: '5em' }} className="ws-nw ta-c">{ task.project_category ? task.project_category : 'Other' }</td>
+                                                <td>{ task.title }</td>
+                                                <td style={{ width: '5em' }} className="ta-c">{ task.due_date ? formatDate(task.due_date) : null }</td>
+                                                {
+                                                    taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
+                                                    <td className="ta-c">{ task.completed_date ? formatDate(task.completed_date) : null }</td>
+                                                }
+                                            </tr>
+                                        )
+                                    })
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="mt-0_5em">{ tasks.length } { tasks.length === 1 ? 'task' : 'tasks' } found</div>
+                    </Fragment>
                 }
                 <Modal showModal={showAddTaskModal} hideModal={() => setShowAddTaskModal(false)}>
                     <form onSubmit={addTask}>
