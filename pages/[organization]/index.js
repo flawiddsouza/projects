@@ -470,7 +470,7 @@ function Index() {
                             </div>
                         </div>
                         <div className="mt-0_5em">
-                            <div>Title</div>
+                            <div>Task</div>
                             <input type="text" required onKeyDown={handleAddTaskKeydown} onChange={e => setAddTaskObjProp('title', e.target.value)} className="w-100p" autoFocus></input>
                         </div>
                         <div className="mt-0_5em">
