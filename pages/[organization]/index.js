@@ -392,7 +392,7 @@ function Index() {
                             <table className="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Date</th>
+                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Start Date</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Status</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Category</th>
@@ -433,7 +433,7 @@ function Index() {
                     <form onSubmit={addTask}>
                         <div className="d-f">
                             <div>
-                                <div>Date</div>
+                                <div>Start Date</div>
                                 <input type="date"
                                     value={addTaskObj.date}
                                     onChange={e => setAddTaskObjProp('date', e.target.value)}

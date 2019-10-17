@@ -198,7 +198,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
             <div className="d-f flex-jc-sb">
                 <div className="d-f">
                     <div>
-                        <div className="label">Date</div>
+                        <div className="label">Start Date</div>
                         <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('date', task.date)}>{ formatDate(task.date) }</div>
                     </div>
                     <div className="ml-3em">
