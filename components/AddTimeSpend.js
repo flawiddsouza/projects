@@ -122,7 +122,7 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
     }, [selectedDate])
 
     return (
-        <div style={{ minWidth: '60vw' }} className="p-1em">
+        <div style={{ width: '60vw' }} className="p-1em">
             <form onSubmit={addTimeSpend}>
                 <div className="d-f flex-d-c flex-ai-fe">
                     <div className="label">Date</div>
