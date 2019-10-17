@@ -202,12 +202,12 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                         <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('date', task.date)}>{ formatDate(task.date) }</div>
                     </div>
                     <div className="ml-3em">
-                        <div className="label">Type</div>
-                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_type_id', task.task_type_id)}>{ task.type }</div>
-                    </div>
-                    <div className="ml-3em">
                         <div className="label">Status</div>
                         <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_status_id', task.task_status_id)}>{ task.status }</div>
+                    </div>
+                    <div className="ml-3em">
+                        <div className="label">Type</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_type_id', task.task_type_id)}>{ task.type }</div>
                     </div>
                     <div className="ml-3em">
                         <div className="label">Category</div>

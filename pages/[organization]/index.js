@@ -393,8 +393,8 @@ function Index() {
                                 <thead>
                                     <tr>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Date</th>
-                                        <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Status</th>
+                                        <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Category</th>
                                         <th className="pos-s top-0 bc-white ta-l">Task</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Due Date</th>
@@ -410,8 +410,8 @@ function Index() {
                                         return (
                                             <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
                                                 <td style={{ width: '5em' }} className="ta-c">{ formatDate(task.date) }</td>
-                                                <td style={{ width: '2em' }} className="ws-nw ta-c">{ task.type }</td>
                                                 <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
+                                                <td style={{ width: '2em' }} className="ws-nw ta-c">{ task.type }</td>
                                                 <td style={{ width: '5em' }} className="ws-nw ta-c">{ task.project_category ? task.project_category : 'Other' }</td>
                                                 <td>{ task.title }</td>
                                                 <td style={{ width: '5em' }} className="ta-c">{ task.due_date ? formatDate(task.due_date) : null }</td>
