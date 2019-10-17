@@ -490,7 +490,7 @@ function Index() {
                 {
                     task &&
                     <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)} inner={false}>
-                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={() => fetchProjectTasks(currentProjectSlug)} tabsContentHeight="calc(100vh - 20em)"></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={() => fetchProjectTasks(currentProjectSlug)} tabsContentHeight="calc(100vh - 17em)"></TaskView>
                     </Modal>
                 }
                 <Modal showModal={showAddTimeSpendModal} hideModal={() => setShowAddTimeSpendModal(false)} inner={false}>
