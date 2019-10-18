@@ -128,7 +128,7 @@ export default function TaskViewTimeSpent({ taskId, setTimeSpentCount, setTimeSp
                 </div>
             </form>
             <div className="oy-a mt-1em" style={{ maxHeight: tabsContentHeight ? 'calc('+tabsContentHeight+' - 4em)' : '21em' }}>
-                <table className="table">
+                <table className="table table-comfortable">
                     <thead>
                         <tr>
                             <th style={{ width: '6em' }}>Member</th>

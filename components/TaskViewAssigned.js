@@ -72,7 +72,16 @@ export default function TaskViewAssigned({ taskId, setAssignedCount, taskComplet
                 </div>
             </form>
             <div className="oy-a mt-1em" style={{ maxHeight: '17em' }}>
-                <table className="table table-width-auto">
+                <table className="table table-comfortable table-width-auto">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            {
+                                !taskCompleted &&
+                                <th>Action</th>
+                            }
+                        </tr>
+                    </thead>
                     <tbody>
                     {
                         assignedUsers.map(assignedUser =>
@@ -86,6 +95,12 @@ export default function TaskViewAssigned({ taskId, setAssignedCount, taskComplet
                                 }
                             </tr>
                         )
+                    }
+                    {
+                        assignedUsers.length === 0 &&
+                        <tr>
+                            <td colSpan="100%" className="ta-c">No Members Have Been Assigned To This Task</td>
+                        </tr>
                     }
                     </tbody>
                 </table>

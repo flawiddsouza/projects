@@ -331,11 +331,14 @@ router.get('/sub-tasks', async(req, res) => {
     const subTasks = await dbQuery(`
         SELECT
             task_sub_tasks.id,
+            sub_tasks.id as task_id,
             sub_tasks.date,
             task_types.type as type,
             task_statuses.status as status,
             project_categories.category as category,
-            sub_tasks.title
+            sub_tasks.title,
+            sub_tasks.due_date,
+            sub_tasks.completed_date
         FROM task_sub_tasks
         JOIN tasks as sub_tasks ON sub_tasks.id = task_sub_tasks.sub_task_id
         JOIN task_types ON task_types.id = sub_tasks.task_type_id

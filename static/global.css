@@ -90,7 +90,7 @@ main > .sidebar, main > .main {
     padding: 5px;
 }
 
-.table.table-hover tr:hover {
+.table.table-hover tr:hover:not(.disable-table-hover) {
     background-color: rgba(219, 219, 219, 0.541);
 }
 
