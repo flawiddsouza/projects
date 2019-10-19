@@ -444,7 +444,7 @@ function Index() {
                             </div>
                             <div className="ml-0_5em">
                                 <div>Type</div>
-                                <select onChange={e => setAddTaskObjProp('task_type_id', e.target.value)}>
+                                <select onChange={e => setAddTaskObjProp('task_type_id', e.target.value)} required>
                                     {
                                         taskTypes.map(taskType => (
                                             <option key={taskType.id} value={taskType.id}>{taskType.type}</option>

@@ -1,6 +1,6 @@
 const { dbQuery } =  require('./db')
 
-function generateCRUD(router, route, table, columns, where=null) {
+function generateCRUD(router, route, table, columns, where=null, hooks={}) {
 
     router.get(`/${route}`, async(req, res) => {
         let items = null
@@ -22,6 +22,10 @@ function generateCRUD(router, route, table, columns, where=null) {
         if(result.hasOwnProperty('error')) {
             res.send({ status: 'error', message: 'Duplicate Entry' })
         } else {
+            if(hooks.hasOwnProperty('afterCreate')) {
+                await hooks.afterCreate(result.insertId)
+            }
+
             res.send({ status: 'success' })
         }
     })
@@ -36,6 +40,10 @@ function generateCRUD(router, route, table, columns, where=null) {
     })
 
     router.delete(`/${route}/:id`, async(req, res) => {
+        if(hooks.hasOwnProperty('beforeDelete')) {
+            await hooks.beforeDelete(req.params.id)
+        }
+
         let result = await dbQuery(`DELETE FROM ${table} WHERE id = ?`, [req.params.id])
         if(result.hasOwnProperty('error')) {
             res.send({ status: 'error', message: 'Entry in use' })
