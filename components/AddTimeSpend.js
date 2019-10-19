@@ -130,7 +130,7 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height }) 
                 </div>
                 <div className="mt-1em">
                     <div className="label">Task</div>
-                    <select className="w-100p" required autoFocus value={selectedTaskId} onChange={e => setSelectedTaskId(e.target.value)}>
+                    <select className="w-100p" required={timeSpendUpdate ? false : true} autoFocus value={selectedTaskId} onChange={e => setSelectedTaskId(e.target.value)}>
                         {
                             pendingTasksAssignedToYou.map(task => (
                                 <option key={task.id} value={task.id}>[{task.type}] {task.project_category ? `[${task.project_category}] ` : ''}{task.title}</option>
