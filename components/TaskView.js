@@ -35,7 +35,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
 
     return (
         <Modal showModal={updateTaskColumn !== null} hideModal={() => cancelTaskColumnUpdate()}>
-            <form onSubmit={updateColumn} style={{ width: updateTaskColumn !== 'title' ? '15em' : '25em' }}>
+            <form onSubmit={updateColumn} style={{ width: updateTaskColumn !== 'title' ? '15em' : '40em' }}>
             {
                 updateTaskColumn === 'date' &&
                 <Fragment>
