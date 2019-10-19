@@ -233,7 +233,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                 <form onSubmit={updateComment} style={{ width: '50em' }}>
                     <div>Edit Comment</div>
                     <div className="mt-0_5em">
-                        <textarea value={updateCommentData} onChange={e => setUpdateCommentData(e.target.value)} autoFocus className="w-100p" style={{ height: '3.5em' }} onFocus={setFocusToEndOfInput} required></textarea>
+                        <textarea value={updateCommentData} onChange={e => setUpdateCommentData(e.target.value)} autoFocus className="w-100p" style={{ height: '6em' }} onFocus={setFocusToEndOfInput} required></textarea>
                     </div>
                     <div className="mt-1em ta-r">
                         <button>Update</button>
