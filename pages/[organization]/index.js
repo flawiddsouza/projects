@@ -105,12 +105,15 @@ function Index() {
         let authenticatedUserId = projectMembers.find(item => item.you)
         if(authenticatedUserId) {
             setTasksFilterSelectedAssignedUserId(authenticatedUserId.user_id)
+            fetchProjectTasks(projectSlug, authenticatedUserId.user_id)
+        } else {
+            fetchProjectTasks(projectSlug)
         }
     }
 
-    async function fetchProjectTasks(projectSlug) {
+    async function fetchProjectTasks(projectSlug, tasksFilterSelectedAssignedUserIdOverride=null) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserId}&limit=${tasksFilterSelectedLimit}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserIdOverride ? tasksFilterSelectedAssignedUserIdOverride : tasksFilterSelectedAssignedUserId}&limit=${tasksFilterSelectedLimit}`).json()
 
         setTasks(tasks)
 
@@ -129,7 +132,6 @@ function Index() {
 
         fetchProjectCategories(projectSlug)
         await fetchProjectMembers(projectSlug)
-        fetchProjectTasks(projectSlug)
     }
 
     function handleAddTaskKeydown(e) {
