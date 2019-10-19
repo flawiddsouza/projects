@@ -2,25 +2,10 @@ const express = require('express')
 const router = express.Router()
 const jwtAuthMiddleware = require('../libs/jwtAuthMiddleware')
 const { dbQuery } = require('./../libs/cjs/db')
+const { isSuperAdmin } = require('./../libs/cjs/adminCheckHelpers')
 
 router.use('/auth', require('./auth'))
 router.use('/admin', jwtAuthMiddleware, require('./admin'))
-
-async function isSuperAdmin(userId) {
-    let isSuperAdmin = await dbQuery(`
-        SELECT id
-        FROM admins
-        WHERE organization_id IS NULL AND user_id = ?
-    `, [userId])
-
-    if(isSuperAdmin.length > 0) {
-        isSuperAdmin = true
-    } else {
-        isSuperAdmin = false
-    }
-
-    return isSuperAdmin
-}
 
 router.get('/is-super-admin', jwtAuthMiddleware, async(req, res) => {
     res.json(await isSuperAdmin(req.authUserId))

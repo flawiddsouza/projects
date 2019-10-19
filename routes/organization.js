@@ -2,9 +2,24 @@ const express = require('express')
 const router = express.Router()
 const { dbQuery } =  require('../libs/cjs/db')
 const notifyUserByEmailTaskAssigned =  require('../libs/cjs/notifyUserByEmailTaskAssigned')
+const { isSuperAdmin, isOrganizationAdmin } = require('../libs/cjs/adminCheckHelpers')
 
 router.get('/projects', async(req, res) => {
-    let projects = await dbQuery('SELECT name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
+    let projects = []
+
+    if(await isSuperAdmin(req.authUserId) || await isOrganizationAdmin(req.authUserId, req.organizationId)) {
+        projects = await dbQuery('SELECT name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
+    } else {
+        projects = await dbQuery(`
+            SELECT projects.name, projects.slug
+            FROM projects
+            JOIN project_members ON project_members.project_id = projects.id
+            JOIN organization_members ON organization_members.id = project_members.organization_member_id
+            WHERE projects.organization_id = ?
+            AND organization_members.user_id = ?
+        `, [req.organizationId, req.authUserId])
+    }
+
     res.json(projects)
 })
 
