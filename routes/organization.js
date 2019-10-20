@@ -108,6 +108,26 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         additionalParams.push(req.authUserId)
     }
 
+    let orderBy = 'tasks.created_at'
+
+    if(
+        req.query.sort_by === 'Start Date' ||
+        req.query.sort_by === 'Due Date' ||
+        req.query.sort_by === 'Completed Date'
+    ) {
+        if(req.query.sort_by === 'Start Date') {
+            orderBy = 'tasks.date'
+        }
+
+        if(req.query.sort_by === 'Due Date') {
+            orderBy = 'tasks.due_date'
+        }
+
+        if(req.query.sort_by === 'Completed Date') {
+            orderBy = 'tasks.completed_date'
+        }
+    }
+
     let limit = 'All'
     if(req.query.limit === '50' || req.query.limit === '100') {
         limit = req.query.limit
@@ -138,7 +158,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         ${req.query.user !== 'All' ? `AND tasks.id IN (
             SELECT task_id FROM task_assigned_users WHERE user_id = ?
         )` : ''}
-        ORDER BY tasks.created_at DESC
+        ORDER BY ${orderBy} DESC
         ${limit !== 'All' ? 'LIMIT ' + limit : ''}
     `, [completedTaskStatusId, req.projectId, ...additionalParams])
     res.json(tasks)

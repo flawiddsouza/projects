@@ -31,6 +31,7 @@ function Index() {
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
+    const [ tasksFilterSortBy, setTasksFilterSortBy ] = useState('Created Date')
     const [ tasksFilterSelectedLimit, setTasksFilterSelectedLimit ] = useState('50')
     const [ isAdmin, setIsAdmin ] = useState(false)
     const [ authenticatedUserId, setAuthenticatedUserId ] = useState(null)
@@ -116,7 +117,7 @@ function Index() {
 
     async function fetchProjectTasks(projectSlug, tasksFilterSelectedAssignedUserIdOverride=null) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserIdOverride ? tasksFilterSelectedAssignedUserIdOverride : tasksFilterSelectedAssignedUserId}&limit=${tasksFilterSelectedLimit}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserIdOverride ? tasksFilterSelectedAssignedUserIdOverride : tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}`).json()
 
         setTasks(tasks)
 
@@ -253,7 +254,18 @@ function Index() {
         if(currentProjectSlug) {
             fetchProjectTasks(currentProjectSlug)
         }
-    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId, tasksFilterSelectedLimit])
+    }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId, tasksFilterSortBy, tasksFilterSelectedLimit])
+
+    const [ tasksFilterSelectedStatusIdPrevious, setTasksFilterSelectedStatusIdPrevious ] = useState(null)
+    useEffect(() => {
+        // reset sort by filter to created date if it is set to completed date and the user switched from the completed status to an open status
+        if(tasksFilterSortBy === 'Completed Date') {
+            if(taskStatuses.length > 1 && tasksFilterSelectedStatusIdPrevious == taskStatuses[taskStatuses.length - 1].id) {
+                setTasksFilterSortBy('Created Date')
+            }
+        }
+        setTasksFilterSelectedStatusIdPrevious(tasksFilterSelectedStatusId)
+    }, [tasksFilterSelectedStatusId])
 
     return (
         <Page>
@@ -380,6 +392,18 @@ function Index() {
                                     projectMembers.map(projectMember => (
                                         <option key={projectMember.user_id} value={projectMember.user_id}>{projectMember.user}</option>
                                     ))
+                                }
+                            </select>
+                        </div>
+                        <div className="ml-0_5em">
+                            <div className="label">Sort By</div>
+                            <select className="mt-0_25em" value={tasksFilterSortBy} onChange={e => setTasksFilterSortBy(e.target.value)}>
+                                <option>Created Date</option>
+                                <option>Start Date</option>
+                                <option>Due Date</option>
+                                {
+                                    taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
+                                    <option>Completed Date</option>
                                 }
                             </select>
                         </div>
