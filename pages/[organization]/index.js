@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import Modal from 'Components/Modal.js'
 import TaskView from 'Components/TaskView.js'
 import AddTimeSpend from 'Components/AddTimeSpend.js'
+import Settings from 'Components/Settings.js'
 import Page from 'Components/Page.js'
 import formatDate from 'Libs/formatDate.js'
 import Link from 'next/link'
@@ -22,6 +23,7 @@ function Index() {
     const [ currentProjectSlug, setCurrentProjectSlug ] = useState(null)
     const [ showAddTaskModal, setShowAddTaskModal ] = useState(false)
     const [ showAddTimeSpendModal, setShowAddTimeSpendModal ] = useState(false)
+    const [ showSettingsModal, setShowSettingsModal ] = useState(false)
     const [ addTaskObj, setAddTaskObj ] = useState({})
     const [ addTaskModalSelectedUserIds, setAddTaskModalSelectedUserIds ] = useState([])
     const [ addTaskNotifyUsersByEmail, setAddTaskNotifyUsersByEmail ] = useState(true)
@@ -207,8 +209,8 @@ function Index() {
 
     function initAddTask(e) {
         e.preventDefault()
-        setShowAddTimeSpendModal(false)
         setShowViewTaskModal(false)
+        hideModals()
         setAddTaskModalSelectedUserIds(projectMembers.filter(item => item.you).map(item => item.user_id))
         setAddTaskNotifyUsersByEmail(true)
         setAddTaskObj({
@@ -227,6 +229,12 @@ function Index() {
                 addTaskModalSelectedUserIds.filter(item => item !== Number(e.target.value))
             )
         }
+    }
+
+    function hideModals() {
+        setShowAddTaskModal(false)
+        setShowAddTimeSpendModal(false)
+        setShowSettingsModal(false)
     }
 
     useEffect(() => {
@@ -277,7 +285,7 @@ function Index() {
                             <a className="c-i" href="#" onClick={initAddTask}>+ Add task</a>
                             <a className="c-i ml-2em" href="#" onClick={e => {
                                 e.preventDefault()
-                                setShowAddTaskModal(false)
+                                hideModals()
                                 setShowAddTimeSpendModal(true)
                             }}>+ Add time spend</a>
                         </div>
@@ -290,6 +298,11 @@ function Index() {
                                     <a className="c-i">Admin Panel</a>
                                 </Link>
                             }
+                            <a className="c-i ml-1em" href="#" onClick={e => {
+                                e.preventDefault()
+                                hideModals()
+                                setShowSettingsModal(true)
+                            }}>Settings</a>
                             <a className="c-i ml-1em" href="#" onClick={logout}>Logout</a>
                         </div>
                     </Fragment>
@@ -303,6 +316,12 @@ function Index() {
                                     <a className="c-i">Admin Panel</a>
                                 </Link>
                             }
+                            <a className="c-i ml-1em" href="#" onClick={e => {
+                                e.preventDefault()
+                                setShowAddTaskModal(false)
+                                setShowAddTimeSpendModal(false)
+                                setShowSettingsModal(true)
+                            }}>Settings</a>
                             <a className="c-i ml-1em" href="#" onClick={logout}>Logout</a>
                         </div>
                     </Fragment>
@@ -545,6 +564,9 @@ function Index() {
                 }
                 <Modal showModal={showAddTimeSpendModal} hideModal={() => setShowAddTimeSpendModal(false)} inner={false}>
                     <AddTimeSpend organizationSlug={organization} projectSlug={currentProjectSlug} height="calc(100vh - 25em)" projectMembers={projectMembers} authenticatedUserId={authenticatedUserId}></AddTimeSpend>
+                </Modal>
+                <Modal showModal={showSettingsModal} hideModal={() => setShowSettingsModal(false)} inner={false}>
+                    <Settings></Settings>
                 </Modal>
             </Page.Content>
         </Page>
