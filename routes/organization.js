@@ -3,6 +3,7 @@ const router = express.Router()
 const { dbQuery } =  require('../libs/cjs/db')
 const notifyUserByEmailTaskAssigned =  require('../libs/cjs/notifyUserByEmailTaskAssigned')
 const { isSuperAdmin, isOrganizationAdmin } = require('../libs/cjs/adminCheckHelpers')
+const dateFns = require('date-fns')
 
 router.get('/projects', async(req, res) => {
     let projects = []
@@ -217,6 +218,67 @@ router.get('/:project/time-spends-for-authenticated-user', validateProject, asyn
         params.push(req.query.date)
     }
 
+    let startDateEndDateFilter = null
+
+    if(
+        req.query.filter === 'This Week' ||
+        req.query.filter === 'Last Week' ||
+        req.query.filter === 'This Month' ||
+        req.query.filter === 'Last Month' ||
+        req.query.filter === 'This Year' ||
+        req.query.filter === 'Last Year'
+    ) {
+        startDateEndDateFilter = true
+
+        let startDate = null
+        let endDate = null
+
+        const isoDateFormat = 'yyyy-MM-dd'
+        const weekProps = { weekStartsOn: 1 }
+
+        const thisWeekFirstDay = dateFns.startOfWeek(new Date(), weekProps)
+        const lastWeekFirstDay = dateFns.startOfWeek(dateFns.subDays(thisWeekFirstDay, 1), weekProps)
+        const thisMonthFirstDay = dateFns.startOfMonth(new Date())
+        const lastMonthFirstDay = dateFns.startOfMonth(dateFns.subDays(thisMonthFirstDay, 1))
+        const thisYearFirstDay = dateFns.startOfYear(new Date())
+        const lastYearFirstDay = dateFns.startOfYear(dateFns.subDays(thisYearFirstDay, 1))
+
+        if(req.query.filter === 'This Week') {
+            startDate = dateFns.format(thisWeekFirstDay, isoDateFormat)
+            endDate = dateFns.format(dateFns.endOfWeek(thisWeekFirstDay, weekProps), isoDateFormat)
+        }
+
+        if(req.query.filter === 'Last Week') {
+            startDate = dateFns.format(lastWeekFirstDay, isoDateFormat)
+            endDate = dateFns.format(dateFns.endOfWeek(lastWeekFirstDay, weekProps), isoDateFormat)
+        }
+
+        if(req.query.filter === 'This Month') {
+            startDate = dateFns.format(thisMonthFirstDay, isoDateFormat)
+            endDate = dateFns.format(dateFns.endOfMonth(thisMonthFirstDay), isoDateFormat)
+        }
+
+        if(req.query.filter === 'Last Month') {
+            startDate = dateFns.format(lastMonthFirstDay, isoDateFormat)
+            endDate = dateFns.format(dateFns.endOfMonth(lastMonthFirstDay), isoDateFormat)
+        }
+
+        if(req.query.filter === 'This Year') {
+            startDate = dateFns.format(thisYearFirstDay, isoDateFormat)
+            endDate = dateFns.format(dateFns.endOfYear(thisYearFirstDay), isoDateFormat)
+        }
+
+        if(req.query.filter === 'Last Year') {
+            startDate = dateFns.format(lastYearFirstDay, isoDateFormat)
+            endDate = dateFns.format(dateFns.endOfYear(lastYearFirstDay), isoDateFormat)
+        }
+
+        // console.log(req.query.filter, 'Start: ' + startDate, 'End: ' + endDate)
+
+        params.push(startDate)
+        params.push(endDate)
+    }
+
     const timeSpends = await dbQuery(`
         SELECT
             task_time_spends.id,
@@ -249,6 +311,7 @@ router.get('/:project/time-spends-for-authenticated-user', validateProject, asyn
         WHERE tasks.project_id = ?
         ${userIdExists ? 'AND task_time_spends.user_id = ?' : ''}
         ${req.query.filter === 'Selected Date' ? 'AND DATE(task_time_spends.start_date_time) = ?' : ''}
+        ${startDateEndDateFilter ? 'AND DATE(task_time_spends.start_date_time) >= ? AND DATE(task_time_spends.start_date_time) <= ?' : ''}
         ORDER BY task_time_spends.start_date_time
     `, [req.authUserId, req.projectId, ...params])
 

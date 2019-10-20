@@ -201,6 +201,8 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height, pr
                         <option>Last Week</option>
                         <option>This Month</option>
                         <option>Last Month</option>
+                        <option>This Year</option>
+                        <option>Last Year</option>
                     </select>
                 </div>
             </div>
