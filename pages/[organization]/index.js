@@ -33,6 +33,7 @@ function Index() {
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
     const [ tasksFilterSelectedLimit, setTasksFilterSelectedLimit ] = useState('50')
     const [ isAdmin, setIsAdmin ] = useState(false)
+    const [ authenticatedUserId, setAuthenticatedUserId ] = useState(null)
     const fileInput = createRef()
     const router = useRouter()
     const { organization } = router.query
@@ -106,7 +107,9 @@ function Index() {
         if(authenticatedUserId) {
             setTasksFilterSelectedAssignedUserId(authenticatedUserId.user_id)
             fetchProjectTasks(projectSlug, authenticatedUserId.user_id)
+            setAuthenticatedUserId(authenticatedUserId.user_id)
         } else {
+            setAuthenticatedUserId(null)
             fetchProjectTasks(projectSlug)
         }
     }
@@ -517,7 +520,7 @@ function Index() {
                     </Modal>
                 }
                 <Modal showModal={showAddTimeSpendModal} hideModal={() => setShowAddTimeSpendModal(false)} inner={false}>
-                    <AddTimeSpend organizationSlug={organization} projectSlug={currentProjectSlug} height="calc(100vh - 25em)"></AddTimeSpend>
+                    <AddTimeSpend organizationSlug={organization} projectSlug={currentProjectSlug} height="calc(100vh - 25em)" projectMembers={projectMembers} authenticatedUserId={authenticatedUserId}></AddTimeSpend>
                 </Modal>
             </Page.Content>
         </Page>

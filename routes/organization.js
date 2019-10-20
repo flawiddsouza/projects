@@ -199,16 +199,33 @@ router.post('/:project/task', validateProject, async(req, res) => {
 
 router.get('/:project/time-spends-for-authenticated-user', validateProject, async(req, res) => {
 
-    let additionalParams = []
+    let params = []
+
+    let userIdExists = true
+
+    if(req.query.user) {
+        if(req.query.user !== 'All') {
+            params.push(req.query.user)
+        } else {
+            userIdExists = false
+        }
+    } else {
+        params.push(req.authUserId)
+    }
 
     if(req.query.filter === 'Selected Date') {
-        additionalParams.push(req.query.date)
+        params.push(req.query.date)
     }
 
     const timeSpends = await dbQuery(`
         SELECT
             task_time_spends.id,
             task_time_spends.task_id,
+            CONCAT(
+                users.name,
+                (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
+            ) as user,
+            task_time_spends.user_id,
             task_types.type as type,
             project_categories.category as project_category,
             tasks.title as task,
@@ -228,10 +245,12 @@ router.get('/:project/time-spends-for-authenticated-user', validateProject, asyn
         JOIN tasks ON tasks.id = task_time_spends.task_id
         JOIN task_types ON task_types.id = tasks.task_type_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
-        WHERE task_time_spends.user_id = ?
+        JOIN users ON users.id = task_time_spends.user_id
+        WHERE tasks.project_id = ?
+        ${userIdExists ? 'AND task_time_spends.user_id = ?' : ''}
         ${req.query.filter === 'Selected Date' ? 'AND DATE(task_time_spends.start_date_time) = ?' : ''}
-        ORDER BY task_time_spends.start_date_time DESC
-    `, [req.authUserId, ...additionalParams])
+        ORDER BY task_time_spends.start_date_time
+    `, [req.authUserId, req.projectId, ...params])
 
     res.json(timeSpends)
 })

@@ -198,6 +198,10 @@
     top: 0;
 }
 
+.bottom-0 {
+    bottom: 0;
+}
+
 .bc-white {
     background-color: white;
 }
