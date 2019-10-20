@@ -76,6 +76,24 @@ function Index() {
         logout(e, () => setLoggedIn(false))
     }
 
+    async function forgotPassword(e) {
+        e.preventDefault()
+        let forgotPasswordEmail = prompt('Enter your email address')
+        if(forgotPasswordEmail) {
+            let response = await api.post('auth/forgot-password', {
+                json: {
+                    email: forgotPasswordEmail
+                }
+            }).json()
+
+            if(response.status === 'success') {
+                alert(response.message)
+            } else {
+                alert(response.message)
+            }
+        }
+    }
+
     useEffect(() => {
         if(localStorage.getItem('token')) {
             setLoggedIn(true)
@@ -137,6 +155,7 @@ function Index() {
                             </div>
                             <div className="mt-1em">
                                 <button>Login</button>
+                                <a className="ml-1em" href="#" onClick={forgotPassword}>Forgot Password?</a>
                             </div>
                         </form>
                     </div>
