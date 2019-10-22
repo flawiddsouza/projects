@@ -47,7 +47,11 @@ router.get('/verify-email', async(req, res) => {
     if(req.query.email !== undefined && req.query.email !== '' && req.query.code !== undefined && req.query.code !== '') {
         let results = await dbQuery('SELECT * FROM users WHERE email = ? AND email_verification_code = ?', [req.query.email, req.query.code])
         if(results.length === 0) {
-            res.send('Invalid verification link')
+            res.send(`
+                Invalid verification link / You've already verified your email address
+                <br><br>
+                Go back to <a href="/">Home</a>
+            `)
         } else {
             await dbQuery('UPDATE users SET email_verification_code=NULL, updated_at=CURRENT_TIMESTAMP WHERE email = ? AND email_verification_code = ?', [req.query.email, req.query.code])
             // res.send('Email verified. Registration Successful!')
