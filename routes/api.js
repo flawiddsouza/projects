@@ -6,6 +6,7 @@ const { isSuperAdmin } = require('./../libs/cjs/adminCheckHelpers')
 
 router.use('/auth', require('./auth'))
 router.use('/admin', jwtAuthMiddleware, require('./admin'))
+router.use('/user', jwtAuthMiddleware, require('./user'))
 
 router.get('/is-super-admin', jwtAuthMiddleware, async(req, res) => {
     res.json(await isSuperAdmin(req.authUserId))
