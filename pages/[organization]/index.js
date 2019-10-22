@@ -100,11 +100,15 @@ function Index() {
         }
     }
 
-    async function fetchProjectMembers(projectSlug) {
+    async function fetchProjectMembers(projectSlug, alternateLoad=false) {
         const organizationSlug = document.location.pathname.replace('/', '')
         const projectMembers = await api.get(`${organizationSlug}/${projectSlug}/members`).json()
 
         setProjectMembers(projectMembers)
+
+        if(alternateLoad) {
+            return
+        }
 
         let authenticatedUserId = projectMembers.find(item => item.you)
         if(authenticatedUserId) {
@@ -566,7 +570,7 @@ function Index() {
                     <AddTimeSpend organizationSlug={organization} projectSlug={currentProjectSlug} height="calc(100vh - 25em)" projectMembers={projectMembers} authenticatedUserId={authenticatedUserId}></AddTimeSpend>
                 </Modal>
                 <Modal showModal={showSettingsModal} hideModal={() => setShowSettingsModal(false)} inner={false}>
-                    <Settings></Settings>
+                    <Settings refreshProjectMembers={() => fetchProjectMembers(currentProjectSlug, true)}></Settings>
                 </Modal>
             </Page.Content>
         </Page>

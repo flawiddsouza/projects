@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import api from 'Libs/esm/api'
 import Modal from 'Components/Modal'
 
-export default function Settings() {
+export default function Settings({ refreshProjectMembers=null }) {
 
     const [ selectedSidebarItem, setSelectedSidebarItem ] = useState('Account')
     const [ accountDetails, setAccountDetails ] = useState([])
     const [ showEditName, setShowEditName ] = useState(false)
+    const [ showEditPassword, setShowEditPassword ] = useState(false)
     const [ value1, setValue1 ] = useState(null)
     const [ value2, setValue2 ] = useState(null)
 
@@ -23,9 +24,46 @@ export default function Settings() {
 
     async function updateName(e) {
         e.preventDefault()
+
         setShowEditName(false)
-        // await saveName
+
+        await api.put('user/account-details/name', {
+            json: {
+                name: value1
+            }
+        })
+
         fetchAccountDetails()
+
+        if(refreshProjectMembers) {
+            refreshProjectMembers()
+        }
+    }
+
+    function startEditPassword(e) {
+        e.preventDefault()
+        setValue1('')
+        setValue2('')
+        setShowEditPassword(true)
+    }
+
+    async function updatePassword(e) {
+        e.preventDefault()
+
+        if(value1 !== value2) {
+            alert('New Password and Confirm Password should match')
+            return
+        }
+
+        setShowEditPassword(false)
+
+        await api.put('user/account-details/password', {
+            json: {
+                password: value1
+            }
+        })
+
+        alert('Password Sucessfully Updated')
     }
 
     useEffect(() => {
@@ -84,7 +122,7 @@ export default function Settings() {
                                             ******
                                         </td>
                                         <td>
-                                            <a href="#" onClick={e => e.preventDefault()}>Edit</a>
+                                            <a href="#" onClick={e => startEditPassword(e)}>Edit</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -121,6 +159,22 @@ export default function Settings() {
                     <div>Edit Name</div>
                     <div className="mt-0_5em">
                         <input type="text" value={value1} onChange={e => setValue1(e.target.value)} required autoFocus className="w-100p" required></input>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </form>
+            </Modal>
+            <Modal showModal={showEditPassword} hideModal={() => setShowEditPassword(false)}>
+                <form onSubmit={updatePassword}>
+                    <div>Edit Password</div>
+                    <div className="mt-0_5em">
+                        <div className="label">New Password</div>
+                        <input type="text" value={value1} onChange={e => setValue1(e.target.value)} required autoFocus className="w-100p" required></input>
+                    </div>
+                    <div className="mt-0_5em">
+                        <div className="label">Confirm Password</div>
+                        <input type="text" value={value2} onChange={e => setValue2(e.target.value)} required className="w-100p" required></input>
                     </div>
                     <div className="mt-1em ta-r">
                         <button>Update</button>
