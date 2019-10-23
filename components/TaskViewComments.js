@@ -220,6 +220,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                                 setCommentNotifyList([])
                                             }
                                         }}
+                                        isDisabled={taskCompleted}
                                     />
                                 </div>
                             </div>
