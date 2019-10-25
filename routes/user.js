@@ -12,7 +12,7 @@ router.get('/account-details', async(req, res) => {
 
 router.put('/account-details/name', async(req, res) => {
     await dbQuery(`
-        UPDATE users SET name=? WHERE id = ?
+        UPDATE users SET name=?, updated_at=CURRENT_TIMESTAMP WHERE id = ?
     `, [req.body.name, req.authUserId])
     res.json({ status: 'Success' })
 })
@@ -21,7 +21,7 @@ const saltRounds = 10
 
 router.put('/account-details/password', async(req, res) => {
     await dbQuery(`
-        UPDATE users SET password=? WHERE id = ?
+        UPDATE users SET password=?, updated_at=CURRENT_TIMESTAMP WHERE id = ?
     `, [
         await bcrypt.hash(req.body.password, saltRounds),
         req.authUserId
