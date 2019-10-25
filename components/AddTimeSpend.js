@@ -133,7 +133,9 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height, pr
                     <select className="w-100p" required={timeSpendUpdate ? false : true} autoFocus value={selectedTaskId} onChange={e => setSelectedTaskId(e.target.value)} disabled={!authenticatedUserId || timeSpendUpdate}>
                         {
                             pendingTasksAssignedToYou.map(task => (
-                                <option key={task.id} value={task.id}>[{task.type}] {task.project_category ? `[${task.project_category}] ` : ''}{task.title}</option>
+                                <option key={task.id} value={task.id}>
+                                    {projectSlug === 'all' && `[${task.project_name}] `}[{task.type}] {task.project_category ? `[${task.project_category}] ` : ''}{task.title}
+                                </option>
                             ))
                         }
                     </select>
@@ -216,6 +218,10 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height, pr
                                     selectedProjectMemberUserId === 'All' &&
                                     <th className="ws-nw pos-s top-0 bc-white">Member</th>
                                 }
+                                {
+                                    projectSlug === 'all' &&
+                                    <th className="ws-nw pos-s top-0 bc-white" style={{ width: '5em' }}>Project</th>
+                                }
                                 <th className="w-100p ta-l pos-s top-0 bc-white">Task</th>
                                 <th className="ws-nw pos-s top-0 bc-white" style={{ width: '5em' }}>Date</th>
                                 <th className="ws-nw pos-s top-0 bc-white" style={{ width: '5em' }}>Start Time</th>
@@ -234,6 +240,10 @@ export default function AddTimeSpend({ organizationSlug, projectSlug, height, pr
                                         {
                                             selectedProjectMemberUserId === 'All' &&
                                             <td className="ws-nw">{timeSpend.user}</td>
+                                        }
+                                        {
+                                            projectSlug === 'all' &&
+                                            <td className="ws-nw">{timeSpend.project_name}</td>
                                         }
                                         <td>[{timeSpend.type}] {timeSpend.project_category ? `[${timeSpend.project_category}] ` : ''}{timeSpend.task}{timeSpend.description ? ' - ' + timeSpend.description : ''}</td>
                                         <td className="ta-c ws-nw">{formatDate(timeSpend.start_date_time)}</td>

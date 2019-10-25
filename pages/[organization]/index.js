@@ -27,6 +27,7 @@ function Index() {
     const [ addTaskObj, setAddTaskObj ] = useState({})
     const [ addTaskModalSelectedUserIds, setAddTaskModalSelectedUserIds ] = useState([])
     const [ addTaskNotifyUsersByEmail, setAddTaskNotifyUsersByEmail ] = useState(true)
+    const [ selectedProjectIdForAddTask, setSelectedProjectIdForAddTask ] = useState('')
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
@@ -119,6 +120,22 @@ function Index() {
             setAuthenticatedUserId(null)
             fetchProjectTasks(projectSlug)
         }
+
+        // reset add task modal's properties if it is open
+        setAddTaskModalSelectedUserIds(
+            projectMembers
+                .filter(item => {
+                    if(projectSlug !== 'all') {
+                        return true
+                    }
+                    if(item.project_ids.split(',').includes(selectedProjectIdForAddTask)) {
+                        return true
+                    }
+                })
+                .filter(item => item.you)
+                .map(item => item.user_id)
+        )
+        setSelectedProjectIdForAddTask(selectedProjectIdForAddTask)
     }
 
     async function fetchProjectTasks(projectSlug, tasksFilterSelectedAssignedUserIdOverride=null) {
@@ -158,6 +175,23 @@ function Index() {
         const fileInputElement = fileInput.current
         const filesCount = fileInputElement.files.length
 
+        const currentProjectCategories = projectCategories
+                                            .filter(item => {
+                                                if(currentProjectSlug !== 'all') {
+                                                    return true
+                                                }
+                                                if(item.project_id == selectedProjectIdForAddTask) {
+                                                    return true
+                                                }
+                                            })
+
+        let selectedProjectCategoryId = addTaskObj.project_category_id ? addTaskObj.project_category_id : null
+        if(selectedProjectCategoryId) { // make selectedProjectCategoryId null if it doesn't belong to its project
+            if(!currentProjectCategories.find(item => item.id == selectedProjectCategoryId)) {
+                selectedProjectCategoryId = null
+            }
+        }
+
         const organizationSlug = document.location.pathname.replace('/', '')
         const { data: response } = await api.post(`${organizationSlug}/${currentProjectSlug}/task`, {
             headers: {
@@ -166,12 +200,13 @@ function Index() {
             json: Object.assign(addTaskObj, {
                 task_status_id: taskStatuses[0].id,
                 task_type_id: addTaskObj.task_type_id ? addTaskObj.task_type_id : taskTypes[0].id,
-                project_category_id: addTaskObj.project_category_id ? addTaskObj.project_category_id : null,
+                project_category_id: selectedProjectCategoryId,
                 description: addTaskObj.description ? addTaskObj.description : null,
                 hasAttachments: filesCount > 0 ? true : false,
                 assignTo: addTaskModalSelectedUserIds,
                 due_date: addTaskObj.due_date ? addTaskObj.due_date : null,
-                notifyUsersByEmail: addTaskNotifyUsersByEmail
+                notifyUsersByEmail: addTaskNotifyUsersByEmail,
+                project_id: currentProjectSlug === 'all' ? selectedProjectIdForAddTask : null
             })
         }).json()
 
@@ -215,7 +250,19 @@ function Index() {
         e.preventDefault()
         setShowViewTaskModal(false)
         hideModals()
-        setAddTaskModalSelectedUserIds(projectMembers.filter(item => item.you).map(item => item.user_id))
+        setAddTaskModalSelectedUserIds(
+            projectMembers
+                .filter(item => {
+                    if(currentProjectSlug !== 'all') {
+                        return true
+                    }
+                    if(item.project_ids.split(',').includes(selectedProjectIdForAddTask)) {
+                        return true
+                    }
+                })
+                .filter(item => item.you)
+                .map(item => item.user_id)
+        )
         setAddTaskNotifyUsersByEmail(true)
         setAddTaskObj({
             date: format(new Date, 'yyyy-MM-dd')
@@ -279,6 +326,23 @@ function Index() {
         setTasksFilterSelectedStatusIdPrevious(tasksFilterSelectedStatusId)
     }, [tasksFilterSelectedStatusId])
 
+    useEffect(() => {
+        setAddTaskObjProp('project_category_id', null)
+        setAddTaskModalSelectedUserIds(
+            projectMembers
+                .filter(item => {
+                    if(currentProjectSlug !== 'all') {
+                        return true
+                    }
+                    if(item.project_ids.split(',').includes(selectedProjectIdForAddTask)) {
+                        return true
+                    }
+                })
+                .filter(item => item.you)
+                .map(item => item.user_id)
+        )
+    }, [selectedProjectIdForAddTask])
+
     return (
         <Page>
             <Page.Nav>
@@ -335,6 +399,10 @@ function Index() {
             <div className="fw-b">Projects</div>
                 <div className="mt-0_5em">
                     {
+                        projects.length > 1 &&
+                        <a className={`mt-0_25em d-b ${'all' === currentProjectSlug ? 'td-n c-b' : ''}`} href={ '#project:all'}>All</a>
+                    }
+                    {
                         projects.length > 0 ?
                         projects.map(project => {
                             return (
@@ -353,7 +421,7 @@ function Index() {
                             {
                                 projectMembers.map(projectMember => {
                                     return (
-                                        <div key={projectMember.id} className="mt-0_25em" title={projectMember.role}>
+                                        <div key={projectMember.user_id} className="mt-0_25em" title={projectMember.role}>
                                             <a
                                                 href="#"
                                                 onClick={e => {
@@ -402,7 +470,9 @@ function Index() {
                                 <option value="">Other</option>
                                 {
                                     projectCategories.map(projectCategory => (
-                                        <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
+                                        <option key={projectCategory.id} value={projectCategory.id}>
+                                            {currentProjectSlug === 'all' && '[' + projectCategory.project_name + '] '}{projectCategory.category}
+                                        </option>
                                     ))
                                 }
                             </select>
@@ -444,6 +514,10 @@ function Index() {
                             <table className="table table-hover">
                                 <thead>
                                     <tr>
+                                        {
+                                            currentProjectSlug === 'all' &&
+                                            <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Project</th>
+                                        }
                                         <th style={{ width: '3.5em' }} className="pos-s top-0 bc-white">Task #</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Start Date</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Status</th>
@@ -462,6 +536,10 @@ function Index() {
                                     tasks.map(task => {
                                         return (
                                             <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                                {
+                                                    currentProjectSlug === 'all' &&
+                                                    <td className="ws-nw">{task.project_name}</td>
+                                                }
                                                 <td className="ws-nw ta-c">{task.id.toString().padStart(6, '0')}</td>
                                                 <td style={{ width: '5em' }} className="ta-c">{ formatDate(task.date) }</td>
                                                 <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
@@ -486,7 +564,25 @@ function Index() {
                 <Modal showModal={showAddTaskModal} hideModal={() => setShowAddTaskModal(false)}>
                     <form onSubmit={addTask}>
                         <div className="d-f">
-                            <div>
+                            {
+                                currentProjectSlug === 'all' &&
+                                <div>
+                                    <div>Project</div>
+                                    <select
+                                        value={selectedProjectIdForAddTask}
+                                        onChange={e => setSelectedProjectIdForAddTask(e.target.value)}
+                                        required
+                                    >
+                                        <option value="" disabled>Select project</option>
+                                        {
+                                            projects.map(project => (
+                                                <option key={project.id} value={project.id}>{project.name}</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                            }
+                            <div className={currentProjectSlug === 'all' ? 'ml-0_5em' : ''}>
                                 <div>Start Date</div>
                                 <input type="date"
                                     value={addTaskObj.date}
@@ -509,9 +605,18 @@ function Index() {
                                 <select onChange={e => setAddTaskObjProp('project_category_id', e.target.value)}>
                                     <option value="">Other</option>
                                     {
-                                        projectCategories.map(projectCategory => (
-                                            <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
-                                        ))
+                                        projectCategories
+                                            .filter(item => {
+                                                if(currentProjectSlug !== 'all') {
+                                                    return true
+                                                }
+                                                if(item.project_id == selectedProjectIdForAddTask) {
+                                                    return true
+                                                }
+                                            })
+                                            .map(projectCategory => (
+                                                <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
+                                            ))
                                     }
                                 </select>
                             </div>
@@ -539,14 +644,34 @@ function Index() {
                             <div>Assign Members</div>
                             <div className="p-0_5em pb-0_75em-i oy-a" style={{ border: '1px solid var(--border-color)', maxHeight: '10em' }}>
                                 {
-                                    projectMembers.map(projectMember => (
-                                        <div key={projectMember.id}>
-                                            <label className="d-b mt-0_5em">
-                                                <input type="checkbox" value={projectMember.user_id} checked={addTaskModalSelectedUserIds.includes(projectMember.user_id)} onChange={addToAddTaskModalSelectedUserIds}></input>
-                                                {projectMember.user}
-                                            </label>
-                                        </div>
-                                    ))
+                                    projectMembers
+                                    .filter(item => {
+                                        if(currentProjectSlug !== 'all') {
+                                            return true
+                                        }
+                                        if(item.project_ids.split(',').includes(selectedProjectIdForAddTask)) {
+                                            return true
+                                        }
+                                    }).length > 0 ?
+                                    projectMembers
+                                        .filter(item => {
+                                            if(currentProjectSlug !== 'all') {
+                                                return true
+                                            }
+                                            if(item.project_ids.split(',').includes(selectedProjectIdForAddTask)) {
+                                                return true
+                                            }
+                                        })
+                                        .map(projectMember => (
+                                            <div key={projectMember.user_id}>
+                                                <label className="d-b mt-0_5em">
+                                                    <input type="checkbox" value={projectMember.user_id} checked={addTaskModalSelectedUserIds.includes(projectMember.user_id)} onChange={addToAddTaskModalSelectedUserIds}></input>
+                                                    {projectMember.user}
+                                                </label>
+                                            </div>
+                                        ))
+                                    :
+                                    <div className="mt-0_5em">No Project Members Found</div>
                                 }
                             </div>
                         </div>

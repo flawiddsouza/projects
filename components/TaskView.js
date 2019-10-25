@@ -92,9 +92,11 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
                         <select value={updateTaskColumnData ? updateTaskColumnData : ''} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
                             <option value="">Other</option>
                             {
-                                projectCategories.map(projectCategory => (
-                                    <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
-                                ))
+                                projectCategories
+                                    .filter(item => item.project_id === task.project_id)
+                                    .map(projectCategory => (
+                                        <option key={projectCategory.id} value={projectCategory.id}>{projectCategory.category}</option>
+                                    ))
                             }
                         </select>
                     </div>
@@ -228,7 +230,12 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     }
                 </div>
                 <div>
-                    <Link href="/task/[taskId]" as={`/task/${task.id}`}><a>{task.id.toString().padStart(6, '0')}</a></Link>
+                    {task.project_name + ' / '}
+                    <Link href="/task/[taskId]" as={`/task/${task.id}`}>
+                        <a>
+                            {task.id.toString().padStart(6, '0')}
+                        </a>
+                    </Link>
                 </div>
             </div>
             <div className="mt-1em">

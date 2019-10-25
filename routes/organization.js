@@ -9,10 +9,13 @@ router.get('/projects', async(req, res) => {
     let projects = []
 
     if(await isSuperAdmin(req.authUserId) || await isOrganizationAdmin(req.authUserId, req.organizationId)) {
-        projects = await dbQuery('SELECT name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
+        projects = await dbQuery('SELECT id, name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
     } else {
         projects = await dbQuery(`
-            SELECT projects.name, projects.slug
+            SELECT
+                projects.id,
+                projects.name,
+                projects.slug
             FROM projects
             JOIN project_members ON project_members.project_id = projects.id
             JOIN organization_members ON organization_members.id = project_members.organization_member_id
@@ -35,9 +38,14 @@ router.get('/task-statuses', async(req, res) => {
 })
 
 async function validateProject(req, res, next) {
-    let results = await dbQuery('SELECT id FROM projects WHERE slug = ? AND organization_id = ?', [req.params.project, req.organizationId])
+    let results = null
+    if(req.params.project === 'all') {
+        results = await dbQuery('SELECT id FROM projects WHERE organization_id = ?', [req.organizationId])
+    } else {
+        results = await dbQuery('SELECT id FROM projects WHERE slug = ? AND organization_id = ?', [req.params.project, req.organizationId])
+    }
     if(results.length > 0) {
-        req.projectId = results[0].id
+        req.projectId = results.map(result => result.id).join(',')
         next()
     } else {
         res.json({
@@ -50,7 +58,7 @@ async function validateProject(req, res, next) {
 router.get('/:project/members', validateProject, async(req, res) => {
     let projectMembers = await dbQuery(`
         SELECT
-            project_members.id,
+            GROUP_CONCAT(project_members.project_id) as project_ids,
             CONCAT(
                 users.name,
                 (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
@@ -62,9 +70,10 @@ router.get('/:project/members', validateProject, async(req, res) => {
         JOIN organization_members ON organization_members.id = project_members.organization_member_id
         JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
         JOIN users ON users.id = organization_members.user_id
-        WHERE project_members.project_id = ?
+        WHERE project_members.project_id IN (${req.projectId})
+        GROUP BY users.id
         ORDER BY users.name
-    `, [req.authUserId, req.authUserId, req.projectId])
+    `, [req.authUserId, req.authUserId])
     res.json(projectMembers)
 })
 
@@ -144,12 +153,15 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
             tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id,
             tasks.due_date,
             tasks.completed_date,
+            tasks.project_id,
+            projects.name as project_name,
             CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+        JOIN projects ON projects.id = tasks.project_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
-        WHERE tasks.project_id = ?
+        WHERE tasks.project_id IN (${req.projectId})
         ${req.query.status === 'All' && completedTaskStatusId ? 'AND tasks.task_status_id != ?' : ''}
         ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
         ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
@@ -160,16 +172,21 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         )` : ''}
         ORDER BY ${orderBy} DESC
         ${limit !== 'All' ? 'LIMIT ' + limit : ''}
-    `, [completedTaskStatusId, req.projectId, ...additionalParams])
+    `, [completedTaskStatusId, ...additionalParams])
     res.json(tasks)
 })
 
 router.get('/:project/categories', validateProject, async(req, res) => {
     let projectCategories = await dbQuery(`
-        SELECT id, category
+        SELECT
+            project_categories.id,
+            project_categories.category,
+            projects.name as project_name,
+            project_categories.project_id
         FROM project_categories
-        WHERE project_id = ?
-    `, [req.projectId])
+        JOIN projects ON projects.id = project_categories.project_id
+        WHERE project_categories.project_id IN (${req.projectId})
+    `)
     res.json(projectCategories)
 })
 
@@ -177,7 +194,7 @@ router.post('/:project/task', validateProject, async(req, res) => {
     let insertedRecord = await dbQuery(`
         INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id, project_category_id, due_date) VALUES(?, ?, ?, ?, ?, ?, ?)
     `, [
-        req.projectId,
+        req.params.project !== 'all' ? req.projectId : req.body.project_id,
         req.body.date,
         req.body.title,
         req.body.task_type_id,
@@ -308,6 +325,7 @@ router.get('/:project/time-spends-for-authenticated-user', validateProject, asyn
                 (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
             ) as user,
             task_time_spends.user_id,
+            projects.name as project_name,
             task_types.type as type,
             project_categories.category as project_category,
             tasks.title as task,
@@ -328,12 +346,13 @@ router.get('/:project/time-spends-for-authenticated-user', validateProject, asyn
         JOIN task_types ON task_types.id = tasks.task_type_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
         JOIN users ON users.id = task_time_spends.user_id
-        WHERE tasks.project_id = ?
+        JOIN projects ON projects.id = tasks.project_id
+        WHERE tasks.project_id IN (${req.projectId})
         ${userIdExists ? 'AND task_time_spends.user_id = ?' : ''}
         ${req.query.filter === 'Selected Date' ? 'AND DATE(task_time_spends.start_date_time) = ?' : ''}
         ${startDateEndDateFilter ? 'AND DATE(task_time_spends.start_date_time) >= ? AND DATE(task_time_spends.start_date_time) <= ?' : ''}
         ORDER BY task_time_spends.start_date_time
-    `, [req.authUserId, req.projectId, ...params])
+    `, [req.authUserId, ...params])
 
     res.json(timeSpends)
 })
