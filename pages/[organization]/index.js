@@ -444,6 +444,7 @@ function Index() {
                             <table className="table table-hover">
                                 <thead>
                                     <tr>
+                                        <th style={{ width: '3.5em' }} className="pos-s top-0 bc-white">Task #</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Start Date</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Status</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
@@ -461,6 +462,7 @@ function Index() {
                                     tasks.map(task => {
                                         return (
                                             <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                                <td className="ws-nw ta-c">{task.id.toString().padStart(6, '0')}</td>
                                                 <td style={{ width: '5em' }} className="ta-c">{ formatDate(task.date) }</td>
                                                 <td style={{ width: '2em' }} className="ws-nw">{ task.status }</td>
                                                 <td style={{ width: '2em' }} className="ws-nw ta-c">{ task.type }</td>
