@@ -198,8 +198,8 @@ router.post('/:project/task', validateProject, async(req, res) => {
     if(req.body.assignTo.length > 0) {
         for(const userId of req.body.assignTo) {
             await dbQuery(`
-                INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
-            `, [insertedRecord.insertId, userId])
+                INSERT INTO task_assigned_users(task_id, user_id, assigned_by) VALUES(?, ?, ?)
+            `, [insertedRecord.insertId, userId, req.authUserId != userId ? req.authUserId : null])
 
             if(req.body.notifyUsersByEmail && req.authUserId !== userId) {
                 notifyUserByEmailTaskAssigned(insertedRecord.insertId, userId, req.authUserId)
