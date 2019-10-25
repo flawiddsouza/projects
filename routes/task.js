@@ -256,10 +256,14 @@ router.get('/assigned-users', async(req, res) => {
                 users.name,
                 (CASE WHEN users.id = ? THEN ' (you)' ELSE '' END)
             ) as user,
-            (CASE WHEN users.id = ? THEN true ELSE false END) as you
+            (CASE WHEN users.id = ? THEN true ELSE false END) as you,
+            assigned_by_users.name as assigned_by_user,
+            task_assigned_users.estimated_duration_in_seconds
         FROM task_assigned_users
         JOIN users ON users.id = task_assigned_users.user_id
+        LEFT JOIN users as assigned_by_users ON assigned_by_users.id = task_assigned_users.assigned_by
         WHERE task_assigned_users.task_id = ?
+        ORDER BY users.name
     `, [req.authUserId, req.authUserId, req.taskId])
     let assignableUsers = await dbQuery(`
         SELECT
@@ -276,6 +280,7 @@ router.get('/assigned-users', async(req, res) => {
         AND task_assigned_users.task_id = tasks.id
         WHERE tasks.id = ?
         AND task_assigned_users.id IS NULL
+        ORDER BY users.name
     `, [req.authUserId, req.taskId])
     res.json({
         assignableUsers,
@@ -285,8 +290,8 @@ router.get('/assigned-users', async(req, res) => {
 
 router.post('/assigned-user', async(req, res) => {
     await dbQuery(`
-        INSERT INTO task_assigned_users(task_id, user_id) VALUES(?, ?)
-    `, [req.taskId, req.body.user_id])
+        INSERT INTO task_assigned_users(task_id, user_id, assigned_by, estimated_duration_in_seconds) VALUES(?, ?, ?, ?)
+    `, [req.taskId, req.body.user_id, req.authUserId != req.body.user_id ? req.authUserId : null, req.body.estimated_duration_in_seconds ])
 
     if(req.body.notify_user_by_email && Number(req.body.user_id) !== req.authUserId) {
         notifyUserByEmailTaskAssigned(req.taskId, req.body.user_id, req.authUserId)

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from 'Libs/esm/api'
+import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 
 export default function TaskViewAssigned({ taskId, setAssignedCount, taskCompleted }) {
     const [ assignableUsers, setAssignableUsers ] = useState([])
@@ -30,6 +31,7 @@ export default function TaskViewAssigned({ taskId, setAssignedCount, taskComplet
         api.post(`task/${taskId}/assigned-user`, {
             json: {
                 user_id: assignUserUser,
+                estimated_duration_in_seconds: null,
                 notify_user_by_email: notifyUserByEmail
             }
         }).then(() => {
@@ -76,6 +78,8 @@ export default function TaskViewAssigned({ taskId, setAssignedCount, taskComplet
                     <thead>
                         <tr>
                             <th>Member</th>
+                            <th>Assigned By</th>
+                            {/* <th>Estimated Hours for Task</th> */}
                             {
                                 !taskCompleted &&
                                 <th>Action</th>
@@ -87,6 +91,12 @@ export default function TaskViewAssigned({ taskId, setAssignedCount, taskComplet
                         assignedUsers.map(assignedUser =>
                             <tr key={assignedUser.id}>
                                 <td>{assignedUser.user}</td>
+                                <td>{assignedUser.assigned_by_user}</td>
+                                {/* <td>
+                                {
+                                    assignedUser.estimated_duration_in_seconds ? secondsInHHMMSS(assignedUser.estimated_duration_in_seconds) : null
+                                }
+                                </td> */}
                                 {
                                     !taskCompleted &&
                                     <td>
