@@ -335,6 +335,10 @@ function Index() {
             <div className="fw-b">Projects</div>
                 <div className="mt-0_5em">
                     {
+                        projects.length > 1 &&
+                        <a className={`mt-0_25em d-b ${'all' === currentProjectSlug ? 'td-n c-b' : ''}`} href={ '#project:all'}>All</a>
+                    }
+                    {
                         projects.length > 0 ?
                         projects.map(project => {
                             return (
