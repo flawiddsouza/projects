@@ -1,7 +1,21 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import { useEffect } from 'react'
+
+function setCSSVariable(variable, value) {
+    document.documentElement.style.setProperty(variable, value)
+}
 
 function Page({ children }) {
+
+    useEffect(() => {
+        const overrideDefaultColor = localStorage.getItem('overrideDefaultColor')
+        if(overrideDefaultColor) {
+            setCSSVariable('--primary-color', overrideDefaultColor)
+        }
+        document.querySelector('main').style.visibility = ''
+    })
+
     return (
         <div>
             <Head>
@@ -9,7 +23,7 @@ function Page({ children }) {
                 <link rel="stylesheet" href="/static/global.css" />
                 <link rel="stylesheet" href="/static/functional.css" />
             </Head>
-            <main>
+            <main style={{ visibility: 'hidden' }}>
                 <Link href="/"><div className="nav-logo">Projects</div></Link>
                 {children}
             </main>

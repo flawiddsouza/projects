@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from 'Libs/esm/api'
 import Modal from 'Components/Modal'
+import SettingsColorScheme from 'Components/SettingsColorScheme'
 
 export default function Settings({ refreshProjectMembers=null }) {
 
@@ -79,10 +80,10 @@ export default function Settings({ refreshProjectMembers=null }) {
                     className={`cur-p us-n sidebar-item ${selectedSidebarItem === 'Account' && 'active'}`}
                     onClick={() => setSelectedSidebarItem('Account')}
                 >Account</div>
-                {/* <div
-                    className={`cur-p us-n sidebar-item ${selectedSidebarItem === 'Test' && 'active'}`}
-                    onClick={() => setSelectedSidebarItem('Test')}
-                >Account</div> */}
+                <div
+                    className={`cur-p us-n sidebar-item ${selectedSidebarItem === 'Color Scheme' && 'active'}`}
+                    onClick={() => setSelectedSidebarItem('Color Scheme')}
+                >Color Scheme</div>
             </div>
             <div style={{ width: '100%' }} className="ml-2em mt-1_5em">
                 {
@@ -130,12 +131,10 @@ export default function Settings({ refreshProjectMembers=null }) {
                         </div>
                     </div>
                 }
-                {/* {
-                    selectedSidebarItem === 'Test' &&
-                    <div>
-                        Test
-                    </div>
-                } */}
+                {
+                    selectedSidebarItem === 'Color Scheme' &&
+                    <SettingsColorScheme></SettingsColorScheme>
+                }
             </div>
             <style jsx>{`
                 .sidebar-item {
