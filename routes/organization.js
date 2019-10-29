@@ -71,7 +71,7 @@ router.get('/:project/members', validateProject, async(req, res) => {
         JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
         JOIN users ON users.id = organization_members.user_id
         WHERE project_members.project_id IN (${req.projectId})
-        GROUP BY users.id
+        GROUP BY users.id, users.name, organization_roles.role, organization_members.user_id
         ORDER BY users.name
     `, [req.authUserId, req.authUserId])
     res.json(projectMembers)
