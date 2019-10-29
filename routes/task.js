@@ -4,6 +4,7 @@ const { dbQuery } =  require('../libs/cjs/db')
 const path = require('path')
 const fs = require('fs')
 const notifyUserByEmailTaskAssigned =  require('../libs/cjs/notifyUserByEmailTaskAssigned')
+const { notifyOnTaskComment } =  require('../libs/cjs/notify')
 
 async function getCompletedTaskStatusId(projectId) {
     let completedTaskStatusId = await dbQuery(`
@@ -150,6 +151,9 @@ router.post('/comment', async(req, res) => {
     let insertedRecord = await dbQuery(`
         INSERT INTO task_comments(task_id, user_id, comment) VALUES(?, ?, ?)
     `, [req.taskId, req.authUserId, req.body.comment])
+
+    notifyOnTaskComment(req.taskId, insertedRecord.insertId, req.body.notifyUserIds)
+
     res.json({ status: 'success', data: { insertedId: insertedRecord.insertId } })
 })
 
