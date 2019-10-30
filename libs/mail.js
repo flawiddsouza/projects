@@ -31,6 +31,8 @@ const mg = mailgun({
     apiKey: localEnv.MAILGUN_API_KEY, domain: localEnv.MAILGUN_DOMAIN
 })
 
+const { dbQuery } =  require('./cjs/db')
+
 function sendMail(toEmail, subject, body) {
     mg.messages().send({
         from: `${localEnv.MAILGUN_FROM_EMAIL_NAME} <${localEnv.MAILGUN_FROM_EMAIL}>`,
@@ -40,6 +42,11 @@ function sendMail(toEmail, subject, body) {
     }, (error, response) => {
         if(error) {
             console.error(response)
+        } else {
+            dbQuery(`
+                INSERT INTO email_log(email, subject, body)
+                VALUES(?, ?, ?)
+            `, [toEmail, subject, body])
         }
     })
 }
