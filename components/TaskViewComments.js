@@ -182,7 +182,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                     {
                                         commentItem.files.map(file =>
                                             <tr key={file.id}>
-                                                <td><a href={`static/uploads/${file.saved_file_name}`} target="_blank">{file.original_file_name}</a></td>
+                                                <td><a href={`/static/uploads/${file.saved_file_name}`} target="_blank">{file.original_file_name}</a></td>
                                                 <td style={{ width: '5em' }}>{bytesToHumanReadableFileSize(file.file_size)}</td>
                                             </tr>
                                         )
