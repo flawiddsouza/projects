@@ -40,7 +40,18 @@ router.get('/task-statuses', async(req, res) => {
 async function validateProject(req, res, next) {
     let results = null
     if(req.params.project === 'all') {
-        results = await dbQuery('SELECT id FROM projects WHERE organization_id = ?', [req.organizationId])
+        if(await isSuperAdmin(req.authUserId) || await isOrganizationAdmin(req.authUserId, req.organizationId)) {
+            results = await dbQuery('SELECT id FROM projects WHERE organization_id = ?', [req.organizationId])
+        } else {
+            results = await dbQuery(`
+                SELECT projects.id
+                FROM projects
+                JOIN project_members ON project_members.project_id = projects.id
+                JOIN organization_members ON organization_members.id = project_members.organization_member_id
+                WHERE projects.organization_id = ?
+                AND organization_members.user_id = ?
+            `, [req.organizationId, req.authUserId])
+        }
     } else {
         results = await dbQuery('SELECT id FROM projects WHERE slug = ? AND organization_id = ?', [req.params.project, req.organizationId])
     }
