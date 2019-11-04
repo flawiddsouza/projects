@@ -152,7 +152,9 @@ router.post('/comment', async(req, res) => {
         INSERT INTO task_comments(task_id, user_id, comment) VALUES(?, ?, ?)
     `, [req.taskId, req.authUserId, req.body.comment])
 
-    notifyOnTaskComment(req.taskId, insertedRecord.insertId, req.body.notifyUserIds)
+    if(req.body.notifyUserIds.length > 0) {
+        notifyOnTaskComment(req.taskId, insertedRecord.insertId, req.body.notifyUserIds)
+    }
 
     res.json({ status: 'success', data: { insertedId: insertedRecord.insertId } })
 })
