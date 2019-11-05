@@ -163,7 +163,11 @@ const uploadDir = path.join(__dirname, '..', 'static', 'uploads')
 
 async function uploadCommentFile(req, file) {
     const uploadFileName = new Date().getTime() + '_' + file.name
-    file.mv(path.join(uploadDir, uploadFileName))
+    file.mv(path.join(uploadDir, uploadFileName), function(error) {
+        if(error) {
+            console.error(error)
+        }
+    })
     await dbQuery(`
         INSERT INTO task_comment_files(task_comment_id, original_file_name, saved_file_name, file_size) VALUES(?, ?, ?, ?)
     `, [req.params.comment_id, file.name, uploadFileName, file.size])
