@@ -55,7 +55,7 @@ async function notifyOnTaskComment(taskId, taskCommentId, userIdsToNotify) {
     const body = `
         ${comment.user} says:
         <br>
-        <div style="${style}">${comment.comment}</div>
+        <div style="${style}">${comment.comment !== null ? comment.comment : 'Attachment'}</div>
         <br><br>
         Click <a href="SUBSTITUTE_APP_URL/task/${taskId}">here</a> to view the task
     `
