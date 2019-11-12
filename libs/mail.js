@@ -33,7 +33,7 @@ const mg = mailgun({
 
 const { dbQuery } =  require('./cjs/db')
 
-function sendMail(toEmail, subject, body) {
+function sendMail(toEmail, subject, body, projectId = null) {
     mg.messages().send({
         from: `${localEnv.MAILGUN_FROM_EMAIL_NAME} <${localEnv.MAILGUN_FROM_EMAIL}>`,
         to: toEmail,
@@ -44,9 +44,9 @@ function sendMail(toEmail, subject, body) {
             console.error(response)
         } else {
             dbQuery(`
-                INSERT INTO email_log(email, subject, body)
-                VALUES(?, ?, ?)
-            `, [toEmail, subject, body])
+                INSERT INTO email_log(project_id, email, subject, body)
+                VALUES(?, ?, ?, ?)
+            `, [projectId, toEmail, subject, body])
         }
     })
 }

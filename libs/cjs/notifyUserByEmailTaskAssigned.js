@@ -7,7 +7,8 @@ async function notifyUserByEmailTaskAssigned(taskId, userIdToNotify, fromUserId)
             task_types.type,
             project_categories.category,
             tasks.title,
-            projects.name as project_name
+            projects.name as project_name,
+            tasks.project_id
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
@@ -27,7 +28,8 @@ async function notifyUserByEmailTaskAssigned(taskId, userIdToNotify, fromUserId)
     sendMail(
         users.find(user => user.id === Number(userIdToNotify)).email,
         subject,
-        body
+        body,
+        task[0].project_id
     )
 }
 
