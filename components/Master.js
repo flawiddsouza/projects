@@ -9,6 +9,12 @@ export default function Master({ Container, headers, itemName, apiPath }) {
     let addObj = {}
     const [ editObj, setEditObj ] = useState({})
 
+    headers.forEach(header => {
+        if(header.inputType === 'select' && header.hasOwnProperty('selectData') && header.selectData.length > 0) {
+            addObj[header.column] = header.selectData[0].value
+        }
+    })
+
     useEffect(() => {
         fetchItems()
     }, [])
@@ -137,7 +143,23 @@ export default function Master({ Container, headers, itemName, apiPath }) {
                             <div key={'add' + header.column} className={index > 0 ? 'mt-0_5em' : null}>
                                 <div className="label">{header.name}</div>
                                 <div>
-                                    <input type={header.inputType} required={header.required} autoFocus={index === 0}  onInput={e => addObj[header.column] = e.target.value}></input>
+                                    {
+                                        header.inputType === 'select' ?
+                                        <select
+                                            required={header.required}
+                                            autoFocus={index === 0}
+                                            onChange={e => addObj[header.column] = e.target.value}
+                                            className="w-100p"
+                                        >
+                                            {
+                                                header.selectData.map(item => (
+                                                    <option value={item.value}>{item.label}</option>
+                                                ))
+                                            }
+                                        </select>
+                                        :
+                                        <input type={header.inputType} required={header.required} autoFocus={index === 0}  onInput={e => addObj[header.column] = e.target.value}></input>
+                                    }
                                 </div>
                             </div>
                         )
@@ -152,7 +174,30 @@ export default function Master({ Container, headers, itemName, apiPath }) {
                             <div key={'edit' + header.column} className={index > 0 ? 'mt-0_5em' : null}>
                                 <div className="label">{header.name}</div>
                                 <div>
-                                    <input type={header.inputType} required={header.required} autoFocus={index === 0}  onChange={e => setObjectProperty(header.column, e.target.value, setEditObj)} value={editObj[header.column]}></input>
+                                    {
+                                        header.inputType === 'select' ?
+                                        <select
+                                            required={header.required}
+                                            autoFocus={index === 0}
+                                            onChange={e => setObjectProperty(header.column, e.target.value, setEditObj)}
+                                            value={editObj[header.column]}
+                                            className="w-100p"
+                                        >
+                                            {
+                                                header.selectData.map(item => (
+                                                    <option value={item.value}>{item.label}</option>
+                                                ))
+                                            }
+                                        </select>
+                                        :
+                                        <input
+                                            type={header.inputType}
+                                            required={header.required}
+                                            autoFocus={index === 0}
+                                            onChange={e => setObjectProperty(header.column, e.target.value, setEditObj)}
+                                            value={editObj[header.column]}
+                                        ></input>
+                                    }
                                 </div>
                             </div>
                         )

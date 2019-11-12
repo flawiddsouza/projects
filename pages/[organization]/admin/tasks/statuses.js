@@ -18,6 +18,22 @@ function Statuses() {
                 required: true
             },
             {
+                name: 'Status Type',
+                column: 'status_type',
+                inputType: 'select',
+                required: true,
+                selectData: [
+                    {
+                        label: 'Open',
+                        value: 'OPEN'
+                    },
+                    {
+                        label: 'Closed',
+                        value: 'CLOSED'
+                    }
+                ]
+            },
+            {
                 name: 'Sort Order',
                 column: 'sort_order',
                 inputType: 'number',

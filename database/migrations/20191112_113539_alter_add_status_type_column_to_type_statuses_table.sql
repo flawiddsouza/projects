@@ -1,0 +1,3 @@
+ALTER TABLE task_statuses
+ADD COLUMN status_type ENUM('OPEN','CLOSED') NOT NULL DEFAULT 'OPEN'
+AFTER `status`;
