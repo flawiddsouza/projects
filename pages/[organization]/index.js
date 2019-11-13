@@ -1,5 +1,5 @@
 import { useEffect, useState, Fragment, createRef } from 'react'
-import { format } from 'date-fns'
+import { format, parseISO, isBefore } from 'date-fns'
 import Modal from 'Components/Modal.js'
 import TaskView from 'Components/TaskView.js'
 import AddTimeSpend from 'Components/AddTimeSpend.js'
@@ -11,6 +11,10 @@ import Router, { useRouter } from 'next/router'
 import api from 'Libs/esm/api'
 import logout from 'Libs/esm/logout'
 import createLoader from 'Libs/esm/createLoader'
+
+function isBeforeToday(dateToCompare) {
+    return isBefore(parseISO(dateToCompare), new Date())
+}
 
 function Index() {
 
@@ -545,7 +549,7 @@ function Index() {
                                 {
                                     tasks.map(task => {
                                         return (
-                                            <tr key={task.id} onClick={() => viewTask(task)} className="cur-p">
+                                            <tr key={task.id} onClick={() => viewTask(task)} className={`cur-p ${task.completed_date === null && isBeforeToday(task.due_date) ? 'red' : ''}`}>
                                                 {
                                                     currentProjectSlug === 'all' &&
                                                     <td className="ws-nw">{task.project_name}</td>
