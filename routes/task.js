@@ -34,10 +34,12 @@ router.get('/', async(req, res) => {
             tasks.title,
             task_types.type,
             task_statuses.status,
+            task_priorities.priority,
             project_categories.category as project_category,
             tasks.task_type_id,
             tasks.task_status_id,
             tasks.project_category_id,
+            tasks.task_priority_id,
             tasks.due_date,
             tasks.completed_date,
             CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed,
@@ -48,6 +50,7 @@ router.get('/', async(req, res) => {
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+        LEFT JOIN task_priorities ON task_priorities.id = tasks.task_priority_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
         JOIN projects ON projects.id = tasks.project_id
         JOIN organizations ON organizations.id = projects.organization_id
@@ -77,7 +80,15 @@ router.get('/', async(req, res) => {
         ORDER BY category
     `, [req.projectId])
 
-    res.json({ task: task[0], taskTypes, taskStatuses, projectCategories })
+    const taskPriorities = await dbQuery(`
+        SELECT task_priorities.id, task_priorities.priority FROM task_priorities
+        JOIN organizations ON organizations.id = task_priorities.organization_id
+        JOIN projects ON projects.organization_id = organizations.id
+        WHERE projects.id = ?
+        ORDER BY task_priorities.sort_order
+    `, [req.projectId])
+
+    res.json({ task: task[0], taskTypes, taskStatuses, projectCategories, taskPriorities })
 })
 
 router.get('/counts', async(req, res) => {
@@ -434,7 +445,7 @@ router.delete('/sub-task/:id', async(req, res) => {
 })
 
 router.put('/update/:field', async(req, res) => {
-    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id' || req.params.field === 'due_date' || req.params.field === 'completed_date') {
+    if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id' || req.params.field === 'task_priority_id' || req.params.field === 'due_date' || req.params.field === 'completed_date') {
 
         let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
 

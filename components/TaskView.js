@@ -11,7 +11,7 @@ import { secondsInHHMMSS } from 'Libs/esm/dateUtils'
 import api from 'Libs/esm/api'
 import Link from 'next/link'
 
-function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, updateTaskColumn, setUpdateTaskColumn, updateTaskColumnData, setUpdateTaskColumnData, refreshTasks }) {
+function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, taskPriorities, updateTaskColumn, setUpdateTaskColumn, updateTaskColumnData, setUpdateTaskColumnData, refreshTasks }) {
     const updateColumn = e => {
         e.preventDefault()
         api.put(`task/${task.id}/update/${updateTaskColumn}`, {
@@ -118,6 +118,24 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
                 </Fragment>
             }
             {
+                updateTaskColumn === 'task_priority_id' &&
+                <Fragment>
+                    <div>Change Priority</div>
+                    <div className="mt-0_5em">
+                        <select value={updateTaskColumnData} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p">
+                            {
+                                taskPriorities.map(taskPriority => (
+                                    <option key={taskPriority.id} value={taskPriority.id}>{taskPriority.priority}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
+                    <div className="mt-1em ta-r">
+                        <button>Update</button>
+                    </div>
+                </Fragment>
+            }
+            {
                 updateTaskColumn === 'due_date' &&
                 <Fragment>
                     <div>Change Due Date</div>
@@ -146,7 +164,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, upd
     )
 }
 
-export default function TaskView({ task, taskStatuses, taskTypes, projectCategories, refreshTasks, tabsContentHeight=null, width=null }) {
+export default function TaskView({ task, taskStatuses, taskTypes, projectCategories, taskPriorities, refreshTasks, tabsContentHeight=null, width=null }) {
     const [ activeTab, setActiveTab ] = useState('comments')
     const [ commentsCount, setCommentsCount ] = useState(0)
     const [ filesCount, setFilesCount ] = useState(0)
@@ -214,6 +232,10 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     <div className="ml-3em">
                         <div className="label">Category</div>
                         <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('project_category_id', task.project_category_id)}>{ task.project_category ? task.project_category : 'Other' }</div>
+                    </div>
+                    <div className="ml-3em">
+                        <div className="label">Priority</div>
+                        <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('task_priority_id', task.task_priority_id)}>{ task.priority }</div>
                     </div>
                     <div className="ml-3em">
                         <div className="label">Due Date</div>
@@ -290,7 +312,7 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     }
                 </div>
             </div>
-            <UpdateTaskModal task={task} taskTypes={taskTypes} taskStatuses={taskStatuses} projectCategories={projectCategories} updateTaskColumn={updateTaskColumn} setUpdateTaskColumn={setUpdateTaskColumn} updateTaskColumnData={updateTaskColumnData} setUpdateTaskColumnData={setUpdateTaskColumnData} refreshTasks={refreshTasks} />
+            <UpdateTaskModal task={task} taskTypes={taskTypes} taskStatuses={taskStatuses} projectCategories={projectCategories} taskPriorities={taskPriorities} updateTaskColumn={updateTaskColumn} setUpdateTaskColumn={setUpdateTaskColumn} updateTaskColumnData={updateTaskColumnData} setUpdateTaskColumnData={setUpdateTaskColumnData} refreshTasks={refreshTasks} />
         </div>
     )
 }

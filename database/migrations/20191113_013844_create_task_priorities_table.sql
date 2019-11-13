@@ -15,7 +15,7 @@ ENGINE=InnoDB;
 
 INSERT INTO task_priorities(organization_id, priority, `default`, sort_order)
 SELECT
-    id, 'Low', 0, 1
+    id, 'High', 0, 1
 FROM organizations;
 
 INSERT INTO task_priorities(organization_id, priority, `default`, sort_order)
@@ -25,5 +25,5 @@ FROM organizations;
 
 INSERT INTO task_priorities(organization_id, priority, `default`, sort_order)
 SELECT
-    id, 'High', 0, 3
+    id, 'Low', 0, 3
 FROM organizations;

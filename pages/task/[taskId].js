@@ -13,6 +13,7 @@ function Task() {
     const [ taskTypes, setTaskTypes ] = useState([])
     const [ taskStatuses, setTaskStatuses ] = useState([])
     const [ projectCategories, setProjectCategories ] = useState([])
+    const [ taskPriorities, setTaskPriorities ] = useState([])
     const [ isAdmin, setIsAdmin ] = useState(false)
     const router = useRouter()
     const { taskId } = router.query
@@ -26,6 +27,7 @@ function Task() {
             setTaskTypes(response.taskTypes)
             setTaskStatuses(response.taskStatuses)
             setProjectCategories(response.projectCategories)
+            setTaskPriorities(response.taskPriorities)
             fetchIsAdmin(response.task)
         }
     }
@@ -73,7 +75,7 @@ function Task() {
             <Page.Content>
                 {
                     !taskDoesNotExist && task ?
-                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={fetchTask} tabsContentHeight="calc(100vh - 15.5em)" width="100%"></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} taskPriorities={taskPriorities} refreshTasks={fetchTask} tabsContentHeight="calc(100vh - 15.5em)" width="100%"></TaskView>
                     :
                         <div>Task Does Not Exist</div>
                 }

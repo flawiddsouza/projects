@@ -17,6 +17,7 @@ function Index() {
     const [ projects, setProjects ] = useState([])
     const [ taskTypes, setTaskTypes ] = useState([])
     const [ taskStatuses, setTaskStatuses ] = useState([])
+    const [ taskPriorities, setTaskPriorities ] = useState([])
     const [ projectCategories, setProjectCategories ] = useState([])
     const [ projectMembers, setProjectMembers ] = useState([])
     const [ tasks, setTasks ] = useState([])
@@ -75,6 +76,12 @@ function Index() {
         const organizationSlug = document.location.pathname.replace('/', '')
         const projectCategories = await api.get(`${organizationSlug}/${projectSlug}/categories`).json()
         setProjectCategories(projectCategories)
+    }
+
+    async function fetchTaskPriorities() {
+        const organizationSlug = document.location.pathname.replace('/', '')
+        const taskPriorities = await api.get(`${organizationSlug}/task-priorities`).json()
+        setTaskPriorities(taskPriorities)
     }
 
     function handleCurrentHash(hash) {
@@ -204,6 +211,7 @@ function Index() {
                 description: addTaskObj.description ? addTaskObj.description : null,
                 hasAttachments: filesCount > 0 ? true : false,
                 assignTo: addTaskModalSelectedUserIds,
+                task_priority_id: addTaskObj.task_priority_id ? addTaskObj.task_priority_id : taskPriorities.find(item => item.default).id,
                 due_date: addTaskObj.due_date ? addTaskObj.due_date : null,
                 notifyUsersByEmail: addTaskNotifyUsersByEmail,
                 project_id: currentProjectSlug === 'all' ? selectedProjectIdForAddTask : null
@@ -302,6 +310,7 @@ function Index() {
         fetchProjects()
         fetchTaskTypes()
         fetchTaskStatuses()
+        fetchTaskPriorities()
 
         return () => {
             Router.events.off('hashChangeComplete', handleReset)
@@ -524,6 +533,7 @@ function Index() {
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Category</th>
                                         <th className="pos-s top-0 bc-white ta-l">Task</th>
+                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Priority</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Due Date</th>
                                         {
                                             taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
@@ -546,6 +556,7 @@ function Index() {
                                                 <td style={{ width: '2em' }} className="ws-nw ta-c">{ task.type }</td>
                                                 <td style={{ width: '5em' }} className="ws-nw ta-c">{ task.project_category ? task.project_category : 'Other' }</td>
                                                 <td>{ task.title }</td>
+                                                <td className="ws-nw ta-c">{ task.priority }</td>
                                                 <td style={{ width: '5em' }} className="ta-c">{ task.due_date ? formatDate(task.due_date) : null }</td>
                                                 {
                                                     taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
@@ -621,6 +632,16 @@ function Index() {
                                 </select>
                             </div>
                             <div className="ml-0_5em">
+                                <div>Priority</div>
+                                <select onChange={e => setAddTaskObjProp('task_priority_id', e.target.value)} required defaultValue={taskPriorities.find(item => item.default) ? taskPriorities.find(item => item.default).id : ''}>
+                                    {
+                                        taskPriorities.map(taskPriority => (
+                                            <option key={taskPriority.id} value={taskPriority.id}>{taskPriority.priority}</option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
+                            <div className="ml-0_5em">
                                 <div>Due Date</div>
                                 <input type="date"
                                     defaultValue={addTaskObj.due_date}
@@ -690,7 +711,7 @@ function Index() {
                 {
                     task &&
                     <Modal showModal={showViewTaskModal} hideModal={() => setShowViewTaskModal(false)} inner={false}>
-                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} refreshTasks={() => fetchProjectTasks(currentProjectSlug)} tabsContentHeight="calc(100vh - 17em)"></TaskView>
+                        <TaskView task={task} taskStatuses={taskStatuses} taskTypes={taskTypes} projectCategories={projectCategories} taskPriorities={taskPriorities} refreshTasks={() => fetchProjectTasks(currentProjectSlug)} tabsContentHeight="calc(100vh - 17em)"></TaskView>
                     </Modal>
                 }
                 <Modal showModal={showAddTimeSpendModal} hideModal={() => setShowAddTimeSpendModal(false)} inner={false}>

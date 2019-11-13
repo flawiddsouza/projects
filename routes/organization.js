@@ -37,6 +37,11 @@ router.get('/task-statuses', async(req, res) => {
     res.json(taskStatuses)
 })
 
+router.get('/task-priorities', async(req, res) => {
+    let taskPriorities = await dbQuery('SELECT id, priority, `default` FROM task_priorities WHERE organization_id = ? ORDER BY sort_order', [req.organizationId])
+    res.json(taskPriorities)
+})
+
 async function validateProject(req, res, next) {
     let results = null
     if(req.params.project === 'all') {
@@ -161,7 +166,12 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
 
     let tasks = await dbQuery(`
         SELECT
-            tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category, tasks.task_type_id, tasks.task_status_id, tasks.project_category_id,
+            tasks.id, tasks.date, tasks.title, task_types.type, task_statuses.status, project_categories.category as project_category,
+            task_priorities.priority,
+            tasks.task_type_id,
+            tasks.task_status_id,
+            tasks.project_category_id,
+            tasks.task_priority_id,
             tasks.due_date,
             tasks.completed_date,
             tasks.project_id,
@@ -170,6 +180,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+        LEFT JOIN task_priorities ON task_priorities.id = tasks.task_priority_id
         JOIN projects ON projects.id = tasks.project_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
         WHERE tasks.project_id IN (${req.projectId})
@@ -203,7 +214,7 @@ router.get('/:project/categories', validateProject, async(req, res) => {
 
 router.post('/:project/task', validateProject, async(req, res) => {
     let insertedRecord = await dbQuery(`
-        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id, project_category_id, due_date) VALUES(?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO tasks(project_id, date, title, task_type_id, task_status_id, project_category_id, task_priority_id, due_date) VALUES(?, ?, ?, ?, ?, ?, ?, ?)
     `, [
         req.params.project !== 'all' ? req.projectId : req.body.project_id,
         req.body.date,
@@ -211,6 +222,7 @@ router.post('/:project/task', validateProject, async(req, res) => {
         req.body.task_type_id,
         req.body.task_status_id,
         req.body.project_category_id,
+        req.body.task_priority_id,
         req.body.due_date
     ])
 
