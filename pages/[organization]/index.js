@@ -532,7 +532,7 @@ function Index() {
                                             <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Project</th>
                                         }
                                         <th style={{ width: '3.5em' }} className="pos-s top-0 bc-white">Task #</th>
-                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Start Date</th>
+                                        <th style={{ width: '5em' }} className="pos-s top-0 bc-white ws-nw">Start Date</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Status</th>
                                         <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Type</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Category</th>
@@ -541,7 +541,7 @@ function Index() {
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Due Date</th>
                                         {
                                             taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
-                                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white">Completed Date</th>
+                                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white ws-nw">Completed Date</th>
                                         }
                                     </tr>
                                 </thead>
@@ -561,7 +561,7 @@ function Index() {
                                                 <td style={{ width: '5em' }} className="ws-nw ta-c">{ task.project_category ? task.project_category : 'Other' }</td>
                                                 <td>{ task.title }</td>
                                                 <td className="ws-nw ta-c">{ task.priority }</td>
-                                                <td style={{ width: '5em' }} className="ta-c">{ task.due_date ? formatDate(task.due_date) : null }</td>
+                                                <td style={{ width: '5em' }} className="ta-c ws-nw">{ task.due_date ? formatDate(task.due_date) : null }</td>
                                                 {
                                                     taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
                                                     <td className="ta-c">{ task.completed_date ? formatDate(task.completed_date) : null }</td>
