@@ -163,7 +163,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                     <div>{commentItem.user}</div>
                                     <div className="d-f" style={{ position: 'relative' }}>
                                         {
-                                            !taskCompleted &&
+                                            (!taskCompleted && commentItem.you === 1) &&
                                             <div className="hover-show-child d-f" style={{ position: 'absolute', top: '-28px', 'left': '-76px' }}>
                                                 <a href="#" onClick={e => startCommentUpdate(e, commentItem)}>
                                                     <img src="/static/assets/pencil.svg" style={{ width: '15px', height: '15px', padding: '0.5em', backgroundColor: 'white', border: '1px solid black' }}></img>
@@ -173,7 +173,7 @@ export default function TaskViewComments({ taskId, setCommentsCount, tabsContent
                                                 </a>
                                             </div>
                                         }
-                                        <div className={`${!taskCompleted ? 'hover-hide-child' : ''} mr-0_5em`}>{formatDateTime(commentItem.created_at)}</div>
+                                        <div className={`${(!taskCompleted && commentItem.you === 1) ? 'hover-hide-child' : ''} mr-0_5em`}>{formatDateTime(commentItem.created_at)}</div>
                                     </div>
                                 </div>
                                 <div className="mt-0_25em ws-pw wb-bw" dangerouslySetInnerHTML={{__html: commentItem.comment ? urlifyText(commentItem.comment) : '' }}></div>
