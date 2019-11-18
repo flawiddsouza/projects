@@ -4,7 +4,7 @@ const { dbQuery } =  require('../libs/cjs/db')
 const path = require('path')
 const fs = require('fs')
 const notifyUserByEmailTaskAssigned =  require('../libs/cjs/notifyUserByEmailTaskAssigned')
-const { notifyOnTaskComment } =  require('../libs/cjs/notify')
+const { notifyOnTaskComment, notifyOnTaskStatusChange } =  require('../libs/cjs/notify')
 
 async function getCompletedTaskStatusId(projectId) {
     let completedTaskStatusId = await dbQuery(`
@@ -506,11 +506,45 @@ router.put('/update/:field', async(req, res) => {
             `, [req.taskId])
         }
 
+        if(req.params.field === 'task_status_id') {
+            let userIdsToNotify = (await dbQuery(`
+                SELECT user_id
+                FROM task_assigned_users
+                WHERE task_id = ?
+                AND user_id != ?
+            `, [req.taskId, req.authUserId])).map(item => item.user_id)
+
+            if(userIdsToNotify.length > 0) {
+
+                let fromTaskStatus = await dbQuery(`
+                    SELECT task_statuses.status
+                    FROM tasks
+                    JOIN task_statuses ON task_statuses.id = tasks.task_status_id
+                    WHERE tasks.id = ?
+                `, [req.taskId])
+
+                fromTaskStatus = fromTaskStatus[0].status
+
+                let toTaskStatus = await dbQuery(`
+                    SELECT status
+                    FROM task_statuses
+                    WHERE id = ?
+                `, [req.body[req.params.field]])
+
+                toTaskStatus = toTaskStatus[0].status
+
+                if(fromTaskStatus !== toTaskStatus) {
+                    notifyOnTaskStatusChange(req.taskId, req.authUserId, fromTaskStatus, toTaskStatus, userIdsToNotify)
+                }
+            }
+        }
+
         await dbQuery(`
             UPDATE tasks
             SET ${req.params.field} = ?
             WHERE id = ?
         `, [req.body[req.params.field], req.taskId])
+
         res.json({ status: 'success' })
     } else {
         res.json({ status: 'error' })
