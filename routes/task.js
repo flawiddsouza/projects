@@ -205,6 +205,18 @@ router.put('/comment/:id', async(req, res) => {
 })
 
 router.delete('/comment/:id', async(req, res) => {
+    if(
+        (
+            await dbQuery(`
+                SELECT COUNT(*) as count FROM task_comments
+                WHERE id = ? AND user_id = ?
+            `, [req.params.id, req.authUserId])
+        )[0].count === 0
+    ) {
+        res.json({ status: 'error', message: 'You don\'t have permission to delete this comment' })
+        return
+    }
+
     let commentFiles = await dbQuery(`
         SELECT saved_file_name
         FROM task_comment_files
@@ -226,8 +238,8 @@ router.delete('/comment/:id', async(req, res) => {
 
     await dbQuery(`
         DELETE FROM task_comments
-        WHERE id = ? AND user_id = ?
-    `, [req.params.id, req.authUserId])
+        WHERE id = ?
+    `, [req.params.id])
     res.json({ status: 'success' })
 })
 
