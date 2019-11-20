@@ -16,6 +16,8 @@ function isBeforeToday(dateToCompare) {
     return isBefore(parseISO(dateToCompare), new Date())
 }
 
+let projectSlugCopy = null
+
 function Index() {
 
     const [ projects, setProjects ] = useState([])
@@ -125,11 +127,10 @@ function Index() {
         let authenticatedUserId = projectMembers.find(item => item.you)
         if(authenticatedUserId) {
             setTasksFilterSelectedAssignedUserId(authenticatedUserId.user_id)
-            fetchProjectTasks(projectSlug, authenticatedUserId.user_id)
             setAuthenticatedUserId(authenticatedUserId.user_id)
         } else {
+            setTasksFilterSelectedAssignedUserId('All')
             setAuthenticatedUserId(null)
-            fetchProjectTasks(projectSlug)
         }
 
         // reset add task modal's properties if it is open
@@ -161,6 +162,7 @@ function Index() {
     }
 
     async function loadProject(projectSlug) {
+        projectSlugCopy = projectSlug
         setCurrentProjectSlug(projectSlug)
 
         // close view task modal on project change
@@ -323,7 +325,11 @@ function Index() {
     }, [])
 
     useEffect(() => {
-        if(currentProjectSlug) {
+        if(currentProjectSlug === null) {
+            if(projectSlugCopy) {
+                fetchProjectTasks(projectSlugCopy)
+            }
+        } else {
             fetchProjectTasks(currentProjectSlug)
         }
     }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId, tasksFilterSortBy, tasksFilterSelectedLimit])
