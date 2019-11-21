@@ -40,7 +40,7 @@ function Index() {
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
-    const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState('All')
+    const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState(null)
     const [ tasksFilterSortBy, setTasksFilterSortBy ] = useState('Created Date')
     const [ tasksFilterSelectedLimit, setTasksFilterSelectedLimit ] = useState('50')
     const [ isAdmin, setIsAdmin ] = useState(false)
@@ -326,7 +326,7 @@ function Index() {
 
     useEffect(() => {
         if(currentProjectSlug === null) {
-            if(projectSlugCopy) {
+            if(projectSlugCopy && tasksFilterSelectedAssignedUserId !== null) {
                 fetchProjectTasks(projectSlugCopy)
             }
         } else {
@@ -498,7 +498,7 @@ function Index() {
                         </div>
                         <div className="ml-0_5em">
                             <div className="label">Assigned To</div>
-                            <select className="mt-0_25em" value={tasksFilterSelectedAssignedUserId} onChange={e => setTasksFilterSelectedAssignedUserId(e.target.value)}>
+                            <select className="mt-0_25em" value={tasksFilterSelectedAssignedUserId || ''} onChange={e => setTasksFilterSelectedAssignedUserId(e.target.value)}>
                                 <option>All</option>
                                 {
                                     projectMembers.map(projectMember => (
