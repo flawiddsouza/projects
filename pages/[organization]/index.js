@@ -11,6 +11,7 @@ import Router, { useRouter } from 'next/router'
 import api from 'Libs/esm/api'
 import logout from 'Libs/esm/logout'
 import createLoader from 'Libs/esm/createLoader'
+import useDebouncedEffect  from 'use-debounced-effect'
 
 function isBeforeToday(dateToCompare) {
     return isBefore(parseISO(dateToCompare), new Date())
@@ -37,6 +38,7 @@ function Index() {
     const [ selectedProjectIdForAddTask, setSelectedProjectIdForAddTask ] = useState('')
     const [ showViewTaskModal, setShowViewTaskModal ] = useState(false)
     const [ task, setTask ] = useState(null)
+    const [ tasksFilter, setTasksFilter ] = useState('')
     const [ tasksFilterSelectedStatusId, setTasksFilterSelectedStatusId ] = useState('All')
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
@@ -152,7 +154,7 @@ function Index() {
 
     async function fetchProjectTasks(projectSlug, tasksFilterSelectedAssignedUserIdOverride=null) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserIdOverride ? tasksFilterSelectedAssignedUserIdOverride : tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserIdOverride ? tasksFilterSelectedAssignedUserIdOverride : tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}&filter=${tasksFilter}`).json()
 
         setTasks(tasks)
 
@@ -334,6 +336,12 @@ function Index() {
         }
     }, [tasksFilterSelectedStatusId, tasksFilterSelectedTypeId, tasksFilterSelectedProjectCategoryId, tasksFilterSelectedAssignedUserId, tasksFilterSortBy, tasksFilterSelectedLimit])
 
+    useDebouncedEffect(() => {
+        if(currentProjectSlug) {
+            fetchProjectTasks(currentProjectSlug)
+        }
+    }, 1000, [tasksFilter])
+
     const [ tasksFilterSelectedStatusIdPrevious, setTasksFilterSelectedStatusIdPrevious ] = useState(null)
     useEffect(() => {
         // reset sort by filter to created date if it is set to completed date and the user switched from the completed status to an open status
@@ -461,6 +469,10 @@ function Index() {
                     currentProjectSlug &&
                     <div className="d-f flex-ai-fe mb-1em flex-jc-fe filters">
                         <div>
+                            <div className="label">Filter Tasks</div>
+                            <input type="search" style={{ padding: '2.5px' }} placeholder="Search..." onChange={e => setTasksFilter(e.target.value)} />
+                        </div>
+                        <div className="ml-0_5em">
                             <div className="label">Status</div>
                             <select className="mt-0_25em" value={tasksFilterSelectedStatusId} onChange={e => setTasksFilterSelectedStatusId(e.target.value)}>
                                 <option value="All">All Open</option>

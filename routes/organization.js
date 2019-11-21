@@ -192,6 +192,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         ${req.query.user !== 'All' ? `AND tasks.id IN (
             SELECT task_id FROM task_assigned_users WHERE user_id = ?
         )` : ''}
+        ${req.query.filter ? 'AND tasks.title LIKE "%' + req.query.filter + '%"' : ''}
         ORDER BY ${orderBy} DESC
         ${limit !== 'All' ? 'LIMIT ' + limit : ''}
     `, [completedTaskStatusId, ...additionalParams])
