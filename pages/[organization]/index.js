@@ -152,9 +152,9 @@ function Index() {
         setSelectedProjectIdForAddTask(selectedProjectIdForAddTask)
     }
 
-    async function fetchProjectTasks(projectSlug, tasksFilterSelectedAssignedUserIdOverride=null) {
+    async function fetchProjectTasks(projectSlug) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserIdOverride ? tasksFilterSelectedAssignedUserIdOverride : tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}&filter=${tasksFilter}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}&filter=${tasksFilter}`).json()
 
         setTasks(tasks)
 
