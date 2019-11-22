@@ -506,7 +506,12 @@ function Index() {
                         </div>
                         <div className="ml-0_5em">
                             <div className="label">Category</div>
-                            <select className="mt-0_25em" value={tasksFilterSelectedProjectCategoryId} onChange={e => setTasksFilterSelectedProjectCategoryId(e.target.value)}>
+                            <select
+                                className="mt-0_25em"
+                                value={tasksFilterSelectedProjectCategoryId}
+                                onChange={e => setTasksFilterSelectedProjectCategoryId(e.target.value)}
+                                style={{ maxWidth: '16em' }}
+                            >
                                 <option>All</option>
                                 <option value="">Other</option>
                                 {
