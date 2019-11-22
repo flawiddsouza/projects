@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, createRef } from 'react'
+import { useEffect, useState, Fragment, createRef, useRef } from 'react'
 import { format, parseISO, isBefore } from 'date-fns'
 import Modal from 'Components/Modal.js'
 import TaskView from 'Components/TaskView.js'
@@ -43,6 +43,7 @@ function Index() {
     const [ tasksFilterSelectedTypeId, setTasksFilterSelectedTypeId ] = useState('All')
     const [ tasksFilterSelectedProjectCategoryId, setTasksFilterSelectedProjectCategoryId ] = useState('All')
     const [ tasksFilterSelectedAssignedUserId, setTasksFilterSelectedAssignedUserId ] = useState(null)
+    const tasksFilterSelectedAssignedUserIdRef = useRef()
     const [ tasksFilterSortBy, setTasksFilterSortBy ] = useState('Created Date')
     const [ tasksFilterSelectedLimit, setTasksFilterSelectedLimit ] = useState('50')
     const [ isAdmin, setIsAdmin ] = useState(false)
@@ -128,10 +129,18 @@ function Index() {
 
         let authenticatedUserId = projectMembers.find(item => item.you)
         if(authenticatedUserId) {
+            if(tasksFilterSelectedAssignedUserIdRef.current === authenticatedUserId.user_id) {
+                fetchProjectTasks(projectSlug, authenticatedUserId.user_id)
+            }
             setTasksFilterSelectedAssignedUserId(authenticatedUserId.user_id)
+            tasksFilterSelectedAssignedUserIdRef.current = authenticatedUserId.user_id
             setAuthenticatedUserId(authenticatedUserId.user_id)
         } else {
+            if(tasksFilterSelectedAssignedUserIdRef.current === 'All') {
+                fetchProjectTasks(projectSlug, 'All')
+            }
             setTasksFilterSelectedAssignedUserId('All')
+            tasksFilterSelectedAssignedUserIdRef.current = 'All'
             setAuthenticatedUserId(null)
         }
 
@@ -152,9 +161,9 @@ function Index() {
         setSelectedProjectIdForAddTask(selectedProjectIdForAddTask)
     }
 
-    async function fetchProjectTasks(projectSlug) {
+    async function fetchProjectTasks(projectSlug, overrideTasksFilterSelectedAssignedUserId=null) {
         const organizationSlug = document.location.pathname.replace('/', '')
-        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}&filter=${tasksFilter}`).json()
+        const tasks = await api.get(`${organizationSlug}/${projectSlug}/tasks?status=${tasksFilterSelectedStatusId}&type=${tasksFilterSelectedTypeId}&category=${tasksFilterSelectedProjectCategoryId}&user=${overrideTasksFilterSelectedAssignedUserId ? overrideTasksFilterSelectedAssignedUserId : tasksFilterSelectedAssignedUserId}&sort_by=${tasksFilterSortBy}&limit=${tasksFilterSelectedLimit}&filter=${tasksFilter}`).json()
 
         setTasks(tasks)
 
@@ -454,6 +463,7 @@ function Index() {
                                                 onClick={e => {
                                                     e.preventDefault()
                                                     setTasksFilterSelectedAssignedUserId(projectMember.user_id)
+                                                    tasksFilterSelectedAssignedUserIdRef.current = projectMember.user_id
                                                 }}
                                                 className={`td-n c-b ${projectMember.user_id == tasksFilterSelectedAssignedUserId ? 'td-u' : ''}`}>{projectMember.user}</a>
                                         </div>
@@ -510,7 +520,10 @@ function Index() {
                         </div>
                         <div className="ml-0_5em">
                             <div className="label">Assigned To</div>
-                            <select className="mt-0_25em" value={tasksFilterSelectedAssignedUserId || ''} onChange={e => setTasksFilterSelectedAssignedUserId(e.target.value)}>
+                            <select className="mt-0_25em" value={tasksFilterSelectedAssignedUserId || ''} onChange={e => {
+                                setTasksFilterSelectedAssignedUserId(e.target.value)
+                                tasksFilterSelectedAssignedUserIdRef.current = e.target.value
+                            }}>
                                 <option>All</option>
                                 {
                                     projectMembers.map(projectMember => (
