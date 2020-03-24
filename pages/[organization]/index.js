@@ -351,15 +351,13 @@ function Index() {
         }
     }, 1000, [tasksFilter])
 
-    const [ tasksFilterSelectedStatusIdPrevious, setTasksFilterSelectedStatusIdPrevious ] = useState(null)
     useEffect(() => {
-        // reset sort by filter to created date if it is set to completed date and the user switched from the completed status to an open status
-        if(tasksFilterSortBy === 'Completed Date') {
-            if(taskStatuses.length > 1 && tasksFilterSelectedStatusIdPrevious == taskStatuses[taskStatuses.length - 1].id) {
+        // reset sort by filter to created date if it is set to closed date and the user switched from the closed status to an open status
+        if(tasksFilterSortBy === 'Closed Date') {
+            if(taskStatuses.filter(item => item.status_type === 'OPEN').map(item => item.id).includes(Number(tasksFilterSelectedStatusId))) {
                 setTasksFilterSortBy('Created Date')
             }
         }
-        setTasksFilterSelectedStatusIdPrevious(tasksFilterSelectedStatusId)
     }, [tasksFilterSelectedStatusId])
 
     useEffect(() => {
@@ -544,8 +542,8 @@ function Index() {
                                 <option>Start Date</option>
                                 <option>Due Date</option>
                                 {
-                                    taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
-                                    <option>Completed Date</option>
+                                    taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && taskStatuses.filter(item => item.status_type === 'CLOSED').map(item => item.id).includes(Number(tasksFilterSelectedStatusId)) &&
+                                    <option value="Closed Date">Closed Date</option>
                                 }
                             </select>
                         </div>
@@ -576,8 +574,8 @@ function Index() {
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Priority</th>
                                         <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Due Date</th>
                                         {
-                                            taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
-                                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white ws-nw">Completed Date</th>
+                                            taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && taskStatuses.filter(item => item.status_type === 'CLOSED').map(item => item.id).includes(Number(tasksFilterSelectedStatusId)) &&
+                                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white ws-nw">Closed Date</th>
                                         }
                                     </tr>
                                 </thead>
@@ -599,7 +597,7 @@ function Index() {
                                                 <td className="ws-nw ta-c">{ task.priority }</td>
                                                 <td style={{ width: '5em' }} className="ta-c ws-nw">{ task.due_date ? formatDate(task.due_date) : null }</td>
                                                 {
-                                                    taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && Number(tasksFilterSelectedStatusId) === taskStatuses[taskStatuses.length - 1].id &&
+                                                    taskStatuses.length > 1 && tasksFilterSelectedStatusId !== 'All' && taskStatuses.filter(item => item.status_type === 'CLOSED').map(item => item.id).includes(Number(tasksFilterSelectedStatusId)) &&
                                                     <td className="ta-c">{ task.completed_date ? formatDate(task.completed_date) : null }</td>
                                                 }
                                             </tr>

@@ -91,7 +91,7 @@ export default function TaskViewFiles({ taskId, setSubTasksCount, setCompletedSu
                             <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Category</th>
                             <th className="pos-s top-0 bc-white ta-l">Task</th>
                             <th style={{ width: '5em' }} className="pos-s top-0 bc-white">Due Date</th>
-                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white">Completed Date</th>
+                            <th style={{ width: '8em' }} className="pos-s top-0 bc-white">Closed Date</th>
                             {
                                 !taskCompleted &&
                                 <th style={{ width: '2em' }} className="pos-s top-0 bc-white">Action</th>

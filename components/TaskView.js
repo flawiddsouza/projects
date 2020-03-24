@@ -150,7 +150,7 @@ function UpdateTaskModal({ task, taskTypes, taskStatuses, projectCategories, tas
             {
                 updateTaskColumn === 'completed_date' &&
                 <Fragment>
-                    <div>Change Completed Date</div>
+                    <div>Change Closed Date</div>
                     <div className="mt-0_5em">
                         <input type="date" value={updateTaskColumnData || ''} onChange={e => setUpdateTaskColumnData(e.target.value)} autoFocus className="w-100p" required></input>
                     </div>
@@ -244,8 +244,8 @@ export default function TaskView({ task, taskStatuses, taskTypes, projectCategor
                     {
                         task.completed ?
                         <div className="ml-3em">
-                            <div className="label">Completed Date</div>
-                            <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('completed_date', task.completed_date)}>{ task.completed_date ? formatDate(task.completed_date) : 'No Completed Date' }</div>
+                            <div className="label">Closed Date</div>
+                            <div className="mt-0_25em" onClick={() => startTaskColumnUpdate('completed_date', task.completed_date)}>{ task.completed_date ? formatDate(task.completed_date) : 'No Closed Date' }</div>
                         </div>
                         :
                         ''

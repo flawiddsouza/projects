@@ -33,7 +33,17 @@ router.get('/task-types', async(req, res) => {
 })
 
 router.get('/task-statuses', async(req, res) => {
-    let taskStatuses = await dbQuery('SELECT id, status FROM task_statuses WHERE organization_id = ? ORDER BY sort_order', [req.organizationId])
+    let taskStatuses = await dbQuery(`
+        SELECT
+            id,
+            CONCAT('[',
+                CASE WHEN status_type = 'OPEN' THEN 'Open' ELSE 'Closed' END,
+            '] ', status) as status,
+            status_type
+        FROM task_statuses
+        WHERE organization_id = ?
+        ORDER BY sort_order
+    `, [req.organizationId])
     res.json(taskStatuses)
 })
 
@@ -93,21 +103,16 @@ router.get('/:project/members', validateProject, async(req, res) => {
     res.json(projectMembers)
 })
 
-async function getCompletedTaskStatusId(organizationId) {
-    let completedTaskStatusId = await dbQuery(`
+async function getClosedTaskStatusIds(organizationId) {
+    let closedTaskStatusIds = await dbQuery(`
         SELECT id FROM task_statuses
         WHERE organization_id = ?
-        ORDER BY sort_order DESC
-        LIMIT 1
+        AND status_type = 'CLOSED'
     `, [organizationId])
 
-    if(completedTaskStatusId.length > 0) {
-        completedTaskStatusId = completedTaskStatusId[0].id
-    } else {
-        completedTaskStatusId = null
-    }
+    closedTaskStatusIds = closedTaskStatusIds.map(item => item.id)
 
-    return completedTaskStatusId
+    return closedTaskStatusIds
 }
 
 router.get('/:project/tasks', validateProject, async(req, res) => {
@@ -138,7 +143,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
     if(
         req.query.sort_by === 'Start Date' ||
         req.query.sort_by === 'Due Date' ||
-        req.query.sort_by === 'Completed Date'
+        req.query.sort_by === 'Closed Date'
     ) {
         if(req.query.sort_by === 'Start Date') {
             orderBy = 'tasks.date'
@@ -148,7 +153,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
             orderBy = 'tasks.due_date'
         }
 
-        if(req.query.sort_by === 'Completed Date') {
+        if(req.query.sort_by === 'Closed Date') {
             orderBy = 'tasks.completed_date'
         }
     }
@@ -158,11 +163,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         limit = req.query.limit
     }
 
-    const completedTaskStatusId = await getCompletedTaskStatusId(req.organizationId)
-
-    if(req.query.status === 'All' && completedTaskStatusId) {
-        additionalParams.unshift(completedTaskStatusId)
-    }
+    const closedTaskStatusIds = await getClosedTaskStatusIds(req.organizationId)
 
     let tasks = await dbQuery(`
         SELECT
@@ -176,7 +177,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
             tasks.completed_date,
             tasks.project_id,
             projects.name as project_name,
-            CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed
+            CASE WHEN tasks.task_status_id IN (${closedTaskStatusIds.join(',')}) THEN true ELSE false END as completed
         FROM tasks
         JOIN task_types ON task_types.id = tasks.task_type_id
         JOIN task_statuses ON task_statuses.id = tasks.task_status_id
@@ -184,7 +185,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         JOIN projects ON projects.id = tasks.project_id
         LEFT JOIN project_categories ON project_categories.id = tasks.project_category_id
         WHERE tasks.project_id IN (${req.projectId})
-        ${req.query.status === 'All' && completedTaskStatusId ? 'AND tasks.task_status_id != ?' : ''}
+        ${req.query.status === 'All' && closedTaskStatusIds.length > 0 ? `AND tasks.task_status_id NOT IN (${closedTaskStatusIds.join(',')})` : ''}
         ${req.query.status !== 'All' ? 'AND tasks.task_status_id = ?' : ''}
         ${req.query.type !== 'All' ? 'AND tasks.task_type_id = ?' : ''}
         ${req.query.category !== 'All' && req.query.category !== '' ? 'AND tasks.project_category_id = ?' : ''}
@@ -195,7 +196,7 @@ router.get('/:project/tasks', validateProject, async(req, res) => {
         ${req.query.filter ? 'AND tasks.title LIKE "%' + req.query.filter + '%"' : ''}
         ORDER BY ${orderBy} DESC
         ${limit !== 'All' ? 'LIMIT ' + limit : ''}
-    `, [completedTaskStatusId, ...additionalParams])
+    `, [...additionalParams])
     res.json(tasks)
 })
 

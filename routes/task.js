@@ -6,26 +6,21 @@ const fs = require('fs')
 const notifyUserByEmailTaskAssigned =  require('../libs/cjs/notifyUserByEmailTaskAssigned')
 const { notifyOnTaskComment, notifyOnTaskStatusChange } =  require('../libs/cjs/notify')
 
-async function getCompletedTaskStatusId(projectId) {
-    let completedTaskStatusId = await dbQuery(`
+async function getClosedTaskStatusIds(projectId) {
+    let closedTaskStatusIds = await dbQuery(`
         SELECT task_statuses.id FROM projects
         JOIN task_statuses ON task_statuses.organization_id = projects.organization_id
         WHERE projects.id = ?
-        ORDER BY task_statuses.sort_order DESC
-        LIMIT 1
+        AND task_statuses.status_type = 'CLOSED'
     `, [projectId])
 
-    if(completedTaskStatusId.length > 0) {
-        completedTaskStatusId = completedTaskStatusId[0].id
-    } else {
-        completedTaskStatusId = null
-    }
+    closedTaskStatusIds = closedTaskStatusIds.map(item => item.id)
 
-    return completedTaskStatusId
+    return closedTaskStatusIds
 }
 
 router.get('/', async(req, res) => {
-    let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+    let closedTaskStatusIds = await getClosedTaskStatusIds(req.projectId)
 
     const task = await dbQuery(`
         SELECT
@@ -42,7 +37,7 @@ router.get('/', async(req, res) => {
             tasks.task_priority_id,
             tasks.due_date,
             tasks.completed_date,
-            CASE WHEN tasks.task_status_id = ? THEN true ELSE false END as completed,
+            CASE WHEN tasks.task_status_id IN (${closedTaskStatusIds.join(',')}) THEN true ELSE false END as completed,
             organizations.name as organization_name,
             organizations.slug as organization_slug,
             projects.name as project_name,
@@ -55,7 +50,7 @@ router.get('/', async(req, res) => {
         JOIN projects ON projects.id = tasks.project_id
         JOIN organizations ON organizations.id = projects.organization_id
         WHERE tasks.id = ?
-    `, [completedTaskStatusId, req.taskId])
+    `, [req.taskId])
 
     const taskTypes = await dbQuery(`
         SELECT task_types.id, task_types.type FROM task_types
@@ -66,7 +61,12 @@ router.get('/', async(req, res) => {
     `, [req.projectId])
 
     const taskStatuses = await dbQuery(`
-        SELECT task_statuses.id, task_statuses.status FROM task_statuses
+        SELECT
+            task_statuses.id,
+            CONCAT('[',
+                CASE WHEN task_statuses.status_type = 'OPEN' THEN 'Open' ELSE 'Closed' END,
+            '] ', task_statuses.status) as status
+        FROM task_statuses
         JOIN organizations ON organizations.id = task_statuses.organization_id
         JOIN projects ON projects.organization_id = organizations.id
         WHERE projects.id = ?
@@ -99,7 +99,7 @@ router.get('/counts', async(req, res) => {
         WHERE task_id = ?
     `, [req.taskId]))[0].duration
 
-    let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+    let closedTaskStatusIds = await getClosedTaskStatusIds(req.projectId)
 
     res.json({
         comments: (await dbQuery('SELECT COUNT(*) as count FROM task_comments WHERE task_id = ?', [req.taskId]))[0].count,
@@ -120,8 +120,8 @@ router.get('/counts', async(req, res) => {
                 FROM task_sub_tasks
                 JOIN tasks ON tasks.id = task_sub_tasks.sub_task_id
                 WHERE task_sub_tasks.task_id = ?
-                AND tasks.task_status_id = ?
-            `, [req.taskId, completedTaskStatusId]))[0].count
+                AND tasks.task_status_id IN (${closedTaskStatusIds.join(',')})
+            `, [req.taskId]))[0].count
         }
     })
 })
@@ -386,7 +386,7 @@ router.get('/sub-tasks', async(req, res) => {
         ORDER BY task_sub_tasks.id
     `, [req.taskId])
 
-    let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+    let closedTaskStatusIds = await getClosedTaskStatusIds(req.projectId)
 
     res.json({
         data: subTasks,
@@ -395,8 +395,8 @@ router.get('/sub-tasks', async(req, res) => {
             FROM task_sub_tasks
             JOIN tasks ON tasks.id = task_sub_tasks.sub_task_id
             WHERE task_sub_tasks.task_id = ?
-            AND tasks.task_status_id = ?
-        `, [req.taskId, completedTaskStatusId]))[0].count
+            AND tasks.task_status_id IN (${closedTaskStatusIds.join(',')})
+        `, [req.taskId]))[0].count
     })
 })
 
@@ -459,9 +459,9 @@ router.delete('/sub-task/:id', async(req, res) => {
 router.put('/update/:field', async(req, res) => {
     if(req.params.field === 'date' || req.params.field === 'title' || req.params.field === 'task_type_id' || req.params.field === 'task_status_id' || req.params.field === 'project_category_id' || req.params.field === 'task_priority_id' || req.params.field === 'due_date' || req.params.field === 'completed_date') {
 
-        let completedTaskStatusId = await getCompletedTaskStatusId(req.projectId)
+        let closedTaskStatusIds = await getClosedTaskStatusIds(req.projectId)
 
-        if(req.params.field === 'task_status_id' && Number(req.body[req.params.field]) === completedTaskStatusId) {
+        if(req.params.field === 'task_status_id' && closedTaskStatusIds.includes(Number(req.body[req.params.field]))) {
 
             let pendingStuff = []
 
@@ -470,8 +470,8 @@ router.put('/update/:field', async(req, res) => {
                 FROM task_sub_tasks
                 JOIN tasks ON tasks.id = task_sub_tasks.sub_task_id
                 WHERE task_sub_tasks.task_id = ?
-                AND tasks.task_status_id != ?
-            `, [req.taskId, completedTaskStatusId]))[0].count
+                AND tasks.task_status_id NOT IN (${closedTaskStatusIds.join(',')})
+            `, [req.taskId]))[0].count
 
             if(pendingSubTasksCount > 0) {
                 pendingStuff.push('sub tasks')
@@ -497,7 +497,7 @@ router.put('/update/:field', async(req, res) => {
             if(pendingStuff.length > 0) {
                 res.json({
                     status: 'error',
-                    message: 'You can\'t mark this task as completed without completing your ' + pendingStuff.join(', ').replace(/,(?!.*,)/gmi, ' and')
+                    message: 'You can\'t mark this task as closed without completing your ' + pendingStuff.join(', ').replace(/,(?!.*,)/gmi, ' and')
                 })
 
                 return
@@ -510,7 +510,7 @@ router.put('/update/:field', async(req, res) => {
             }
         }
 
-        if(req.params.field === 'task_status_id' && Number(req.body[req.params.field]) !== completedTaskStatusId) {
+        if(req.params.field === 'task_status_id' && !(closedTaskStatusIds.includes(Number(req.body[req.params.field])))) {
             await dbQuery(`
                 UPDATE tasks
                 SET completed_date = null
