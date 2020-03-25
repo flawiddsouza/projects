@@ -4,7 +4,7 @@ const generateCRUD =  require('../libs/cjs/generateCRUD')
 
 const router = express.Router()
 
-generateCRUD(router, 'projects', 'projects', ['name', 'slug'], { where: 'organization_id', equals: 'organizationId'})
+generateCRUD(router, 'projects', 'projects', ['name', 'slug'], { where: 'organization_id', equals: 'organizationId'}, {}, 'name')
 generateCRUD(router, 'statuses', 'task_statuses', ['status', 'status_type', 'sort_order'], { where: 'organization_id', equals: 'organizationId'})
 generateCRUD(router, 'types', 'task_types', ['type', 'sort_order'], { where: 'organization_id', equals: 'organizationId'})
 generateCRUD(router, 'roles', 'organization_roles', ['role'], { where: 'organization_id', equals: 'organizationId'})

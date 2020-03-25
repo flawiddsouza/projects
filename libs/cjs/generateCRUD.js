@@ -1,13 +1,13 @@
 const { dbQuery } =  require('./db')
 
-function generateCRUD(router, route, table, columns, where=null, hooks={}) {
+function generateCRUD(router, route, table, columns, where=null, hooks={}, orderBy=null) {
 
     router.get(`/${route}`, async(req, res) => {
         let items = null
         if(!where) {
-            items = await dbQuery(`SELECT * FROM ${table} ORDER BY ${columns.includes('sort_order') ? 'sort_order' : 'id'}`)
+            items = await dbQuery(`SELECT * FROM ${table} ORDER BY ${columns.includes('sort_order') ? 'sort_order' : (orderBy ? orderBy : 'id')}`)
         } else {
-            items = await dbQuery(`SELECT * FROM ${table} WHERE ${where.where} = ${req[where.equals]} ORDER BY ${columns.includes('sort_order') ? 'sort_order' : 'id'}`)
+            items = await dbQuery(`SELECT * FROM ${table} WHERE ${where.where} = ${req[where.equals]} ORDER BY ${columns.includes('sort_order') ? 'sort_order' : (orderBy ? orderBy : 'id')}`)
         }
         res.send(items)
     })

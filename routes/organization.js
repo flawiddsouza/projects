@@ -9,7 +9,7 @@ router.get('/projects', async(req, res) => {
     let projects = []
 
     if(await isSuperAdmin(req.authUserId) || await isOrganizationAdmin(req.authUserId, req.organizationId)) {
-        projects = await dbQuery('SELECT id, name, slug FROM projects WHERE organization_id = ?', [req.organizationId])
+        projects = await dbQuery('SELECT id, name, slug FROM projects WHERE organization_id = ? ORDER BY name', [req.organizationId])
     } else {
         projects = await dbQuery(`
             SELECT
@@ -21,6 +21,7 @@ router.get('/projects', async(req, res) => {
             JOIN organization_members ON organization_members.id = project_members.organization_member_id
             WHERE projects.organization_id = ?
             AND organization_members.user_id = ?
+            ORDER BY projects.name
         `, [req.organizationId, req.authUserId])
     }
 
