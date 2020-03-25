@@ -71,6 +71,7 @@ router.get('/projects/assign-members/organization-members/:project_id', async(re
         AND project_members.project_id = ?
         WHERE organization_members.organization_id = ?
         AND project_members.id IS NULL
+        ORDER BY users.name
     `, [req.params.project_id, req.organizationId])
     res.json(organizationMembers)
 })
@@ -93,6 +94,7 @@ router.get('/projects/assign-members/project-members/:project_id', async(req, re
         JOIN users ON users.id = organization_members.user_id
         JOIN organization_roles ON organization_roles.id = organization_members.organization_role_id
         WHERE project_members.project_id = ?
+        ORDER BY users.name
     `, [req.params.project_id])
     res.json(projectMembers)
 })
